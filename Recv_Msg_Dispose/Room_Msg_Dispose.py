@@ -350,6 +350,9 @@ class Room_Msg_Dispose:
             send_msg = '[烟花]【2.8】、WHOIS信息查询功能帮助\n\n[爱心]命令：【whois查询 qq.com】'
         elif num == '2.9':
             send_msg = '[烟花]【2.9】、备案查询功能帮助\n\n[爱心]命令：【icp查询 qq.com】'
+        else:
+            send_msg = f'@{self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)}\n' \
+                       f'帮助菜单编号错误，请重新输入编号！！！'
         self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
 
     # Ai对话
