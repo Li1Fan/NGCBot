@@ -1,12 +1,13 @@
-from Api_Server.Api_Main_Server import Api_Main_Server
-from Db_Server.Db_Point_Server import Db_Point_Server
-from Db_Server.Db_Main_Server import Db_Main_Server
-import xml.etree.ElementTree as ET
-from threading import Thread
-from OutPut import OutPut
-import yaml
 import os
 import re
+import xml.etree.ElementTree as ET
+import yaml
+from threading import Thread
+
+from Api_Server.Api_Main_Server import Api_Main_Server
+from Db_Server.Db_Main_Server import Db_Main_Server
+from Db_Server.Db_Point_Server import Db_Point_Server
+from OutPut import OutPut
 
 
 class Room_Msg_Dispose:
@@ -249,7 +250,8 @@ class Room_Msg_Dispose:
                 msg.content.strip())
             self.wcf.send_text(msg=dream_msg, receiver=msg.roomid, aters=msg.sender)
         # help帮助菜单
-        elif self.judge_keyword(keyword=self.HelpMenu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True, split_bool=True):
+        elif self.judge_keyword(keyword=self.HelpMenu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True,
+                                split_bool=True):
             Thread(target=self.get_help, name="Help帮助菜单", args=(msg,)).start()
         # 自定义回复
         Thread(target=self.custom_get, name="自定义回复", args=(msg,)).start()
@@ -533,14 +535,14 @@ class Room_Msg_Dispose:
             print('公众号信息：', gh_id, gh_name)
             if not gh_id and not gh_name:
                 gh_name = re.search(r'sourcedisplayname&gt;(?P<gh_name>.*?)&lt;/sourcedisplayname&gt;',
-                                str(msg.content).strip(),
-                                re.DOTALL)
+                                    str(msg.content).strip(),
+                                    re.DOTALL)
                 gh_id = re.search(r'sourceusername&gt;(?P<gh_id>.*?)&lt;/sourceusername&gt;',
-                                str(msg.content).strip(),
-                                re.DOTALL)
+                                  str(msg.content).strip(),
+                                  re.DOTALL)
                 if not gh_name.group('gh_name'):
                     gh_name = re.search(r'&lt;appname&gt;(?P<gh_name>.*?)&lt;/appname&gt', str(msg.content).strip(),
-                                    re.DOTALL)
+                                        re.DOTALL)
                 if gh_name and gh_id:
                     gh_name = gh_name.group('gh_name')
                     gh_id = gh_id.group('gh_id')

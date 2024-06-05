@@ -1,10 +1,11 @@
+import os
+import xml.etree.ElementTree as ET
+import yaml
+from threading import Thread
+
 from Api_Server.Api_Main_Server import Api_Main_Server
 from Db_Server.Db_Main_Server import Db_Main_Server
-import xml.etree.ElementTree as ET
-from threading import Thread
 from OutPut import OutPut
-import yaml
-import os
 
 
 class Friend_Msg_Dispose:
@@ -43,7 +44,7 @@ class Friend_Msg_Dispose:
         elif msg.type == 1:
             Thread(target=self.get_ai, name="Ai对话", args=(msg,)).start()
         # 消息转发给主人
-        Thread(target=self.forward_msg, name='转发消息给主人', args=(msg, )).start()
+        Thread(target=self.forward_msg, name='转发消息给主人', args=(msg,)).start()
 
     def forward_msg(self, msg):
         if msg.type == 1:

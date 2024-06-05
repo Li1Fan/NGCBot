@@ -1,8 +1,8 @@
+import os
+import sqlite3
 import time
 
 from OutPut import OutPut
-import sqlite3
-import os
 
 
 class Db_Main_Server:
@@ -14,7 +14,8 @@ class Db_Main_Server:
 
     # 查询所有联系人(公众号，群聊) 添加到自建数据库
     def query_all_users(self, init=False):
-        contacts = self.wcf.query_sql("MicroMsg.db", "SELECT UserName, NickName FROM Contact WHERE UserName LIKE '%chatroom%' OR UserName LIKE '%gh\_%';")
+        contacts = self.wcf.query_sql("MicroMsg.db",
+                                      "SELECT UserName, NickName FROM Contact WHERE UserName LIKE '%chatroom%' OR UserName LIKE '%gh\_%';")
         try:
             for contact in contacts:
                 UserName = contact.get('UserName')

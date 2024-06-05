@@ -1,7 +1,8 @@
-from OutPut import OutPut
+import os
 import sqlite3
 import yaml
-import os
+
+from OutPut import OutPut
 
 
 class Db_Point_Server:
@@ -151,16 +152,18 @@ class Db_Point_Server:
         if self.judge_user(wx_id=wx_id, room_id=room_id):
             if self.judge_user(wx_id=give_sender, room_id=room_id):
                 if int(point) > 0:
-                    if int(self.query_point(wx_id=wx_id, wx_name=wx_name, room_id=room_id, room_name=room_name)) >= int(point) and wx_id not in self.Administrator:
+                    if int(self.query_point(wx_id=wx_id, wx_name=wx_name, room_id=room_id, room_name=room_name)) >= int(
+                            point) and wx_id not in self.Administrator:
                         # 积分足够
                         self.add_point(wx_id=give_sender, wx_name=give_name, room_id=room_id, room_name=room_name,
                                        point=int(point))
-                        self.del_point(wx_id=wx_id, wx_name=wx_name, room_id=room_id, room_name=room_name, point=int(point))
+                        self.del_point(wx_id=wx_id, wx_name=wx_name, room_id=room_id, room_name=room_name,
+                                       point=int(point))
                         msg = f'赠送积分成功, 您当前剩余积分: {self.query_point(wx_id=wx_id, wx_name=wx_name, room_id=room_id, room_name=room_name)}'
                     elif wx_id in self.Administrator:
                         # 如果是超级管理员
                         self.add_point(wx_id=give_sender, wx_name=give_name, room_id=room_id, room_name=room_name,
-                                      point=int(point))
+                                       point=int(point))
                         msg = f'您是尊贵的超级管理员, 本次赠送不扣除您积分[爱心]'
                     else:
                         # 积分不足
