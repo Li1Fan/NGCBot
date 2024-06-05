@@ -1,19 +1,20 @@
+import os
+import random
+import re
+import xml.etree.ElementTree as ET
+import yaml
+from cprint import cprint
+from queue import Empty
+from threading import Thread
+from wcferry import Wcf
+
+from Cache.Cache_Main_Server import Cache_Main_Server
+from Db_Server.Db_Main_Server import Db_Main_Server
+from Db_Server.Db_Point_Server import Db_Point_Server
+from OutPut import OutPut
+from Push_Server.Push_Main_Server import Push_Main_Server
 from Recv_Msg_Dispose.Friend_Msg_Dispose import Friend_Msg_Dispose
 from Recv_Msg_Dispose.Room_Msg_Dispose import Room_Msg_Dispose
-from Push_Server.Push_Main_Server import Push_Main_Server
-from Cache.Cache_Main_Server import Cache_Main_Server
-from Db_Server.Db_Point_Server import Db_Point_Server
-from Db_Server.Db_Main_Server import Db_Main_Server
-import xml.etree.ElementTree as ET
-from threading import Thread
-from cprint import cprint
-from OutPut import OutPut
-from queue import Empty
-from wcferry import Wcf
-import random
-import yaml
-import os
-import re
 
 
 class Main_Server:
@@ -88,7 +89,8 @@ class Main_Server:
                         # 进群欢迎
                         Thread(target=self.Join_Room, name="进群欢迎", args=(msg,)).start()
                     # 添加好友后回复
-                    elif msg.sender and not msg.roomid and ('添加了' in msg.content or '以上是打招呼的内容' in msg.content):
+                    elif msg.sender and not msg.roomid and (
+                            '添加了' in msg.content or '以上是打招呼的内容' in msg.content):
                         Thread(target=self.Accept_Friend_Msg, name="加好友后自动回复", args=(msg,)).start()
                     elif '收到红包，请在手机上查看' in msg.content and not msg.roomid:
                         Thread(target=self.Fms.Msg_Dispose, name="好友消息处理", args=(msg,)).start()
