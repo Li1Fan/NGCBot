@@ -1,6 +1,6 @@
 ## 超级管理员配置
 Administrators:
-  - 'wxid_7bizfilssbwi22'
+  - 'wxid_hqdtktnqvw8e21'
 
 ## 系统配置
 System_Config:
@@ -49,7 +49,7 @@ Custom_KeyWord:
 ## 自定义各种消息 \n换行
 Custom_Msg:
   # 加好友后回复
-  AcceptFriend_Msg: '你好, 我是NGC660安全实验室开发的微信机器人, 你可以叫我NGCBot! 私聊我即可进行智能对话哦[爱心]~~~ ~~~'
+  AcceptFriend_Msg: '你好, 我是萝卜! 私聊我即可进行智能对话哦[爱心]~~~ ~~~'
 
 
 ## 管理功能关键词配置
@@ -250,7 +250,7 @@ Function_Key_Word:
     - '帮助菜单'
     - '菜单'
   # 进群欢迎词配置 换行用\n 支持微信表情
-  JoinRoom_Msg: '欢迎新进群的小可爱\n群主正在床上等你哦[爱心]~~~ ~~~'
+  JoinRoom_Msg: '欢迎新进群的小可爱[爱心]~~~ ~~~'
 
 ## API接口服务配置
 Api_Server:
@@ -336,6 +336,7 @@ Api_Server:
     - 'http://api.yujn.cn/api/xjj.php'
     - 'http://api.yujn.cn/api/zzxjj.php'
     - 'https://api.yujn.cn/api/manzhan.php'
+
 
 
 

@@ -1,7 +1,6 @@
 from Bot_Server.Main_Server import Main_Server
 from cprint import cprint
 
-
 Bot_Logo = """
 ███▄▄▄▄      ▄██████▄   ▄████████ ▀█████████▄   ▄██████▄      ███     
 ███▀▀▀██▄   ███    ███ ███    ███   ███    ███ ███    ███ ▀█████████▄ 
@@ -15,7 +14,6 @@ Bot_Logo = """
                      Author: NGC660安全实验室(云山/eXM)                                                 
 
 """
-
 
 if __name__ == '__main__':
     cprint.info(Bot_Logo.strip())
