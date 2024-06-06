@@ -1,5 +1,6 @@
 import os
 import re
+import time
 import xml.etree.ElementTree as ET
 import yaml
 from threading import Thread
@@ -223,7 +224,9 @@ class Room_Msg_Dispose:
             ret = f'[*]: 摸鱼日记API接口返回值：{save_path}'
             OutPut.outPut(ret)
             if 'Fish_Cache' in save_path:
-                self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                if self.wcf.send_image(path=save_path, receiver=msg.roomid) != 0:
+                    OutPut.outPut(f'[-]: 摸鱼日记发送失败！重试一次... ...')
+                    self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
         # # Whois查询
