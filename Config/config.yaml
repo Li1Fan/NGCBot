@@ -248,6 +248,17 @@ Function_Key_Word:
     - '毒鸡汤来一碗'
     - '毒鸡汤来一份'
     - '毒鸡汤来'
+  # 笑话
+  Joke_Word:
+      - '笑话'
+      - '讲个笑话'
+      - '讲笑话'
+      - '笑话来一份'
+      - '笑话来'
+  # 60s
+  60s_Word:
+    - '60s'
+    - '每天60秒读懂世界'
   # 帮助菜单
   Help_Menu:
     - '帮助'
@@ -343,8 +354,12 @@ Api_Server:
     - 'http://api.yujn.cn/api/xjj.php'
     - 'http://api.yujn.cn/api/zzxjj.php'
     - 'https://api.yujn.cn/api/manzhan.php'
+  # 毒鸡汤API配置
   Chicken_Soup_Api: 'https://apis.tianapi.com/dujitang/index?key={}'
-
+  # 笑话API配置
+  Joke_Api: 'https://apis.tianapi.com/joke/index?key={}&num=1'
+  # 每天60秒读懂世界API配置
+  60s_Api: 'https://60s.viki.moe/60s'
 
 
 

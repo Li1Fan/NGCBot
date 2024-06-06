@@ -26,7 +26,7 @@ class Push_Main_Server:
 
         # 推送时间
         self.Morning_Push_Time = config['Push_Config']['Morning_Push_Time']
-        self.Morning_Page_Tome = config['Push_Config']['Morning_Page_Time']
+        self.Morning_Page_Time = config['Push_Config']['Morning_Page_Time']
         self.Evening_Page_Time = config['Push_Config']['Evening_Page_Time']
         self.Off_Work_Time = config['Push_Config']['Off_Work_Time']
         self.Fish_Time = config['Push_Config']['Fish_Time']
@@ -40,6 +40,15 @@ class Push_Main_Server:
         for room_id in room_dicts.keys():
             self.wcf.send_text(msg=msg, receiver=room_id)
         OutPut.outPut('[+]: 定时早安寄语推送成功！！！')
+
+    # 60s推送
+    def push_60s(self):
+        OutPut.outPut('[*]: 定时60s推送中... ...')
+        msg = self.Ams.get_60s()
+        room_dicts = self.Dms.show_push_rooms()
+        for room_id in room_dicts.keys():
+            self.wcf.send_text(msg=msg, receiver=room_id)
+        OutPut.outPut('[+]: 定时60s推送成功！！！')
 
     # 早报推送
     def push_morning_page(self):
@@ -99,8 +108,9 @@ class Push_Main_Server:
         OutPut.outPut(f'[+]: 定时KFC文案发送成功！！！')
 
     def run(self):
-        schedule.every().day.at(self.Morning_Push_Time).do(self.push_morning_msg)
+        # schedule.every().day.at(self.Morning_Push_Time).do(self.push_morning_msg)
         # schedule.every().day.at(self.Morning_Page_Tome).do(self.push_morning_page)
+        schedule.every().day.at(self.Morning_Page_Time).do(self.push_60s)
         schedule.every().day.at(self.Fish_Time).do(self.push_fish)
         schedule.every().thursday.at(self.Kfc_Time).do(self.push_kfc)
         # schedule.every().day.at(self.Evening_Page_Time).do(self.push_evening_page)

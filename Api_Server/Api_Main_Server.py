@@ -63,6 +63,8 @@ class Api_Main_Server:
         self.Dream_Api = config['Api_Server']['Dream_Api']
         self.Port_Scan_Api = config['Api_Server']['Port_Scan_Api']
         self.Chicken_Soup_Api = config['Api_Server']['Chicken_Soup_Api']
+        self.Joke_Api = config['Api_Server']['Joke_Api']
+        self.s60_Api = config['Api_Server']['60s_Api']
         # 星火配置
         self.Spark_url = config['Api_Server']['Ai_Config']['SparkApi']['Spark_url']
         self.Spark_ApiSecret = config['Api_Server']['Ai_Config']['SparkApi']['ApiSecret']
@@ -284,7 +286,7 @@ class Api_Main_Server:
         url = self.Morning_Api.format(self.Key)
         try:
             json_data = requests.get(url=url, timeout=30, verify=False).json()
-            if json_data['code'] != 200 and json_data['msg'] != 'success':
+            if json_data['status'] != 200 and json_data['msg'] != 'success':
                 msg = f'[~]: 早安寄语接口出现错误, 错误信息请查看日志 ~~~~~~'
                 return msg
             content = json_data['result']['content']
@@ -308,6 +310,40 @@ class Api_Main_Server:
             return content
         except Exception as e:
             msg = f'[-]: 毒鸡汤接口出现错误, 错误信息：{e}'
+            OutPut.outPut(msg)
+
+    # 讲笑话
+    def get_joke(self):
+        OutPut.outPut('[*]: 正在调用讲笑话API接口... ...')
+        url = self.Joke_Api.format(self.Key)
+        try:
+            json_data = requests.get(url=url, timeout=30, verify=False).json()
+            if json_data['code'] != 200 and json_data['msg'] != 'success':
+                msg = f'[~]: 讲笑话接口出现错误, 错误信息请查看日志 ~~~~~~'
+                return msg
+            content = json_data['result']['list'][0]['content']
+            OutPut.outPut(f'[+]: 讲笑话API接口调用成功！！！')
+            return content
+        except Exception as e:
+            msg = f'[-]: 讲笑话接口出现错误, 错误信息：{e}'
+            OutPut.outPut(msg)
+
+    def get_60s(self):
+        OutPut.outPut('[*]: 正在调用60s接口... ...')
+        url = self.s60_Api
+        try:
+            json_data = requests.get(url=url, timeout=30, verify=False).json()
+            if json_data['code'] != 200:
+                msg = f'[~]: 60s接口出现错误, 错误信息请查看日志 ~~~~~~'
+                return msg
+            news_and_quotes = json_data['data']
+            content = ''
+            for item in news_and_quotes:
+                content += item + '\n'
+            OutPut.outPut(f'[+]: 60s接口调用成功！！！')
+            return content
+        except Exception as e:
+            msg = f'[-]: 60s接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
 
     # 摸鱼日记

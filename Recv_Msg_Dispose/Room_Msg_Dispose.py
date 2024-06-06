@@ -59,6 +59,8 @@ class Room_Msg_Dispose:
         self.Port_Scan_Words = config['Function_Key_Word']['Port_Scan_Word']
         self.HelpMenu_Words = config['Function_Key_Word']['Help_Menu']
         self.Poison_Chicken_Soup_Word = config['Function_Key_Word']['Poison_Chicken_Soup_Word']
+        self.Joke_Word = config['Function_Key_Word']['Joke_Word']
+        self.s60_Word = config['Function_Key_Word']['60s_Word']
 
         self.Sign_Words = config['Point_Config']['Sign']['Word']
         self.Query_Point_Words = config['Point_Config']['Query_Point_Word']
@@ -223,6 +225,14 @@ class Room_Msg_Dispose:
                                 equal_bool=True):
             poison_chicken_soup_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_soup()
             self.wcf.send_text(msg=poison_chicken_soup_msg, receiver=msg.roomid, aters=msg.sender)
+        # 讲笑话
+        elif self.judge_keyword(keyword=self.Joke_Word, msg=msg.content.strip(), list_bool=True, equal_bool=True):
+            joke_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_joke()
+            self.wcf.send_text(msg=joke_msg, receiver=msg.roomid, aters=msg.sender)
+        # 60s
+        elif self.judge_keyword(keyword=self.s60_Word, msg=msg.content.strip(), list_bool=True, equal_bool=True):
+            s60_msg = self.Ams.get_60s()
+            self.wcf.send_text(msg=s60_msg, receiver=msg.roomid, aters=msg.sender)
         # 摸鱼日记
         elif self.judge_keyword(keyword=self.Fish_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_fish()
@@ -328,15 +338,14 @@ class Room_Msg_Dispose:
                    f"[庆祝]【一、积分功能】\n" \
                    f"[庆祝]【1.1】、@机器人开启Ai对话(Gpt&星火模型&千帆模型)\n\n" \
                    f"[烟花]【二、娱乐功能】\n" \
-                   f"[烟花]【2.1】、美女图片\n" \
-                   f"[烟花]【2.2】、美女视频\n" \
-                   f"[烟花]【2.3】、舔狗日记\n" \
-                   f"[烟花]【2.4】、摸鱼日历\n" \
-                   f"[烟花]【2.5】、疯狂星期四\n" \
-                   f"[烟花]【2.6】、早安寄语\n" \
-                   f"[烟花]【2.7】、毒鸡汤\n" \
-                   f"[烟花]【2.8】、天气查询\n" \
-                   f"[烟花]【2.9】、归属地查询\n" \
+                   f"[烟花]【2.1】、舔狗日记\n" \
+                   f"[烟花]【2.2】、摸鱼日历\n" \
+                   f"[烟花]【2.3】、疯狂星期四\n" \
+                   f"[烟花]【2.4】、早安寄语\n" \
+                   f"[烟花]【2.5】、毒鸡汤\n" \
+                   f"[烟花]【2.6】、讲笑话\n" \
+                   f"[烟花]【2.7】、天气查询\n" \
+                   f"[烟花]【2.8】、归属地查询\n" \
                    f"{'By #' + self.system_copyright if self.system_copyright else ''}"
         self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
         # num = ''
