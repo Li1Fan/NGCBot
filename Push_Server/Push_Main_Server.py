@@ -100,10 +100,10 @@ class Push_Main_Server:
 
     def run(self):
         schedule.every().day.at(self.Morning_Push_Time).do(self.push_morning_msg)
-        schedule.every().day.at(self.Morning_Page_Tome).do(self.push_morning_page)
+        # schedule.every().day.at(self.Morning_Page_Tome).do(self.push_morning_page)
         schedule.every().day.at(self.Fish_Time).do(self.push_fish)
         schedule.every().thursday.at(self.Kfc_Time).do(self.push_kfc)
-        schedule.every().day.at(self.Evening_Page_Time).do(self.push_evening_page)
+        # schedule.every().day.at(self.Evening_Page_Time).do(self.push_evening_page)
         schedule.every().day.at(self.Off_Work_Time).do(self.push_off_work)
         schedule.every().day.at('00:00').do(self.clear_sign)
         schedule.every().day.at('03:00').do(self.clear_cache)
