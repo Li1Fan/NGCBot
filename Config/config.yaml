@@ -343,7 +343,7 @@ Api_Server:
     - 'http://api.yujn.cn/api/xjj.php'
     - 'http://api.yujn.cn/api/zzxjj.php'
     - 'https://api.yujn.cn/api/manzhan.php'
-  Chicken_Soup_Api: 'https://apis.tianapi.com/dujitang/index??key={}'
+  Chicken_Soup_Api: 'https://apis.tianapi.com/dujitang/index?key={}'
 
 
 
