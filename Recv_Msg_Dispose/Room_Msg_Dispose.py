@@ -2,8 +2,9 @@ import os
 import re
 import time
 import xml.etree.ElementTree as ET
-import yaml
 from threading import Thread
+
+import yaml
 
 from Api_Server.Api_Main_Server import Api_Main_Server
 from Db_Server.Db_Main_Server import Db_Main_Server
@@ -218,15 +219,19 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=self.Morning_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             morning_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_morning()
             self.wcf.send_text(msg=morning_msg, receiver=msg.roomid, aters=msg.sender)
+        # 毒鸡汤
+        elif self.judge_keyword(keyword=self.Poison_Chicken_Soup_Word, msg=msg.content.strip(), list_bool=True,
+                                equal_bool=True):
+            poison_chicken_soup_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_soup()
+            self.wcf.send_text(msg=poison_chicken_soup_msg, receiver=msg.roomid, aters=msg.sender)
         # 摸鱼日记
         elif self.judge_keyword(keyword=self.Fish_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_fish()
             ret = f'[*]: 摸鱼日记API接口返回值：{save_path}'
             OutPut.outPut(ret)
+            time.sleep(0.3)
             if 'Fish_Cache' in save_path:
-                if self.wcf.send_image(path=save_path, receiver=msg.roomid) != 0:
-                    OutPut.outPut(f'[-]: 摸鱼日记发送失败！重试一次... ...')
-                    self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
         # # Whois查询
