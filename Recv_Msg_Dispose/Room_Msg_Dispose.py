@@ -220,8 +220,8 @@ class Room_Msg_Dispose:
         # 摸鱼日记
         elif self.judge_keyword(keyword=self.Fish_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_fish()
-            msg = f'[*]: 摸鱼日记API接口返回值：{save_path}'
-            OutPut.outPut(msg)
+            ret = f'[*]: 摸鱼日记API接口返回值：{save_path}'
+            OutPut.outPut(ret)
             if 'Fish_Cache' in save_path:
                 self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
