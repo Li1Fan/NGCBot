@@ -206,12 +206,12 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=self.Dog_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             dog_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_dog()
             self.wcf.send_text(msg=dog_msg, receiver=msg.roomid, aters=msg.sender)
-        # 星座查询
-        elif self.judge_keyword(keyword=self.Constellation_Words, msg=msg.content.strip(), list_bool=True,
-                                split_bool=True):
-            constellation_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_constellation(
-                msg.content)
-            self.wcf.send_text(msg=constellation_msg, receiver=msg.roomid, aters=msg.sender)
+        # # 星座查询
+        # elif self.judge_keyword(keyword=self.Constellation_Words, msg=msg.content.strip(), list_bool=True,
+        #                         split_bool=True):
+        #     constellation_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_constellation(
+        #         msg.content)
+        #     self.wcf.send_text(msg=constellation_msg, receiver=msg.roomid, aters=msg.sender)
         # 早安寄语
         elif self.judge_keyword(keyword=self.Morning_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             morning_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_morning()
@@ -219,42 +219,44 @@ class Room_Msg_Dispose:
         # 摸鱼日记
         elif self.judge_keyword(keyword=self.Fish_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_fish()
+            msg = f'[*]: 摸鱼日记API接口返回值：{save_path}'
+            OutPut.outPut(msg)
             if 'Fish_Cache' in save_path:
                 self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
-        # Whois查询
-        elif self.judge_keyword(keyword=self.Whois_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-            whois_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_whois(
-                msg.content.strip())
-            self.wcf.send_text(msg=whois_msg, receiver=msg.roomid, aters=msg.sender)
+        # # Whois查询
+        # elif self.judge_keyword(keyword=self.Whois_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
+        #     whois_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_whois(
+        #         msg.content.strip())
+        #     self.wcf.send_text(msg=whois_msg, receiver=msg.roomid, aters=msg.sender)
         # 归属地查询
         elif self.judge_keyword(keyword=self.Attribution_Words, msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
             attribution_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_attribution(
                 msg.content.strip())
             self.wcf.send_text(msg=attribution_msg, receiver=msg.roomid, aters=msg.sender)
-        # 备案查询
-        elif self.judge_keyword(keyword=self.Icp_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-            attribution_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_icp(
-                msg.content.strip())
-            self.wcf.send_text(msg=attribution_msg, receiver=msg.roomid, aters=msg.sender)
+        # # 备案查询
+        # elif self.judge_keyword(keyword=self.Icp_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
+        #     attribution_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_icp(
+        #         msg.content.strip())
+        #     self.wcf.send_text(msg=attribution_msg, receiver=msg.roomid, aters=msg.sender)
         # 疯狂星期四文案
         elif self.judge_keyword(keyword=self.Kfc_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             kfc_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_kfc().replace(
                 '\\n', '\n')
             self.wcf.send_text(msg=kfc_msg, receiver=msg.roomid, aters=msg.sender)
-        # 周公解梦
-        elif self.judge_keyword(keyword=self.Dream_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-            dream_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_dream(
-                msg.content.strip())
-            self.wcf.send_text(msg=dream_msg, receiver=msg.roomid, aters=msg.sender)
+        # # 周公解梦
+        # elif self.judge_keyword(keyword=self.Dream_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
+        #     dream_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_dream(
+        #         msg.content.strip())
+        #     self.wcf.send_text(msg=dream_msg, receiver=msg.roomid, aters=msg.sender)
         # help帮助菜单
         elif self.judge_keyword(keyword=self.HelpMenu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True,
                                 split_bool=True):
             Thread(target=self.get_help, name="Help帮助菜单", args=(msg,)).start()
-        # 自定义回复
-        Thread(target=self.custom_get, name="自定义回复", args=(msg,)).start()
+        # # 自定义回复
+        # Thread(target=self.custom_get, name="自定义回复", args=(msg,)).start()
 
     # 积分功能
     def Point_Function(self, msg, at_user_lists):
@@ -314,46 +316,60 @@ class Room_Msg_Dispose:
     # 帮助菜单
     def get_help(self, msg):
         OutPut.outPut(f'[*]: 正在调用Help功能菜单... ...')
-        num = ''
-        content = msg.content.strip()
-        if ' ' in content:
-            num = content.split(' ')[-1]
-        if not num:
-            send_msg = f"[爱心] ———— NGCBot功能菜单 ———— [爱心]\n[庆祝]【一、积分功能】\n[庆祝]【1.1】、微步威胁IP查询\n[庆祝]【1.2】、端口查询\n[庆祝]【1.3】、MD5查询[烟花]\n[庆祝]【1.4】、Ai对话(Gpt&星火模型&千帆模型)\n\n可在群内发送信息【WHOIS查询 qq.com】不需要@本Bot哦\n\n[烟花]【二、娱乐功能】\n" \
-                       f"[烟花]【2.1】、美女图片\n[烟花]【2.2】、美女视频\n[烟花]【2.3】、舔狗日记\n[烟花]【2.4】、摸鱼日历\n[烟花]【2.5】、星座查询\n[庆祝]【2.6】、KFC伤感文案\n[庆祝]【2.7】、手机号归属地查询\n[庆祝]【2.8】、WHOIS信息查询\n" \
-                       f"[烟花]【2.9】、备案查询\n\n您可以在群内发送消息【查询运势 白羊座】进行查询【其它功能类似】，或@本Bot进行AI对话哦\n\n需要调出帮助菜单，回复【帮助菜单】即可\n" \
-                       f"回复【help 2.1】可获取相应功能帮助[跳跳]，其它功能帮助以此类推[爱心]\n" \
-                       f"{'By #' + self.system_copyright if self.system_copyright else ''}"
-        elif num == '1.1':
-            send_msg = '[庆祝]【1.1】、微步威胁IP查询功能帮助\n\n[爱心]命令：【ip查询 x.x.x.x】'
-        elif num == '1.2':
-            send_msg = '[庆祝]【1.2】、端口查询功能帮助\n\n[爱心]命令：【端口查询 x.x.x.x】'
-        elif num == '1.3':
-            send_msg = '[庆祝]【1.3】、MD5查询功能帮助\n\n[爱心]命令：【MD5查询 MD5密文】'
-        elif num == '1.4':
-            send_msg = '[庆祝]【1.4】、Ai对话功能帮助\n\n[爱心]命令：【@机器人进行Ai对话】'
-        elif num == '2.1':
-            send_msg = '[烟花]【2.1】、美女图片功能帮助\n\n[爱心]命令：【图片】【美女图片】'
-        elif num == '2.2':
-            send_msg = '[烟花]【2.2】、美女视频功能帮助\n\n[爱心]命令：【视频】【美女视频】'
-        elif num == '2.3':
-            send_msg = '[烟花]【2.3】、舔狗日记功能帮助\n\n[爱心]命令：【舔狗日记】'
-        elif num == '2.4':
-            send_msg = '[烟花]【2.4】、摸鱼日历功能帮助\n\n[爱心]命令：【摸鱼日历】\n\n[爱心]联系主人可开启定时发送哦[跳跳]'
-        elif num == '2.5':
-            send_msg = '[烟花]【2.5】、星座查询功能帮助\n\n[爱心]命令：【星座查询 白羊】'
-        elif num == '2.6':
-            send_msg = '[烟花]【2.6】、KFC伤感文案功能帮助\n\n[爱心]命令：【Kfc】'
-        elif num == '2.7':
-            send_msg = '[烟花]【2.7】、手机号归属地查询功能帮助\n\n[爱心]命令：【归属查询 110】'
-        elif num == '2.8':
-            send_msg = '[烟花]【2.8】、WHOIS信息查询功能帮助\n\n[爱心]命令：【whois查询 qq.com】'
-        elif num == '2.9':
-            send_msg = '[烟花]【2.9】、备案查询功能帮助\n\n[爱心]命令：【icp查询 qq.com】'
-        else:
-            send_msg = f'@{self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)}\n' \
-                       f'帮助菜单编号错误，请重新输入编号！！！'
+        send_msg = f"[爱心] ——— RoBot功能菜单 ——— [爱心]\n" \
+                   f"[庆祝]【一、积分功能】\n" \
+                   f"[庆祝]【1.1】、@机器人开启Ai对话(Gpt&星火模型&千帆模型)\n\n" \
+                   f"[烟花]【二、娱乐功能】\n" \
+                   f"[烟花]【2.1】、美女图片\n" \
+                   f"[烟花]【2.2】、美女视频\n" \
+                   f"[烟花]【2.3】、舔狗日记\n" \
+                   f"[烟花]【2.4】、摸鱼日历\n" \
+                   f"[烟花]【2.5】、疯狂星期四\n" \
+                   f"[烟花]【2.6】、早安寄语\n" \
+                   f"[烟花]【2.7】、天气查询\n" \
+                   f"[烟花]【2.8】、归属地查询\n" \
+                   f"{'By #' + self.system_copyright if self.system_copyright else ''}"
         self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
+        # num = ''
+        # content = msg.content.strip()
+        # if ' ' in content:
+        #     num = content.split(' ')[-1]
+        # if not num:
+        #     send_msg = f"[爱心] ———— NGCBot功能菜单 ———— [爱心]\n[庆祝]【一、积分功能】\n[庆祝]【1.1】、微步威胁IP查询\n[庆祝]【1.2】、端口查询\n[庆祝]【1.3】、MD5查询[烟花]\n[庆祝]【1.4】、Ai对话(Gpt&星火模型&千帆模型)\n\n可在群内发送信息【WHOIS查询 qq.com】不需要@本Bot哦\n\n[烟花]【二、娱乐功能】\n" \
+        #                f"[烟花]【2.1】、美女图片\n[烟花]【2.2】、美女视频\n[烟花]【2.3】、舔狗日记\n[烟花]【2.4】、摸鱼日历\n[烟花]【2.5】、星座查询\n[庆祝]【2.6】、KFC伤感文案\n[庆祝]【2.7】、手机号归属地查询\n[庆祝]【2.8】、WHOIS信息查询\n" \
+        #                f"[烟花]【2.9】、备案查询\n\n您可以在群内发送消息【查询运势 白羊座】进行查询【其它功能类似】，或@本Bot进行AI对话哦\n\n需要调出帮助菜单，回复【帮助菜单】即可\n" \
+        #                f"回复【help 2.1】可获取相应功能帮助[跳跳]，其它功能帮助以此类推[爱心]\n" \
+        #                f"{'By #' + self.system_copyright if self.system_copyright else ''}"
+        # elif num == '1.1':
+        #     send_msg = '[庆祝]【1.1】、微步威胁IP查询功能帮助\n\n[爱心]命令：【ip查询 x.x.x.x】'
+        # elif num == '1.2':
+        #     send_msg = '[庆祝]【1.2】、端口查询功能帮助\n\n[爱心]命令：【端口查询 x.x.x.x】'
+        # elif num == '1.3':
+        #     send_msg = '[庆祝]【1.3】、MD5查询功能帮助\n\n[爱心]命令：【MD5查询 MD5密文】'
+        # elif num == '1.4':
+        #     send_msg = '[庆祝]【1.4】、Ai对话功能帮助\n\n[爱心]命令：【@机器人进行Ai对话】'
+        # elif num == '2.1':
+        #     send_msg = '[烟花]【2.1】、美女图片功能帮助\n\n[爱心]命令：【图片】【美女图片】'
+        # elif num == '2.2':
+        #     send_msg = '[烟花]【2.2】、美女视频功能帮助\n\n[爱心]命令：【视频】【美女视频】'
+        # elif num == '2.3':
+        #     send_msg = '[烟花]【2.3】、舔狗日记功能帮助\n\n[爱心]命令：【舔狗日记】'
+        # elif num == '2.4':
+        #     send_msg = '[烟花]【2.4】、摸鱼日历功能帮助\n\n[爱心]命令：【摸鱼日历】\n\n[爱心]联系主人可开启定时发送哦[跳跳]'
+        # elif num == '2.5':
+        #     send_msg = '[烟花]【2.5】、星座查询功能帮助\n\n[爱心]命令：【星座查询 白羊】'
+        # elif num == '2.6':
+        #     send_msg = '[烟花]【2.6】、KFC伤感文案功能帮助\n\n[爱心]命令：【Kfc】'
+        # elif num == '2.7':
+        #     send_msg = '[烟花]【2.7】、手机号归属地查询功能帮助\n\n[爱心]命令：【归属查询 110】'
+        # elif num == '2.8':
+        #     send_msg = '[烟花]【2.8】、WHOIS信息查询功能帮助\n\n[爱心]命令：【whois查询 qq.com】'
+        # elif num == '2.9':
+        #     send_msg = '[烟花]【2.9】、备案查询功能帮助\n\n[爱心]命令：【icp查询 qq.com】'
+        # else:
+        #     send_msg = f'@{self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)}\n' \
+        #                f'帮助菜单编号错误，请重新输入编号！！！'
+        # self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
 
     # Ai对话
     def get_ai(self, msg, at_user_lists):
