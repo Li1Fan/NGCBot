@@ -57,6 +57,7 @@ class Room_Msg_Dispose:
         self.Md5_Words = config['Function_Key_Word']['Md5_Words']
         self.Port_Scan_Words = config['Function_Key_Word']['Port_Scan_Word']
         self.HelpMenu_Words = config['Function_Key_Word']['Help_Menu']
+        self.Poison_Chicken_Soup_Word = config['Function_Key_Word']['Poison_Chicken_Soup_Word']
 
         self.Sign_Words = config['Point_Config']['Sign']['Word']
         self.Query_Point_Words = config['Point_Config']['Query_Point_Word']
@@ -326,8 +327,9 @@ class Room_Msg_Dispose:
                    f"[烟花]【2.4】、摸鱼日历\n" \
                    f"[烟花]【2.5】、疯狂星期四\n" \
                    f"[烟花]【2.6】、早安寄语\n" \
-                   f"[烟花]【2.7】、天气查询\n" \
-                   f"[烟花]【2.8】、归属地查询\n" \
+                   f"[烟花]【2.7】、毒鸡汤\n" \
+                   f"[烟花]【2.8】、天气查询\n" \
+                   f"[烟花]【2.9】、归属地查询\n" \
                    f"{'By #' + self.system_copyright if self.system_copyright else ''}"
         self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
         # num = ''

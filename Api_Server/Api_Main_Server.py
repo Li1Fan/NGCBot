@@ -62,6 +62,7 @@ class Api_Main_Server:
         self.Somd5_Key = config['Api_Server']['Api_Config']['Somd5_Key']
         self.Dream_Api = config['Api_Server']['Dream_Api']
         self.Port_Scan_Api = config['Api_Server']['Port_Scan_Api']
+        self.Chicken_Soup_Api = config['Api_Server']['Chicken_Soup_Api']
         # 星火配置
         self.Spark_url = config['Api_Server']['Ai_Config']['SparkApi']['Spark_url']
         self.Spark_ApiSecret = config['Api_Server']['Ai_Config']['SparkApi']['ApiSecret']
@@ -291,6 +292,22 @@ class Api_Main_Server:
             return content
         except Exception as e:
             msg = f'[-]: 早安寄语接口出现错误, 错误信息：{e}'
+            OutPut.outPut(msg)
+
+    # 毒鸡汤
+    def get_soup(self):
+        OutPut.outPut('[*]: 正在调用毒鸡汤API接口... ...')
+        url = self.Chicken_Soup_Api.format(self.Key)
+        try:
+            json_data = requests.get(url=url, timeout=30, verify=False).json()
+            if json_data['code'] != 200 and json_data['msg'] != 'success':
+                msg = f'[~]: 毒鸡汤接口出现错误, 错误信息请查看日志 ~~~~~~'
+                return msg
+            content = json_data['result']['content']
+            OutPut.outPut(f'[+]: 毒鸡汤API接口调用成功！！！')
+            return content
+        except Exception as e:
+            msg = f'[-]: 毒鸡汤接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
 
     # 摸鱼日记

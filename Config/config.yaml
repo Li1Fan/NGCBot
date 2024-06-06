@@ -242,6 +242,12 @@ Function_Key_Word:
     - 'md5查询'
     - 'Md5查询'
     - 'MD5查询'
+  # 毒鸡汤
+  Poison_Chicken_Soup_Word:
+    - '毒鸡汤'
+    - '毒鸡汤来一碗'
+    - '毒鸡汤来一份'
+    - '毒鸡汤来'
   # 帮助菜单
   Help_Menu:
     - '帮助'
@@ -337,7 +343,7 @@ Api_Server:
     - 'http://api.yujn.cn/api/xjj.php'
     - 'http://api.yujn.cn/api/zzxjj.php'
     - 'https://api.yujn.cn/api/manzhan.php'
-
+  Chicken_Soup_Api: 'https://apis.tianapi.com/dujitang/index??key={}'
 
 
 
