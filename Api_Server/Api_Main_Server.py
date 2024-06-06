@@ -333,7 +333,7 @@ class Api_Main_Server:
         url = self.s60_Api
         try:
             json_data = requests.get(url=url, timeout=30, verify=False).json()
-            if json_data['code'] != 200:
+            if json_data['status'] != 200:
                 msg = f'[~]: 60s接口出现错误, 错误信息请查看日志 ~~~~~~'
                 return msg
             news_and_quotes = json_data['data']
