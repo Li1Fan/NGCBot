@@ -1,13 +1,14 @@
 ## 超级管理员配置
 Administrators:
+  # 微信id
   - 'wxid_hqdtktnqvw8e21'
 
 ## 系统配置
 System_Config:
   # 版权信息
-  System_Copyright: 'NGC660安全实验室'
+  System_Copyright: '罗伯特'
   # 好友Ai开关 1开/0关
-  Ai_Lock: 0
+  Ai_Lock: 1
 
 ## 定时发送配置
 Push_Config:
@@ -26,7 +27,7 @@ Push_Config:
   # 定时功能回复配置
   Key_Word:
     # 下班消息 换行用\n 支持微信表情
-    Off_Work_Msg: '下班时间到！我要下班 我要下班 我要下班 下下下！\n到点即刻下班，给老板省去水电，给自己来套保健，给老板来句操蛋，出自: #NGC660安全实验室\n速速下班！！！[旺柴]'
+    Off_Work_Msg: '下班时间到！我要下班 我要下班 我要下班 下下下！\n到点即刻下班，给老板省去水电，给自己来套保健，给老板来句操蛋！\n速速下班！！！[旺柴]'
 
 ## 进群关键词配置
 Room_Key_Word:
@@ -115,7 +116,7 @@ Point_Config:
   # 签到功能
   Sign:
     # 签到口令
-    Word: '签到: 新年新气象，NGC660安全实验室祝大家龙年大吉！'
+    Word: '签到: 恭喜发财！'
     # 签到积分
     Point: '10'
   # 功能积分配置
@@ -281,7 +282,7 @@ Api_Server:
       # OpenAi Key
       OpenAi_Key: 'Bearer sk-'
       # 初始化OpenAi角色
-      OpenAi_Role: '你叫NGCBot, 是一名网络安全专家, 你的主人是云山'
+      OpenAi_Role: '你叫萝卜，是一名AI助理。'
     # 千帆大模型
     QianFan:
       # 应用中的Api Key
