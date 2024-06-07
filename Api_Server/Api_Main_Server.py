@@ -185,7 +185,7 @@ class Api_Main_Server:
                     OutPut.outPut('[+]: Ai对话接口调用成功！！！')
                     return Xh_Msg
         elif model == 'gpt':
-            gpt_msg = getGpt(content=question)
+            gpt_msg = getGpt(content=question.split(' ')[1])
             if gpt_msg:
                 OutPut.outPut('[+]: Ai对话接口调用成功！！！')
                 return gpt_msg
@@ -193,7 +193,7 @@ class Api_Main_Server:
                 return None
         elif model == 'xh':
             try:
-                Xh_Msg = get_xh(question=question)
+                Xh_Msg = get_xh(question=question.split(' ')[1])
             except Exception as e:
                 OutPut.outPut(f'[-]: 星火大模型出现错误，错误信息: {e}')
                 return None
