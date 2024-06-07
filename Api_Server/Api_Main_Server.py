@@ -88,7 +88,7 @@ class Api_Main_Server:
             OutPut.outPut(f'[-]: 千帆模型未配置，请修改配置文件已启用模型！！！')
 
     # Ai功能
-    def get_ai(self, question):
+    def get_ai(self, question, model=None):
         OutPut.outPut("[*]: 正在调用Ai对话接口... ...")
         send_msgs = []
 
@@ -165,22 +165,40 @@ class Api_Main_Server:
             except Exception as e:
                 OutPut.outPut(f'[-]: 千帆大模型出现错误，错误信息: {e}')
                 return None
-
-        gpt_msg = getGpt(content=question)
-        if gpt_msg:
-            OutPut.outPut('[+]: Ai对话接口调用成功！！！')
-            return gpt_msg
-        else:
+        if model is None:
+            gpt_msg = getGpt(content=question)
+            if gpt_msg:
+                OutPut.outPut('[+]: Ai对话接口调用成功！！！')
+                return gpt_msg
+            else:
+                try:
+                    Xh_Msg = get_xh(question=question)
+                except Exception as e:
+                    OutPut.outPut(f'[-]: 星火大模型出现错误，错误信息: {e}')
+                    return None
+                if not Xh_Msg:
+                    if not self.qf_ak:
+                        OutPut.outPut(f'[-]: 千帆模型接口未配置，其它模型出现错误，请查看日志！')
+                        return '千帆模型接口未配置，其它模型出现错误，请查看日志！'
+                    return get_qf(quest=question)
+                else:
+                    OutPut.outPut('[+]: Ai对话接口调用成功！！！')
+                    return Xh_Msg
+        elif model == 'gpt':
+            gpt_msg = getGpt(content=question)
+            if gpt_msg:
+                OutPut.outPut('[+]: Ai对话接口调用成功！！！')
+                return gpt_msg
+            else:
+                return None
+        elif model == 'xh':
             try:
                 Xh_Msg = get_xh(question=question)
             except Exception as e:
                 OutPut.outPut(f'[-]: 星火大模型出现错误，错误信息: {e}')
                 return None
             if not Xh_Msg:
-                if not self.qf_ak:
-                    OutPut.outPut(f'[-]: 千帆模型接口未配置，其它模型出现错误，请查看日志！')
-                    return '千帆模型接口未配置，其它模型出现错误，请查看日志！'
-                return get_qf(quest=question)
+                return '星火大模型出现错误，请查看日志！'
             else:
                 OutPut.outPut('[+]: Ai对话接口调用成功！！！')
                 return Xh_Msg

@@ -262,6 +262,23 @@ Function_Key_Word:
     - '秒懂世界'
     - '60秒'
     - '60'
+  # GPT
+  GPT_Word:
+      - 'GPT'
+      - 'gpt'
+      - 'Gpt'
+      - 'GPT3'
+      - 'gpt3'
+      - 'Gpt3'
+  # 星火
+  Spark_Word:
+      - '星火'
+      - '星火大模型'
+      - '星火模型'
+      - '星火大'
+      - '星火大模型'
+      - 'spark'
+      - 'Spark'
   # 帮助菜单
   Help_Menu:
     - '帮助'

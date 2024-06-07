@@ -58,9 +58,11 @@ class Room_Msg_Dispose:
         self.Md5_Words = config['Function_Key_Word']['Md5_Words']
         self.Port_Scan_Words = config['Function_Key_Word']['Port_Scan_Word']
         self.HelpMenu_Words = config['Function_Key_Word']['Help_Menu']
-        self.Poison_Chicken_Soup_Word = config['Function_Key_Word']['Poison_Chicken_Soup_Word']
-        self.Joke_Word = config['Function_Key_Word']['Joke_Word']
-        self.s60_Word = config['Function_Key_Word']['60s_Word']
+        self.Poison_Chicken_Soup_Words = config['Function_Key_Word']['Poison_Chicken_Soup_Word']
+        self.Joke_Words = config['Function_Key_Word']['Joke_Word']
+        self.s60_Words = config['Function_Key_Word']['60s_Word']
+        self.GPT_Words = config['Function_Key_Word']['GPT_Word']
+        self.Spark_Words = config['Function_Key_Word']['Spark_Word']
 
         self.Sign_Words = config['Point_Config']['Sign']['Word']
         self.Query_Point_Words = config['Point_Config']['Query_Point_Word']
@@ -221,16 +223,16 @@ class Room_Msg_Dispose:
             morning_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_morning()
             self.wcf.send_text(msg=morning_msg, receiver=msg.roomid, aters=msg.sender)
         # 毒鸡汤
-        elif self.judge_keyword(keyword=self.Poison_Chicken_Soup_Word, msg=msg.content.strip(), list_bool=True,
+        elif self.judge_keyword(keyword=self.Poison_Chicken_Soup_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             poison_chicken_soup_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_soup()
             self.wcf.send_text(msg=poison_chicken_soup_msg, receiver=msg.roomid, aters=msg.sender)
         # 讲笑话
-        elif self.judge_keyword(keyword=self.Joke_Word, msg=msg.content.strip(), list_bool=True, equal_bool=True):
+        elif self.judge_keyword(keyword=self.Joke_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             joke_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_joke()
             self.wcf.send_text(msg=joke_msg, receiver=msg.roomid, aters=msg.sender)
         # 60s
-        elif self.judge_keyword(keyword=self.s60_Word, msg=msg.content.strip(), list_bool=True, equal_bool=True):
+        elif self.judge_keyword(keyword=self.s60_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             s60_msg = self.Ams.get_60s()
             self.wcf.send_text(msg=s60_msg, receiver=msg.roomid, aters=msg.sender)
         # 摸鱼日记
@@ -307,6 +309,12 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=self.Query_Point_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.query_point, name="积分查询", args=(msg,)).start()
+        # GPT对话
+        elif self.judge_keyword(keyword=self.GPT_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
+            Thread(target=self.get_ai, name="GPT对话", args=(msg, at_user_lists, 'gpt')).start()
+        # 星火对话
+        elif self.judge_keyword(keyword=self.Spark_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
+            Thread(target=self.get_ai, name="星火对话", args=(msg, at_user_lists, 'xh')).start()
         # Ai对话
         elif self.wcf.self_wxid in at_user_lists and '所有人' not in msg.content:
             Thread(target=self.get_ai, name="Ai对话", args=(msg, at_user_lists)).start()
@@ -390,14 +398,15 @@ class Room_Msg_Dispose:
         # self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
 
     # Ai对话
-    def get_ai(self, msg, at_user_lists):
+    def get_ai(self, msg, at_user_lists, model=None):
         admin_dicts = self.Dms.show_admins(wx_id=msg.sender, room_id=msg.roomid)
         room_name = self.Dms.query_room_name(room_id=msg.roomid)
         wx_name = self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)
         if msg.sender in admin_dicts.keys() or msg.sender in self.administrators:
             admin_msg = f'@{wx_name}\n您是尊贵的管理员/超级管理员，本次对话不扣除积分'
             self.wcf.send_text(msg=admin_msg, receiver=msg.roomid, aters=msg.sender)
-            use_msg = f'@{wx_name}\n' + self.Ams.get_ai(question=self.handle_atMsg(msg, at_user_lists=at_user_lists))
+            use_msg = f'@{wx_name}\n' + self.Ams.get_ai(
+                question=self.handle_atMsg(msg, at_user_lists=at_user_lists), model=model)
             self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
         # 不是管理员
         else:
@@ -410,7 +419,7 @@ class Room_Msg_Dispose:
                 point_msg = f'@{wx_name} 您使用了Ai对话功能，扣除您 {self.Ai_Point} 点积分,\n当前剩余积分: {now_point}'
                 self.wcf.send_text(msg=point_msg, receiver=msg.roomid, aters=msg.sender)
                 use_msg = f'@{wx_name}\n' + self.Ams.get_ai(
-                    question=self.handle_atMsg(msg, at_user_lists=at_user_lists))
+                    question=self.handle_atMsg(msg, at_user_lists=at_user_lists), model=model)
                 self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
             else:
                 send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
