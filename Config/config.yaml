@@ -270,6 +270,9 @@ Function_Key_Word:
       - 'GPT3'
       - 'gpt3'
       - 'Gpt3'
+      - 'GPT3.5'
+      - 'gpt3.5'
+      - 'Gpt3.5'
   # 星火
   Spark_Word:
       - '星火'
