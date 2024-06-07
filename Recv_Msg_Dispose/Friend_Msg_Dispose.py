@@ -42,6 +42,15 @@ class Friend_Msg_Dispose:
             Thread(target=self.Accept_Money, name="转账消息处理", args=(msg,)).start()
         # Ai对话forward_msg
         elif msg.type == 1:
+            if msg.sender in self.Administrators:
+                if msg.content.strip() == '开启对话':
+                    self.Ai_Lock = True
+                    self.wcf.send_text(msg='Ai对话已开启', receiver=msg.sender)
+                    return
+                elif msg.content.strip() == '关闭对话':
+                    self.Ai_Lock = False
+                    self.wcf.send_text(msg='Ai对话已关闭', receiver=msg.sender)
+                    return
             Thread(target=self.get_ai, name="Ai对话", args=(msg,)).start()
         # 消息转发给主人
         Thread(target=self.forward_msg, name='转发消息给主人', args=(msg,)).start()

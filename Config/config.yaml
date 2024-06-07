@@ -10,7 +10,7 @@ System_Config:
   # 好友Ai开关 1开/0关
   Ai_Lock: 1
 
-## 定时发送配置
+## 定时发送配置（TODO 功能待进一步升级，支持定时推送、定时执行任务）
 Push_Config:
   # 早安寄语发送时间
   Morning_Push_Time: '08:00'
@@ -88,6 +88,7 @@ Admin_Function_Word:
     - '移出白名单'
     - '移除白名单'
     - '去白'
+    - '解除拉白'
   # 新增推送群聊关键词
   Add_White_Word:
     - '开启推送服务'
