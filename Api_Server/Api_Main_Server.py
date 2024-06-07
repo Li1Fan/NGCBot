@@ -286,7 +286,7 @@ class Api_Main_Server:
         url = self.Morning_Api.format(self.Key)
         try:
             json_data = requests.get(url=url, timeout=30, verify=False).json()
-            if json_data['status'] != 200 and json_data['msg'] != 'success':
+            if json_data['code'] != 200 and json_data['msg'] != 'success':
                 msg = f'[~]: 早安寄语接口出现错误, 错误信息请查看日志 ~~~~~~'
                 return msg
             content = json_data['result']['content']
