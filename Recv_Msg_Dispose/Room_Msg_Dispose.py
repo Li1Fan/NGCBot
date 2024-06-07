@@ -344,7 +344,9 @@ class Room_Msg_Dispose:
         OutPut.outPut(f'[*]: 正在调用Help功能菜单... ...')
         send_msg = f"[爱心] ——— RoBot功能菜单 ——— [爱心]\n" \
                    f"[庆祝]【一、积分功能】\n" \
-                   f"[庆祝]【1.1】、@机器人开启Ai对话(Gpt&星火模型&千帆模型)\n\n" \
+                   f"[庆祝]【1.1】、@机器人开启Ai对话(Gpt&星火模型&千帆模型)\n" \
+                   f"[庆祝]【1.2】、GPT3.5\n" \
+                   f"[庆祝]【1.3】、星火模型(可联网)\n\n" \
                    f"[烟花]【二、娱乐功能】\n" \
                    f"[烟花]【2.1】、舔狗日记\n" \
                    f"[烟花]【2.2】、摸鱼日历\n" \
@@ -352,8 +354,9 @@ class Room_Msg_Dispose:
                    f"[烟花]【2.4】、早安寄语\n" \
                    f"[烟花]【2.5】、毒鸡汤\n" \
                    f"[烟花]【2.6】、讲笑话\n" \
-                   f"[烟花]【2.7】、天气查询\n" \
-                   f"[烟花]【2.8】、归属地查询\n" \
+                   f"[烟花]【2.7】、每天60秒读懂世界\n" \
+                   f"[烟花]【2.8】、天气查询\n" \
+                   f"[烟花]【2.9】、归属地查询\n" \
                    f"{'By #' + self.system_copyright if self.system_copyright else ''}"
         self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
         # num = ''
