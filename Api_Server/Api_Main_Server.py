@@ -65,6 +65,7 @@ class Api_Main_Server:
         self.Chicken_Soup_Api = config['Api_Server']['Chicken_Soup_Api']
         self.Joke_Api = config['Api_Server']['Joke_Api']
         self.s60_Api = config['Api_Server']['60s_Api']
+        self.Hupu_Api = config['Api_Server']['Hupu_Api']
         # 星火配置
         self.Spark_url = config['Api_Server']['Ai_Config']['SparkApi']['Spark_url']
         self.Spark_ApiSecret = config['Api_Server']['Ai_Config']['SparkApi']['ApiSecret']
@@ -347,6 +348,7 @@ class Api_Main_Server:
             msg = f'[-]: 讲笑话接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
 
+    # 60s读懂世界
     def get_60s(self):
         OutPut.outPut('[*]: 正在调用60s接口... ...')
         url = self.s60_Api
@@ -356,13 +358,32 @@ class Api_Main_Server:
                 msg = f'[~]: 60s接口出现错误, 错误信息请查看日志 ~~~~~~'
                 return msg
             news_and_quotes = json_data['data']
-            content = ''
+            content = '每天60秒读懂世界'
             for item in news_and_quotes:
                 content += item + '\n'
             OutPut.outPut(f'[+]: 60s接口调用成功！！！')
             return content
         except Exception as e:
             msg = f'[-]: 60s接口出现错误, 错误信息：{e}'
+            OutPut.outPut(msg)
+
+    # 虎扑热搜
+    def get_hupu(self):
+        OutPut.outPut('[*]: 正在调用虎扑热搜API接口... ...')
+        url = self.Hupu_Api
+        try:
+            json_data = requests.get(url=url, timeout=30, verify=False).json()
+            if json_data['success'] is False:
+                msg = f'[~]: 虎扑热搜接口出现错误, 错误信息请查看日志 ~~~~~~'
+                return msg
+            hot_search = json_data['data']
+            content = '虎扑热搜\n'
+            for index, item in enumerate(hot_search):
+                content += f'{index + 1}. {item["title"]}\n{item["url"]}\n'
+            OutPut.outPut(f'[+]: 虎扑热搜API接口调用成功！！！')
+            return content
+        except Exception as e:
+            msg = f'[-]: 虎扑热搜接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
 
     # 摸鱼日记

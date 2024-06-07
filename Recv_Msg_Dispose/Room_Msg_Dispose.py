@@ -61,6 +61,7 @@ class Room_Msg_Dispose:
         self.Poison_Chicken_Soup_Words = config['Function_Key_Word']['Poison_Chicken_Soup_Word']
         self.Joke_Words = config['Function_Key_Word']['Joke_Word']
         self.s60_Words = config['Function_Key_Word']['60s_Word']
+        self.Hupu_Words = config['Function_Key_Word']['Hupu_Word']
         self.GPT_Words = config['Function_Key_Word']['GPT_Word']
         self.Spark_Words = config['Function_Key_Word']['Spark_Word']
 
@@ -235,6 +236,10 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=self.s60_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             s60_msg = self.Ams.get_60s()
             self.wcf.send_text(msg=s60_msg, receiver=msg.roomid, aters=msg.sender)
+        # 虎扑热搜
+        elif self.judge_keyword(keyword=self.Hupu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
+            hupu_msg = self.Ams.get_hupu()
+            self.wcf.send_text(msg=hupu_msg, receiver=msg.roomid, aters=msg.sender)
         # 摸鱼日记
         elif self.judge_keyword(keyword=self.Fish_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_fish()

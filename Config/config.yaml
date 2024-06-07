@@ -155,17 +155,18 @@ Point_Config:
 Function_Key_Word:
   # 触发美女图片关键词
   Pic_Word:
-    - '图片'
-    - '美女图片'
-    - '妹子'
-    - '色图'
-    - '色色'
+#    - '图片'
+#    - '美女图片'
+#    - '妹子'
+#    - '色图'
+    - '色色图片'
   # 触发美女视频关键词
   Video_Word:
-    - '视频'
-    - '美女视频'
-    - '成人视频'
-    - '18禁'
+#    - '视频'
+#    - '美女视频'
+#    - '成人视频'
+#    - '18禁'
+    - '色色视频'
   # 触发备案查询关键词
   Icp_Word:
     - '备案查询'
@@ -244,6 +245,7 @@ Function_Key_Word:
     - 'MD5查询'
   # 毒鸡汤
   Poison_Chicken_Soup_Word:
+    - '鸡汤'
     - '毒鸡汤'
     - '毒鸡汤来一碗'
     - '毒鸡汤来一份'
@@ -262,6 +264,9 @@ Function_Key_Word:
     - '秒懂世界'
     - '60秒'
     - '60'
+  # 虎扑热搜
+  Hupu_Word:
+    - '虎扑热搜'
   # GPT
   GPT_Word:
       - 'GPT'
@@ -383,6 +388,8 @@ Api_Server:
   Joke_Api: 'https://apis.tianapi.com/joke/index?key={}&num=1'
   # 每天60秒读懂世界API配置
   60s_Api: 'https://60s.viki.moe/60s'
+  # 虎扑热搜API配置
+  Hupu_Api: 'https://api.vvhan.com/api/hotlist/huPu'
 
 
 
