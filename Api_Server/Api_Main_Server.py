@@ -90,6 +90,7 @@ class Api_Main_Server:
     # Ai功能
     def get_ai(self, question, model=None):
         OutPut.outPut("[*]: 正在调用Ai对话接口... ...")
+        OutPut.outPut(f"[*]: 问题：{question}")
         send_msgs = []
 
         def getText(role, content):
