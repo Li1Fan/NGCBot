@@ -421,10 +421,13 @@ class Api_Main_Server:
             content_lst = []
             queue1 = hot_search[:len(hot_search) // 2]
             queue2 = hot_search[len(hot_search) // 2:]
-            for queue_data in [queue1, queue2]:
-                content = '虎扑热搜\n'
+            # 分别处理两个队列
+            for i, queue_data in enumerate([queue1, queue2]):
+                start_index = i * (len(hot_search) // 2)
+                end_index = start_index + len(queue_data)
+                content = f'虎扑热搜 {start_index + 1}-{end_index}\n'
                 for index, item in enumerate(queue_data):
-                    content += f'{index + 1}、{item["title"]}\n{item["url"]}\n'
+                    content += f'{start_index + index + 1}、{item["title"]}\n{item["url"]}\n'
                 content_lst.append(content)
             OutPut.outPut(f'[+]: 虎扑热搜API接口调用成功！！！')
             return content_lst

@@ -354,7 +354,7 @@ Api_Server:
     # 秘塔搜索
     Metaso:
       # 秘塔搜索接口
-      Metaso_Api: 'http://192.168.222.108:8000'
+      Metaso_Api: 'http://192.168.222.108:8000/v1/chat/completions'
       # 秘塔搜索Key
       Metaso_Key: 'Bearer '
 
