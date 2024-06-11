@@ -358,7 +358,7 @@ class Api_Main_Server:
                 msg = f'[~]: 60s接口出现错误, 错误信息请查看日志 ~~~~~~'
                 return msg
             news_and_quotes = json_data['data']
-            content = '每天60秒读懂世界'
+            content = '每天60秒读懂世界\n'
             for item in news_and_quotes:
                 content += item + '\n'
             OutPut.outPut(f'[+]: 60s接口调用成功！！！')

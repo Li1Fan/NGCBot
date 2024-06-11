@@ -129,18 +129,23 @@ Point_Config:
     # 端口查询积分配置
     Port_Scan: '10'
     # Ai对话积分配置
-    Ai_point: '10'
+    Ai_point: '2'
   # 增加积分关键词
   Add_Point_Word:
     - '加'
     - '+'
     - '加积分'
+    - '加分'
+    - '增加'
     - '增'
   # 减少积分关键词
   Del_Point_Word:
     - '减'
     - '-'
     - '扣除'
+    - '减积分'
+    - '减分'
+    - '扣分'
     - '扣'
   # 赠送积分关键词
   Send_Point_Word:

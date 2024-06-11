@@ -524,15 +524,19 @@ class Room_Msg_Dispose:
 
     # 赠送积分
     def send_point(self, msg, content, at_user_lists):
-        point = content.split(' ')[-1]
-        wx_name = self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)
-        room_name = self.Dms.query_room_name(room_id=msg.roomid)
-        for give_sender in at_user_lists:
-            give_name = self.wcf.get_alias_in_chatroom(wxid=give_sender, roomid=msg.roomid)
-            send_msg = f'@{wx_name}'
-            send_msg += self.Dps.send_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name,
-                                            give_sender=give_sender, give_name=give_name, point=point)
-            self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)
+        try:
+            point = content.split(' ')[-1]
+            wx_name = self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)
+            room_name = self.Dms.query_room_name(room_id=msg.roomid)
+            for give_sender in at_user_lists:
+                give_name = self.wcf.get_alias_in_chatroom(wxid=give_sender, roomid=msg.roomid)
+                send_msg = f'@{wx_name}'
+                send_msg += self.Dps.send_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid,
+                                                room_name=room_name,
+                                                give_sender=give_sender, give_name=give_name, point=point)
+                self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)
+        except Exception as e:
+            OutPut.outPut(f'[~]: 赠送积分出了点小问题 :{e}')
 
     # 新增管理员
     def add_admin(self, sender, wx_ids, room_id):
@@ -696,8 +700,10 @@ class Room_Msg_Dispose:
             OutPut.outPut(f'[-]: 检测广告功能出现错误，错误信息: {e}')
 
     # 增加积分
+    # TODO: 出现过异常，暂不确定原因
     def Add_Point(self, msg, content, at_user_list):
         try:
+            OutPut.outPut(f'[*]: 增加积分接口接收到的消息: {content}')
             point = content.strip().split(' ')[-1]
             for wx_id in at_user_list:
                 wx_name = self.wcf.get_alias_in_chatroom(wxid=wx_id, roomid=msg.roomid)
@@ -706,6 +712,7 @@ class Room_Msg_Dispose:
                                              point=point)
                 add_msg = f'@{wx_name}\n' + add_msg
                 self.wcf.send_text(msg=add_msg, receiver=msg.roomid, aters=wx_id)
+            OutPut.outPut(f'[+]: 增加积分接口调用成功')
         except Exception as e:
             OutPut.outPut(f'[-]: 增加积分接口出现错误，错误信息: {e}')
 
