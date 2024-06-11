@@ -64,6 +64,7 @@ class Room_Msg_Dispose:
         self.Hupu_Words = config['Function_Key_Word']['Hupu_Word']
         self.GPT_Words = config['Function_Key_Word']['GPT_Word']
         self.Spark_Words = config['Function_Key_Word']['Spark_Word']
+        self.Metaso_Words = config['Function_Key_Word']['Metaso_Word']
 
         self.Sign_Words = config['Point_Config']['Sign']['Word']
         self.Query_Point_Words = config['Point_Config']['Query_Point_Word']
@@ -327,6 +328,9 @@ class Room_Msg_Dispose:
         # 星火对话
         elif self.judge_keyword(keyword=self.Spark_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
             Thread(target=self.get_ai, name="星火对话", args=(msg, at_user_lists, 'xh')).start()
+        # 秘塔搜索
+        elif self.judge_keyword(keyword=self.Metaso_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
+            Thread(target=self.get_ai, name="秘塔搜索", args=(msg, at_user_lists, 'metaso')).start()
         # Ai对话
         elif self.wcf.self_wxid in at_user_lists and '所有人' not in msg.content:
             Thread(target=self.get_ai, name="Ai对话", args=(msg, at_user_lists)).start()

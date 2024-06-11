@@ -293,6 +293,15 @@ Function_Key_Word:
       - '星火大模型'
       - 'spark'
       - 'Spark'
+  # Metaso
+  Metaso_Word:
+      - 'Metaso'
+      - 'metaso'
+      - 'meta'
+      - '搜'
+      - '搜索'
+      - '秘塔'
+      - '秘塔搜索'
   # 帮助菜单
   Help_Menu:
     - '帮助'
@@ -342,6 +351,12 @@ Api_Server:
       Qf_Secret_Key: ''
       # 应用中的应用ID
       Qf_Appid: ''
+    # 秘塔搜索
+    Metaso:
+      # 秘塔搜索接口
+      Metaso_Api: 'http://192.168.222.108:8000'
+      # 秘塔搜索Key
+      Metaso_Key: 'Bearer '
 
 
   # 天气查询API

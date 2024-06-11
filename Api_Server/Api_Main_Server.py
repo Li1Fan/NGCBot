@@ -87,6 +87,9 @@ class Api_Main_Server:
             self.chat_mess = qianfan.Messages()
         else:
             OutPut.outPut(f'[-]: 千帆模型未配置，请修改配置文件已启用模型！！！')
+        # 秘塔搜索
+        self.Metaso_Api = config['Api_Server']['Ai_Config']['Metaso']['Metaso_Api']
+        self.Metaso_Key = config['Api_Server']['Ai_Config']['Metaso']['Metaso_Key']
 
     # Ai功能
     def get_ai(self, question, model=None):
@@ -138,6 +141,27 @@ class Api_Main_Server:
                 self.messages = [{"role": "system", "content": f"{self.OpenAi_Initiating_Message}"}]
                 return None
 
+        # 秘塔搜索
+        def get_metaso(content, model='concise'):
+            messages = [{"role": "user", "content": f'{content}'}]
+            data = {
+                "model": model,
+                "messages": messages
+            }
+            headers = {
+                "Authorization": f"{self.Metaso_Key}",
+                'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+                'Content-Type': 'application/json'
+            }
+            try:
+                resp = requests.post(url=self.Metaso_Api, headers=headers, json=data, timeout=15)
+                json_data = resp.json()
+                assistant_content = json_data['choices'][0]['message']['content']
+                return assistant_content if assistant_content else None
+            except Exception as e:
+                OutPut.outPut(f'[-]: 秘塔搜索接口出现错误，错误信息： {e}')
+                return None
+
         # 星火大模型
         def get_xh(question):
             try:
@@ -167,6 +191,7 @@ class Api_Main_Server:
             except Exception as e:
                 OutPut.outPut(f'[-]: 千帆大模型出现错误，错误信息: {e}')
                 return None
+
         if model is None:
             gpt_msg = getGpt(content=question)
             if gpt_msg:
@@ -204,6 +229,18 @@ class Api_Main_Server:
             else:
                 OutPut.outPut('[+]: Ai对话接口调用成功！！！')
                 return Xh_Msg
+        elif model == 'metaso':
+            metaso_msg = get_metaso(content=question)
+            if metaso_msg:
+                OutPut.outPut('[+]: Ai对话接口调用成功！！！')
+                return metaso_msg
+            else:
+                metaso_msg = get_metaso(content=question, model='detail')
+                if metaso_msg:
+                    OutPut.outPut('[+]: 秘塔搜索接口调用成功！！！')
+                    return metaso_msg
+                else:
+                    return '秘塔搜索接口出现错误，请查看日志！'
 
     # 美女图片
     def get_girl_pic(self):
