@@ -117,7 +117,7 @@ Point_Config:
   # 签到功能
   Sign:
     # 签到口令
-    Word: '签到: 恭喜发财！'
+    Word: '恭喜发财！'
     # 签到积分
     Point: '10'
   # 功能积分配置
@@ -129,7 +129,7 @@ Point_Config:
     # 端口查询积分配置
     Port_Scan: '10'
     # Ai对话积分配置
-    Ai_point: '2'
+    Ai_point: '10'
   # 增加积分关键词
   Add_Point_Word:
     - '加'

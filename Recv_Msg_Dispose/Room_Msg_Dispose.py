@@ -170,6 +170,13 @@ class Room_Msg_Dispose:
         elif msg.type == 49:
             Thread(target=self.add_white_gh, name="添加白名单公众号", args=(msg,)).start()
         Thread(target=self.OrdinaryRoom_Function, name="普通群聊功能", args=(msg, at_user_lists)).start()
+        # 积分限制功能
+        if msg.content.strip() in ['取消积分限制', '取消积分', '取消限制']:
+            self.Ai_Point = 0
+            self.wcf.send_text(msg='取消积分限制失败', receiver=msg.roomid, aters=msg.sender)
+        elif msg.content.strip() in ['开启积分限制', '开启积分', '开启限制']:
+            self.Ai_Point = 10
+            self.wcf.send_text(msg='开启积分限制成功', receiver=msg.roomid, aters=msg.sender)
 
     # 白名单群聊功能
     def WhiteRoom_Function(self, msg, at_user_lists):
