@@ -58,7 +58,9 @@ class Friend_Msg_Dispose:
     def forward_msg(self, msg):
         if msg.type == 1:
             for administrator in self.Administrators:
-                self.wcf.forward_msg(id=msg.id, receiver=administrator)
+                # self.wcf.forward_msg(id=msg.id, receiver=administrator)
+                msg = f'[{self.wcf.get_info_by_wxid(wxid=msg.sender).get("name")}]: {msg.content}'
+                self.wcf.send_text(msg=msg, receiver=administrator)
 
     # Ai对话实现
     def get_ai(self, msg):

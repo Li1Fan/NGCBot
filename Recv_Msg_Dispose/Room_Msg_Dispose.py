@@ -246,7 +246,7 @@ class Room_Msg_Dispose:
             ret = f'[*]: 摸鱼日记API接口返回值：{save_path}'
             OutPut.outPut(ret)
             if 'Fish_Cache' in save_path:
-                # send_image() 频繁调用时，会发送不成功
+                # TODO: send_image() 频繁调用时，会发送不成功
                 self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
