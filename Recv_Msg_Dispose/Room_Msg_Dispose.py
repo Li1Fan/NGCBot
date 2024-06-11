@@ -172,9 +172,9 @@ class Room_Msg_Dispose:
             Thread(target=self.add_white_gh, name="添加白名单公众号", args=(msg,)).start()
         Thread(target=self.OrdinaryRoom_Function, name="普通群聊功能", args=(msg, at_user_lists)).start()
         # 积分限制功能
-        if msg.content.strip() in ['取消积分限制', '取消积分', '取消限制']:
+        if msg.content.strip() in ['取消积分限制', '取消积分', '取消限制', '关闭积分限制', '关闭积分', '关闭限制']:
             self.Ai_Point = 0
-            self.wcf.send_text(msg='取消积分限制失败', receiver=msg.roomid, aters=msg.sender)
+            self.wcf.send_text(msg='关闭积分限制成功', receiver=msg.roomid, aters=msg.sender)
         elif msg.content.strip() in ['开启积分限制', '开启积分', '开启限制']:
             self.Ai_Point = 10
             self.wcf.send_text(msg='开启积分限制成功', receiver=msg.roomid, aters=msg.sender)
@@ -247,7 +247,11 @@ class Room_Msg_Dispose:
         # 虎扑热搜
         elif self.judge_keyword(keyword=self.Hupu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             hupu_msg = self.Ams.get_hupu()
-            self.wcf.send_text(msg=hupu_msg, receiver=msg.roomid, aters=msg.sender)
+            if hupu_msg is None:
+                self.wcf.send_text(msg='未获取到虎扑热搜数据', receiver=msg.roomid)
+                return
+            self.wcf.send_text(msg=hupu_msg[0], receiver=msg.roomid, aters=msg.sender)
+            self.wcf.send_text(msg=hupu_msg[1], receiver=msg.roomid, aters=msg.sender)
         # 摸鱼日记
         elif self.judge_keyword(keyword=self.Fish_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_fish()
