@@ -359,9 +359,9 @@ Api_Server:
     # Spark_Free_Api
     Spark_Free_Api:
       # 文生图像生成接口
-      api: 'http://127.0.0.1:9000/v1/images/generations'
+      Api: 'http://127.0.0.1:9000/v1/images/generations'
       # 文生图像生成接口Key
-      key: 'Bearer '
+      Key: 'Bearer '
 
   # 天气查询API
   Weather_Api: 'https://apis.tianapi.com/tianqi/index?key={}&city={}&type=1'
