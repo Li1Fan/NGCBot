@@ -161,17 +161,17 @@ Point_Config:
 Function_Key_Word:
   # 触发美女图片关键词
   Pic_Word:
-#    - '图片'
-#    - '美女图片'
-#    - '妹子'
-#    - '色图'
+    #    - '图片'
+    #    - '美女图片'
+    #    - '妹子'
+    #    - '色图'
     - '色色图片'
   # 触发美女视频关键词
   Video_Word:
-#    - '视频'
-#    - '美女视频'
-#    - '成人视频'
-#    - '18禁'
+    #    - '视频'
+    #    - '美女视频'
+    #    - '成人视频'
+    #    - '18禁'
     - '色色视频'
   # 触发备案查询关键词
   Icp_Word:
@@ -258,11 +258,11 @@ Function_Key_Word:
     - '毒鸡汤来'
   # 笑话
   Joke_Word:
-      - '笑话'
-      - '讲个笑话'
-      - '讲笑话'
-      - '笑话来一份'
-      - '笑话来'
+    - '笑话'
+    - '讲个笑话'
+    - '讲笑话'
+    - '笑话来一份'
+    - '笑话来'
   # 60s
   60s_Word:
     - '60s'
@@ -275,32 +275,32 @@ Function_Key_Word:
     - '虎扑热搜'
   # GPT
   GPT_Word:
-      - 'GPT'
-      - 'gpt'
-      - 'Gpt'
-      - 'GPT3'
-      - 'gpt3'
-      - 'Gpt3'
-      - 'GPT3.5'
-      - 'gpt3.5'
-      - 'Gpt3.5'
+    - 'GPT'
+    - 'gpt'
+    - 'Gpt'
+    - 'GPT3'
+    - 'gpt3'
+    - 'Gpt3'
+    - 'GPT3.5'
+    - 'gpt3.5'
+    - 'Gpt3.5'
   # 星火
   Spark_Word:
-      - '星火'
-      - '星火大模型'
-      - '星火模型'
-      - '星火大'
-      - '星火大模型'
-      - 'spark'
-      - 'Spark'
+    - '星火'
+    - '星火大模型'
+    - '星火模型'
+    - '星火大'
+    - '星火大模型'
+    - 'spark'
+    - 'Spark'
   # Metaso
   Metaso_Word:
-      - 'Metaso'
-      - 'metaso'
-      - 'meta'
-      - '搜'
-      - '搜索'
-      - '秘塔'
+    - 'Metaso'
+    - 'metaso'
+    - 'meta'
+    - '搜'
+    - '搜索'
+    - '秘塔'
   # 帮助菜单
   Help_Menu:
     - '帮助'
@@ -316,7 +316,7 @@ Function_Key_Word:
 Api_Server:
   Api_Config:
     # 天行Key
-    Key: ''
+    Key: '426acf7dd08777c231678c6fdd57ac73'
     # Somd5 Key
     Somd5_Key: ''
     # 微步Key
@@ -325,21 +325,21 @@ Api_Server:
     # 星火大模型
     SparkApi:
       # 模型Url
-      Spark_url: 'ws://spark-api.xf-yun.com/v3.1/chat'
+      Spark_url: 'ws://spark-api.xf-yun.com/v3.5/chat'
       # 模型Secret
-      ApiSecret: ''
+      ApiSecret: 'MDk5MDA5YWFiMTI5NjIxYzc5YjIyNzhi'
       # 模型版本
-      Domain: 'generalv3'
+      Domain: 'generalv3.5'
       # 模型Key
-      ApiKey: ''
+      ApiKey: '0aa0c2f65500a084ca21f812e0ef1853'
       # 模型Appid
-      Appid: ''
+      Appid: 'b5c9fd0b'
     # OpenAi
     Open_Ai:
       # Open_Ai接口
-      OpenAi_Api: 'https://api.openai-proxy.com/v1/chat/completions'
+      OpenAi_Api: 'https://api.chatanywhere.tech/v1/chat/completions'
       # OpenAi Key
-      OpenAi_Key: 'Bearer sk-'
+      OpenAi_Key: 'Bearer sk-3V1kL18M79G07yiXzb4ma485SgttHliFsuZJk6AtM3H0slCR'
       # 初始化OpenAi角色
       OpenAi_Role: '你叫萝卜，是一名AI助理。'
     # 千帆大模型
@@ -355,8 +355,13 @@ Api_Server:
       # 秘塔搜索接口
       Metaso_Api: 'http://192.168.222.108:8000/v1/chat/completions'
       # 秘塔搜索Key
-      Metaso_Key: 'Bearer '
-
+      Metaso_Key: 'Bearer 64d9ed57866f0e125f22520c-d0632b6a055f490bb6f07de84dea1179'
+    # Spark_Free_Api
+    Spark_Free_Api:
+      # 文生图像生成接口
+      api: 'http://127.0.0.1:9000/v1/images/generations'
+      # 文生图像生成接口Key
+      key: 'Bearer '
 
   # 天气查询API
   Weather_Api: 'https://apis.tianapi.com/tianqi/index?key={}&city={}&type=1'

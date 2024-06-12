@@ -91,6 +91,9 @@ class Api_Main_Server:
         # 秘塔搜索
         self.Metaso_Api = config['Api_Server']['Ai_Config']['Metaso']['Metaso_Api']
         self.Metaso_Key = config['Api_Server']['Ai_Config']['Metaso']['Metaso_Key']
+        # spark_free_api
+        self.Spark_Free_Api = config['Api_Server']['Ai_Config']['Spark_Free_Api']['Api']
+        self.Spark_Free_Key = config['Api_Server']['Ai_Config']['Spark_Free_Key']['Key']
 
     # Ai功能
     def get_ai(self, question, model=None):
@@ -162,6 +165,25 @@ class Api_Main_Server:
                 return assistant_content if assistant_content else None
             except Exception as e:
                 OutPut.outPut(f'[-]: 秘塔搜索接口出现错误，错误信息： {e}')
+                return None
+
+        # spark_free_api
+        def get_spark_free_image(content):
+            data = {
+                "prompt": content
+            }
+            headers = {
+                "Authorization": f"{self.Spark_Free_Key}",
+                'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+                'Content-Type': 'application/json'
+            }
+            try:
+                resp = requests.post(url=self.Spark_Free_Api, headers=headers, json=data, timeout=60)
+                json_data = resp.json()
+                assistant_content = json_data['data'][0]['url']
+                return assistant_content if assistant_content else None
+            except Exception as e:
+                OutPut.outPut(f'[-]: spark_free_api接口出现错误，错误信息： {e}')
                 return None
 
         # 星火大模型
@@ -243,6 +265,13 @@ class Api_Main_Server:
                     return metaso_msg
                 else:
                     return '秘塔搜索接口出现错误，请查看日志！'
+        elif model == 'image':
+            spark_free_msg = get_spark_free_image(content=question)
+            if spark_free_msg:
+                OutPut.outPut('[+]: Spark文生图接口调用成功！！！')
+                return spark_free_msg
+            else:
+                return None
 
     # 美女图片
     def get_girl_pic(self):

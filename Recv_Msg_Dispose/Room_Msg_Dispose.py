@@ -1,8 +1,10 @@
 import os
 import re
+import time
 import xml.etree.ElementTree as ET
 from threading import Thread
 
+import requests
 import yaml
 
 from Api_Server.Api_Main_Server import Api_Main_Server
@@ -358,6 +360,10 @@ class Room_Msg_Dispose:
                                     url='https://metaso.cn/?q=%s' % question,
                                     thumburl='https://metaso.cn/apple-touch-icon.png',
                                     receiver=msg.roomid)
+        # 文生图
+        elif self.judge_keyword(keyword=['画画', '画图', '绘画', 'ai画画', 'AI画画', 'ai绘画', 'AI绘画', '文生图'],
+                                msg=msg.content.strip(), list_bool=True, split_bool=True):
+            Thread(target=self.get_ai, name="Spark文生图", args=(msg, at_user_lists, 'image')).start()
         # Ai对话
         elif self.wcf.self_wxid in at_user_lists and '所有人' not in msg.content:
             Thread(target=self.get_ai, name="Ai对话", args=(msg, at_user_lists)).start()
@@ -456,10 +462,26 @@ class Room_Msg_Dispose:
             if not model:
                 question = self.handle_atMsg(msg, at_user_lists=at_user_lists)
             else:
-                question = msg.content.strip().split(' ')[1]
-            use_msg = f'@{wx_name}\n' + self.Ams.get_ai(
-                question=question, model=model)
-            self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
+                question = msg.content.strip().split(' ', 1)[1]
+            if model != 'image':
+                use_msg = f'@{wx_name}\n' + self.Ams.get_ai(
+                    question=question, model=model)
+                self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
+            else:
+                OutPut.outPut(f'[*]: 正在调用Spark文生图接口... ...')
+                save_path = self.Ams.Cache_path + '/Pic_Cache/' + str(int(time.time() * 1000)) + '.jpg'
+                url = self.Ams.get_ai(question=question, model=model)
+                if url:
+                    try:
+                        pic_data = requests.get(url=url, timeout=30, verify=False).content
+                        with open(file=save_path, mode='wb') as pd:
+                            pd.write(pic_data)
+                        OutPut.outPut(f'[+]: Spark文生图接口调用成功，图片保存路径：{save_path}\n')
+                    except Exception as e:
+                        msg = f'[-]: Spark文生图接口出现错误，错误信息：{e}\n'
+                        OutPut.outPut(msg)
+                    if os.path.exists(save_path):
+                        self.wcf.send_image(msg=save_path, receiver=msg.roomid)
         # 不是管理员
         else:
             if self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name) >= int(
@@ -473,10 +495,13 @@ class Room_Msg_Dispose:
                 if not model:
                     question = self.handle_atMsg(msg, at_user_lists=at_user_lists)
                 else:
-                    question = msg.content.strip().split(' ')[1]
-                use_msg = f'@{wx_name}\n' + self.Ams.get_ai(
-                    question=question, model=model)
-                self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
+                    question = msg.content.strip().split(' ', 1)[1]
+                if model != 'image':
+                    use_msg = f'@{wx_name}\n' + self.Ams.get_ai(
+                        question=question, model=model)
+                    self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
+                else:
+                    pass
             else:
                 send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
                 self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)
