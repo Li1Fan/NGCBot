@@ -186,7 +186,7 @@ class Api_Main_Server:
                 assistant_content = json_data['data'][0]['url']
                 return assistant_content if assistant_content else None
             except Exception as e:
-                OutPut.outPut(f'[-]: spark_free_api接口出现错误，错误信息： {e}，正在重试... ...')
+                OutPut.outPut(f'[-]: spark_free_api接口出现错误，错误信息： {e}')
                 return None
 
         # qwen_free_api
@@ -205,7 +205,7 @@ class Api_Main_Server:
                 assistant_content = json_data['data'][0]['url']
                 return assistant_content if assistant_content else None
             except Exception as e:
-                OutPut.outPut(f'[-]: qwen_free_api接口出现错误，错误信息： {e}，正在重试... ...')
+                OutPut.outPut(f'[-]: qwen_free_api接口出现错误，错误信息： {e}')
                 return None
 
         # 星火大模型
@@ -295,7 +295,7 @@ class Api_Main_Server:
             else:
                 qwen_free_msg = get_qwen_free_image(content=question)
                 if qwen_free_msg:
-                    OutPut.outPut('[+]: qwen_free_api接口调用成功！！！')
+                    OutPut.outPut('[+]: Qwen文生图接口调用成功！！！')
                     return qwen_free_msg
                 return None
 

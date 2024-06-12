@@ -477,12 +477,11 @@ class Room_Msg_Dispose:
                     question=question, model=model)
                 self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
             else:
-                OutPut.outPut(f'[*]: 正在调用Spark文生图接口... ...')
+                OutPut.outPut(f'[*]: 正在调用文生图接口... ...')
                 save_path = self.Ams.Cache_path + '/Pic_Cache/' + str(int(time.time() * 1000)) + '.jpg'
                 url = self.Ams.get_ai(question=question, model=model)
                 if url:
                     headers = {
-                        'Authorization': 'Bearer {}'.format(self.Ams.Spark_Free_Key),
                         'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
                         'Content-Type': 'application/json'
                     }
@@ -490,9 +489,9 @@ class Room_Msg_Dispose:
                         pic_data = requests.get(url=url, headers=headers, timeout=90, verify=False).content
                         with open(file=save_path, mode='wb') as pd:
                             pd.write(pic_data)
-                        OutPut.outPut(f'[+]: Spark文生图接口调用成功，图片保存路径：{save_path}\n')
+                        OutPut.outPut(f'[+]: 文生图接口调用成功，图片保存路径：{save_path}\n')
                     except Exception as e:
-                        msg = f'[-]: Spark文生图接口出现错误，错误信息：{e}\n'
+                        msg = f'[-]: 文生图接口出现错误，错误信息：{e}\n'
                         OutPut.outPut(msg)
                     if os.path.exists(save_path):
                         self.wcf.send_image(path=save_path, receiver=msg.roomid)
