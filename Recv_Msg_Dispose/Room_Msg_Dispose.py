@@ -266,6 +266,16 @@ class Room_Msg_Dispose:
                 self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
+        # 点歌功能
+        elif self.judge_keyword(keyword=["点歌", "听歌"], msg=msg.content.strip(), list_bool=True, split_bool=True):
+            music_name = msg.content.strip().split(' ', 1)[1]
+            digest = '搜索歌曲：{}'.format(music_name)
+            url = 'https://tool.liumingye.cn/music/#/search/M/song/{}'.format(music_name)
+            self.send_music_message(digest, url, msg.roomid)
+        elif msg.content.strip() in ["点歌", "听歌"]:
+            digest = '点击进入点歌页面'
+            url = 'https://tool.liumingye.cn/music/'
+            self.send_music_message(digest, url, msg.roomid)
         # # Whois查询
         # elif self.judge_keyword(keyword=self.Whois_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
         #     whois_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_whois(
@@ -339,14 +349,15 @@ class Room_Msg_Dispose:
         # 秘塔搜索
         elif self.judge_keyword(keyword=self.Metaso_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
             Thread(target=self.get_ai, name="秘塔搜索", args=(msg, at_user_lists, 'metaso')).start()
-        elif ' ' in msg.content.strip() and msg.content.strip().split(' ')[0] == '秘塔搜索':
-            def fun_metaso(question):
-                self.wcf.send_rich_text(name='搜索', account='', title='秘塔AI搜索',
-                                        digest=question, url='https://metaso.cn/?q=%s' % question,
-                                        thumburl='https://metaso.cn/apple-touch-icon.png',
-                                        receiver=msg.roomid)
-            quest = msg.content.strip().split(' ', 1)[1]
-            Thread(target=fun_metaso, name="秘塔搜索", args=(quest,)).start()
+        elif ' ' in msg.content.strip() and msg.content.strip().split(' ')[0] in ['秘塔搜索', '秘塔AI搜索']:
+            question = msg.content.strip().split(' ', 1)[1]
+            self.wcf.send_rich_text(name='搜索',
+                                    account='',
+                                    title='秘塔AI搜索',
+                                    digest=question,
+                                    url='https://metaso.cn/?q=%s' % question,
+                                    thumburl='https://metaso.cn/apple-touch-icon.png',
+                                    receiver=msg.roomid)
         # Ai对话
         elif self.wcf.self_wxid in at_user_lists and '所有人' not in msg.content:
             Thread(target=self.get_ai, name="Ai对话", args=(msg, at_user_lists)).start()
@@ -380,7 +391,7 @@ class Room_Msg_Dispose:
                    f"[庆祝]【1.2】、GPT3.5\n" \
                    f"[庆祝]【1.3】、星火模型(可联网)\n" \
                    f"[庆祝]【1.4】、秘塔搜索\n" \
-                   f"[庆祝]【1.4】、Ai画画\n\n" \
+                   f"[庆祝]【1.5】、Ai画画\n\n" \
                    f"[烟花]【二、娱乐功能】\n" \
                    f"[烟花]【2.1】、舔狗日记\n" \
                    f"[烟花]【2.2】、摸鱼日历\n" \
@@ -826,3 +837,12 @@ class Room_Msg_Dispose:
                             return True
             except Exception:
                 return
+
+    def send_music_message(self, digest, url, receiver):
+        self.wcf.send_rich_text(name='点歌',
+                                account='',
+                                title='MyFreeMP3',
+                                digest=digest,
+                                url=url,
+                                thumburl='https://tool.liumingye.cn/music/img/pwa-192x192.png',
+                                receiver=receiver)
