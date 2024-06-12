@@ -178,13 +178,21 @@ class Api_Main_Server:
                 'Content-Type': 'application/json'
             }
             try:
-                resp = requests.post(url=self.Spark_Free_Api, headers=headers, json=data, timeout=90)
+                resp = requests.post(url=self.Spark_Free_Api, headers=headers, json=data, timeout=60)
                 json_data = resp.json()
                 assistant_content = json_data['data'][0]['url']
                 return assistant_content if assistant_content else None
             except Exception as e:
-                OutPut.outPut(f'[-]: spark_free_api接口出现错误，错误信息： {e}')
-                return None
+                OutPut.outPut(f'[-]: spark_free_api接口出现错误，错误信息： {e}，正在重试... ...')
+                # 重试一次
+                try:
+                    resp = requests.post(url=self.Spark_Free_Api, headers=headers, json=data, timeout=60)
+                    json_data = resp.json()
+                    assistant_content = json_data['data'][0]['url']
+                    return assistant_content if assistant_content else None
+                except Exception as e:
+                    OutPut.outPut(f'[-]: spark_free_api接口出现错误，错误信息： {e}')
+                    return None
 
         # 星火大模型
         def get_xh(question):
