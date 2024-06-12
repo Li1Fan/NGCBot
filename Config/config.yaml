@@ -316,7 +316,7 @@ Function_Key_Word:
 Api_Server:
   Api_Config:
     # 天行Key
-    Key: '426acf7dd08777c231678c6fdd57ac73'
+    Key: ''
     # Somd5 Key
     Somd5_Key: ''
     # 微步Key
@@ -325,21 +325,21 @@ Api_Server:
     # 星火大模型
     SparkApi:
       # 模型Url
-      Spark_url: 'ws://spark-api.xf-yun.com/v3.5/chat'
+      Spark_url: 'ws://spark-api.xf-yun.com/v3.1/chat'
       # 模型Secret
-      ApiSecret: 'MDk5MDA5YWFiMTI5NjIxYzc5YjIyNzhi'
+      ApiSecret: ''
       # 模型版本
-      Domain: 'generalv3.5'
+      Domain: 'generalv3'
       # 模型Key
-      ApiKey: '0aa0c2f65500a084ca21f812e0ef1853'
+      ApiKey: ''
       # 模型Appid
-      Appid: 'b5c9fd0b'
+      Appid: ''
     # OpenAi
     Open_Ai:
       # Open_Ai接口
-      OpenAi_Api: 'https://api.chatanywhere.tech/v1/chat/completions'
+      OpenAi_Api: 'https://api.openai-proxy.com/v1/chat/completions'
       # OpenAi Key
-      OpenAi_Key: 'Bearer sk-3V1kL18M79G07yiXzb4ma485SgttHliFsuZJk6AtM3H0slCR'
+      OpenAi_Key: 'Bearer sk-'
       # 初始化OpenAi角色
       OpenAi_Role: '你叫萝卜，是一名AI助理。'
     # 千帆大模型
