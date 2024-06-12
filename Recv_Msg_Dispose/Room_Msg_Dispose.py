@@ -361,7 +361,7 @@ class Room_Msg_Dispose:
                                     thumburl='https://metaso.cn/apple-touch-icon.png',
                                     receiver=msg.roomid)
         # 文生图
-        elif self.judge_keyword(keyword=['画画', '画图', '绘画', 'ai画画', 'AI画画', 'ai绘画', 'AI绘画', '文生图'],
+        elif self.judge_keyword(keyword=['画', '画画', '画图', '绘画', 'ai画画', 'AI画画', 'ai绘画', 'AI绘画', '文生图'],
                                 msg=msg.content.strip(), list_bool=True, split_bool=True):
             Thread(target=self.get_ai, name="Spark文生图", args=(msg, at_user_lists, 'image')).start()
         # Ai对话
@@ -472,8 +472,13 @@ class Room_Msg_Dispose:
                 save_path = self.Ams.Cache_path + '/Pic_Cache/' + str(int(time.time() * 1000)) + '.jpg'
                 url = self.Ams.get_ai(question=question, model=model)
                 if url:
+                    headers = {
+                        'Authorization': 'Bearer {}'.format(self.Ams.Spark_Free_Key),
+                        'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+                        'Content-Type': 'application/json'
+                    }
                     try:
-                        pic_data = requests.get(url=url, timeout=30, verify=False).content
+                        pic_data = requests.get(url=url, headers=headers, timeout=90, verify=False).content
                         with open(file=save_path, mode='wb') as pd:
                             pd.write(pic_data)
                         OutPut.outPut(f'[+]: Spark文生图接口调用成功，图片保存路径：{save_path}\n')

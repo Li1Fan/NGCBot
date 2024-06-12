@@ -178,7 +178,7 @@ class Api_Main_Server:
                 'Content-Type': 'application/json'
             }
             try:
-                resp = requests.post(url=self.Spark_Free_Api, headers=headers, json=data, timeout=60)
+                resp = requests.post(url=self.Spark_Free_Api, headers=headers, json=data, timeout=90)
                 json_data = resp.json()
                 assistant_content = json_data['data'][0]['url']
                 return assistant_content if assistant_content else None
