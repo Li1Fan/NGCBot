@@ -1,5 +1,8 @@
-import datetime
 import os
+import time
+from datetime import datetime
+
+import chinese_calendar
 import schedule
 import yaml
 
@@ -36,6 +39,7 @@ class Push_Main_Server:
     def push_morning_msg(self):
         OutPut.outPut('[*]: 定时早安寄语推送中... ...')
         msg = self.Ams.get_morning()
+        msg = "早安！打工人\n" + msg
         room_dicts = self.Dms.show_push_rooms()
         for room_id in room_dicts.keys():
             self.wcf.send_text(msg=msg, receiver=room_id)
@@ -108,18 +112,42 @@ class Push_Main_Server:
         OutPut.outPut(f'[+]: 定时KFC文案发送成功！！！')
 
     def run(self):
-        # schedule.every().day.at(self.Morning_Push_Time).do(self.push_morning_msg)
-        # schedule.every().day.at(self.Morning_Page_Tome).do(self.push_morning_page)
-        schedule.every().day.at(self.Morning_Page_Time).do(self.push_60s)
-        schedule.every().day.at(self.Fish_Time).do(self.push_fish)
-        schedule.every().thursday.at(self.Kfc_Time).do(self.push_kfc)
-        # schedule.every().day.at(self.Evening_Page_Time).do(self.push_evening_page)
-        schedule.every().day.at(self.Off_Work_Time).do(self.push_off_work)
-        schedule.every().day.at('00:00').do(self.clear_sign)
-        schedule.every().day.at('03:00').do(self.clear_cache)
+        # # schedule.every().day.at(self.Morning_Push_Time).do(self.push_morning_msg)
+        # # schedule.every().day.at(self.Morning_Page_Tome).do(self.push_morning_page)
+        # schedule.every().day.at(self.Morning_Page_Time).do(self.push_60s)
+        # schedule.every().day.at(self.Fish_Time).do(self.push_fish)
+        # schedule.every().thursday.at(self.Kfc_Time).do(self.push_kfc)
+        # # schedule.every().day.at(self.Evening_Page_Time).do(self.push_evening_page)
+        # schedule.every().day.at(self.Off_Work_Time).do(self.push_off_work)
+        # schedule.every().day.at('00:00').do(self.clear_sign)
+        # # schedule.every().day.at('03:00').do(self.clear_cache)
+        # OutPut.outPut(f'[+]: 已开启定时推送服务！！！')
+
+        # 创建两个schedule对象，分别用于工作日和非工作日
+        workday_schedule = schedule.Scheduler()
+        non_workday_schedule = schedule.Scheduler()
+
+        workday_schedule.every().day.at(self.Morning_Push_Time).do(self.push_morning_msg)
+        workday_schedule.every().day.at(self.Morning_Page_Time).do(self.push_60s)
+        workday_schedule.every().day.at(self.Fish_Time).do(self.push_fish)
+        workday_schedule.every().thursday.at(self.Kfc_Time).do(self.push_kfc)
+        workday_schedule.every().day.at(self.Off_Work_Time).do(self.push_off_work)
+        workday_schedule.every().day.at('00:00').do(self.clear_sign)
+
+        non_workday_schedule.every().day.at('00:00').do(self.clear_sign)
+
         OutPut.outPut(f'[+]: 已开启定时推送服务！！！')
+
         while True:
-            schedule.run_pending()
+            # 获取当前日期
+            current_date = datetime.now().date()
+
+            # 根据日期判断是否为工作日
+            if chinese_calendar.is_workday(current_date):
+                workday_schedule.run_pending()
+            else:
+                non_workday_schedule.run_pending()
+            time.sleep(30)
 
 
 if __name__ == '__main__':

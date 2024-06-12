@@ -267,12 +267,12 @@ class Room_Msg_Dispose:
         #     whois_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_whois(
         #         msg.content.strip())
         #     self.wcf.send_text(msg=whois_msg, receiver=msg.roomid, aters=msg.sender)
-        # 归属地查询
-        elif self.judge_keyword(keyword=self.Attribution_Words, msg=msg.content.strip(), list_bool=True,
-                                split_bool=True):
-            attribution_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_attribution(
-                msg.content.strip())
-            self.wcf.send_text(msg=attribution_msg, receiver=msg.roomid, aters=msg.sender)
+        # # 归属地查询
+        # elif self.judge_keyword(keyword=self.Attribution_Words, msg=msg.content.strip(), list_bool=True,
+        #                         split_bool=True):
+        #     attribution_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_attribution(
+        #         msg.content.strip())
+        #     self.wcf.send_text(msg=attribution_msg, receiver=msg.roomid, aters=msg.sender)
         # # 备案查询
         # elif self.judge_keyword(keyword=self.Icp_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
         #     attribution_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_icp(
@@ -366,7 +366,9 @@ class Room_Msg_Dispose:
                    f"[庆祝]【一、积分功能】\n" \
                    f"[庆祝]【1.1】、@机器人开启Ai对话(Gpt&星火模型&千帆模型)\n" \
                    f"[庆祝]【1.2】、GPT3.5\n" \
-                   f"[庆祝]【1.3】、星火模型(可联网)\n\n" \
+                   f"[庆祝]【1.3】、星火模型(可联网)\n" \
+                   f"[庆祝]【1.4】、秘塔搜索\n" \
+                   f"[庆祝]【1.4】、Ai画画\n\n" \
                    f"[烟花]【二、娱乐功能】\n" \
                    f"[烟花]【2.1】、舔狗日记\n" \
                    f"[烟花]【2.2】、摸鱼日历\n" \
@@ -376,7 +378,6 @@ class Room_Msg_Dispose:
                    f"[烟花]【2.6】、讲笑话\n" \
                    f"[烟花]【2.7】、每天60秒读懂世界\n" \
                    f"[烟花]【2.8】、天气查询\n" \
-                   f"[烟花]【2.9】、归属地查询\n" \
                    f"{'By #' + self.system_copyright if self.system_copyright else ''}"
         self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
         # num = ''
