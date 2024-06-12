@@ -362,6 +362,12 @@ Api_Server:
       Api: 'http://127.0.0.1:9000/v1/images/generations'
       # 文生图像生成接口Key
       Key: 'Bearer '
+    # Qwen_Free_Api
+    Qwen_Free_Api:
+      # Qwen图像生成接口
+      Api: 'http://192.168.222.108:9100/v1/images/generations'
+      # Qwen图像生成接口Key
+      Key: 'Bearer '
 
   # 天气查询API
   Weather_Api: 'https://apis.tianapi.com/tianqi/index?key={}&city={}&type=1'

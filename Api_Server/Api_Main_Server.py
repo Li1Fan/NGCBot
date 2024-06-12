@@ -94,6 +94,9 @@ class Api_Main_Server:
         # spark_free_api
         self.Spark_Free_Api = config['Api_Server']['Ai_Config']['Spark_Free_Api']['Api']
         self.Spark_Free_Key = config['Api_Server']['Ai_Config']['Spark_Free_Api']['Key']
+        # qwen_free_api
+        self.Qwen_Free_Api = config['Api_Server']['Ai_Config']['Qwen_Free_Api']['Api']
+        self.Qwen_Free_Key = config['Api_Server']['Ai_Config']['Qwen_Free_Api']['Key']
 
     # Ai功能
     def get_ai(self, question, model=None):
@@ -184,15 +187,26 @@ class Api_Main_Server:
                 return assistant_content if assistant_content else None
             except Exception as e:
                 OutPut.outPut(f'[-]: spark_free_api接口出现错误，错误信息： {e}，正在重试... ...')
-                # 重试一次
-                try:
-                    resp = requests.post(url=self.Spark_Free_Api, headers=headers, json=data, timeout=60)
-                    json_data = resp.json()
-                    assistant_content = json_data['data'][0]['url']
-                    return assistant_content if assistant_content else None
-                except Exception as e:
-                    OutPut.outPut(f'[-]: spark_free_api接口出现错误，错误信息： {e}')
-                    return None
+                return None
+
+        # qwen_free_api
+        def get_qwen_free_image(content):
+            data = {
+                "prompt": content
+            }
+            headers = {
+                "Authorization": f"{self.Qwen_Free_Key}",
+                'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+                'Content-Type': 'application/json'
+            }
+            try:
+                resp = requests.post(url=self.Qwen_Free_Api, headers=headers, json=data, timeout=60)
+                json_data = resp.json()
+                assistant_content = json_data['data'][0]['url']
+                return assistant_content if assistant_content else None
+            except Exception as e:
+                OutPut.outPut(f'[-]: qwen_free_api接口出现错误，错误信息： {e}，正在重试... ...')
+                return None
 
         # 星火大模型
         def get_xh(question):
@@ -279,6 +293,10 @@ class Api_Main_Server:
                 OutPut.outPut('[+]: Spark文生图接口调用成功！！！')
                 return spark_free_msg
             else:
+                qwen_free_msg = get_qwen_free_image(content=question)
+                if qwen_free_msg:
+                    OutPut.outPut('[+]: qwen_free_api接口调用成功！！！')
+                    return qwen_free_msg
                 return None
 
     # 美女图片
