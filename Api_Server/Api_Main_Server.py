@@ -93,7 +93,7 @@ class Api_Main_Server:
         self.Metaso_Key = config['Api_Server']['Ai_Config']['Metaso']['Metaso_Key']
         # spark_free_api
         self.Spark_Free_Api = config['Api_Server']['Ai_Config']['Spark_Free_Api']['Api']
-        self.Spark_Free_Key = config['Api_Server']['Ai_Config']['Spark_Free_Key']['Key']
+        self.Spark_Free_Key = config['Api_Server']['Ai_Config']['Spark_Free_Api']['Key']
 
     # Ai功能
     def get_ai(self, question, model=None):
