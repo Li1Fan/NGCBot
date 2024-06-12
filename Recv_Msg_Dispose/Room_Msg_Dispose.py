@@ -231,6 +231,10 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=self.Morning_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             morning_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_morning()
             self.wcf.send_text(msg=morning_msg, receiver=msg.roomid, aters=msg.sender)
+            # try:
+            #     self.wcf.send_image(path=self.Ams.Pic_path+'/daily.gif', receiver=msg.roomid)
+            # except Exception as e:
+            #     print(f'早安寄语图片发送失败, 错误信息: {e}')
         # 毒鸡汤
         elif self.judge_keyword(keyword=self.Poison_Chicken_Soup_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
@@ -335,6 +339,14 @@ class Room_Msg_Dispose:
         # 秘塔搜索
         elif self.judge_keyword(keyword=self.Metaso_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
             Thread(target=self.get_ai, name="秘塔搜索", args=(msg, at_user_lists, 'metaso')).start()
+        elif ' ' in msg.content.strip() and msg.content.strip().split(' ')[0] == '秘塔搜索':
+            def fun_metaso(question):
+                self.wcf.send_rich_text(name='搜索', account='', title='秘塔AI搜索',
+                                        digest=question, url='https://metaso.cn/?q=%s' % question,
+                                        thumburl='https://metaso.cn/apple-touch-icon.png',
+                                        receiver=msg.roomid)
+            quest = msg.content.strip().split(' ', 1)[1]
+            Thread(target=fun_metaso, name="秘塔搜索", args=(quest,)).start()
         # Ai对话
         elif self.wcf.self_wxid in at_user_lists and '所有人' not in msg.content:
             Thread(target=self.get_ai, name="Ai对话", args=(msg, at_user_lists)).start()
@@ -378,6 +390,7 @@ class Room_Msg_Dispose:
                    f"[烟花]【2.6】、讲笑话\n" \
                    f"[烟花]【2.7】、每天60秒读懂世界\n" \
                    f"[烟花]【2.8】、天气查询\n" \
+                   f"[烟花]【2.9】、点歌\n" \
                    f"{'By #' + self.system_copyright if self.system_copyright else ''}"
         self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
         # num = ''

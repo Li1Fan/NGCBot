@@ -38,6 +38,7 @@ class Api_Main_Server:
         current_list_path = current_path.split('\\')
         current_list_path.pop()
         self.Cache_path = '/'.join(current_list_path) + '/Cache'
+        self.Pic_path = '/'.join(current_list_path) + '/Pic'
         # 初始化读取配置文件
         config = yaml.load(open(current_path + '/../Config/config.yaml', encoding='UTF-8'), yaml.Loader)
         self.system_copyright = config['System_Config']['System_Copyright']
