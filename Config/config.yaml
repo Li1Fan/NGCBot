@@ -355,7 +355,7 @@ Api_Server:
       # 秘塔搜索接口
       Metaso_Api: 'http://192.168.222.108:8000/v1/chat/completions'
       # 秘塔搜索Key
-      Metaso_Key: 'Bearer 64d9ed57866f0e125f22520c-d0632b6a055f490bb6f07de84dea1179'
+      Metaso_Key: 'Bearer '
     # Spark_Free_Api
     Spark_Free_Api:
       # 文生图像生成接口
