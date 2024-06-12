@@ -481,7 +481,7 @@ class Room_Msg_Dispose:
                         msg = f'[-]: Spark文生图接口出现错误，错误信息：{e}\n'
                         OutPut.outPut(msg)
                     if os.path.exists(save_path):
-                        self.wcf.send_image(msg=save_path, receiver=msg.roomid)
+                        self.wcf.send_image(path=save_path, receiver=msg.roomid)
         # 不是管理员
         else:
             if self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name) >= int(
