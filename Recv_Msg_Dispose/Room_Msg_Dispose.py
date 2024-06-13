@@ -495,6 +495,8 @@ class Room_Msg_Dispose:
                         OutPut.outPut(msg)
                     if os.path.exists(save_path):
                         self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                    usr_msg = f'@{wx_name}\n [{question}]：\n{url}'
+                    self.wcf.send_text(msg=usr_msg, receiver=msg.roomid)
         # 不是管理员
         else:
             if self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name) >= int(
