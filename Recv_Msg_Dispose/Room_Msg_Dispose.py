@@ -535,6 +535,8 @@ class Room_Msg_Dispose:
                             OutPut.outPut(msg)
                         if os.path.exists(save_path):
                             self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                        usr_msg = f'@{wx_name}\n [{question}]：\n{url}'
+                        self.wcf.send_text(msg=usr_msg, receiver=msg.roomid)
             else:
                 send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
                 self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)
