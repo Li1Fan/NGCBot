@@ -361,7 +361,7 @@ class Room_Msg_Dispose:
                                     thumburl='https://metaso.cn/apple-touch-icon.png',
                                     receiver=msg.roomid)
         # 文生图
-        elif self.judge_keyword(keyword=['画', '画画', '画图', '绘画', 'ai画画', 'AI画画', 'ai绘画', 'AI绘画', '文生图'],
+        elif self.judge_keyword(keyword=['画', '画画', '画图', '绘画', 'ai画画', 'Ai画画', 'AI画画', 'ai绘画', 'Ai绘画', 'AI绘画', '文生图'],
                                 msg=msg.content.strip(), list_bool=True, split_bool=True):
             Thread(target=self.get_ai, name="Spark文生图", args=(msg, at_user_lists, 'image')).start()
         # Ai对话
