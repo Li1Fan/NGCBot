@@ -521,7 +521,6 @@ class Room_Msg_Dispose:
                     url = self.Ams.get_ai(question=question, model=model)
                     if url:
                         headers = {
-                            'Authorization': 'Bearer {}'.format(self.Ams.Spark_Free_Key),
                             'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
                             'Content-Type': 'application/json'
                         }
