@@ -113,6 +113,8 @@ class Room_Msg_Dispose:
         # 删除管理员流程
         elif self.judge_keyword(keyword=self.Del_Admin_KeyWords, msg=msg.content, list_bool=True, in_bool=True):
             Thread(target=self.del_admin, name="删除管理员", args=(msg.sender, at_user_lists, msg.roomid,)).start()
+        elif msg.content.strip() in ['重新发送图片', '重新发送', '重发图片', '重发']:
+            self.wcf.send_image(path=self.save_path, receiver=msg.roomid)
         self.Admin_Function(msg, at_user_lists)
 
     # 管理员功能
@@ -495,6 +497,7 @@ class Room_Msg_Dispose:
                         OutPut.outPut(msg)
                     if os.path.exists(save_path):
                         self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                        self.save_path = save_path
                     usr_msg = f'@{wx_name}\n [{question}]：\n{url}'
                     self.wcf.send_text(msg=usr_msg, receiver=msg.roomid)
         # 不是管理员
