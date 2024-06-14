@@ -183,6 +183,7 @@ class Api_Main_Server:
             try:
                 resp = requests.post(url=self.Spark_Free_Api, headers=headers, json=data, timeout=60)
                 json_data = resp.json()
+                OutPut.outPut(f"[*]: spark_free_api接口返回数据：{json_data}")
                 assistant_content = json_data['data'][0]['url']
                 return assistant_content if assistant_content else None
             except Exception as e:
@@ -202,6 +203,7 @@ class Api_Main_Server:
             try:
                 resp = requests.post(url=self.Qwen_Free_Api, headers=headers, json=data, timeout=60)
                 json_data = resp.json()
+                OutPut.outPut(f"[*]: qwen_free_api接口返回数据：{json_data}")
                 assistant_content = json_data['data'][0]['url']
                 return assistant_content if assistant_content else None
             except Exception as e:
