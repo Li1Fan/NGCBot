@@ -133,8 +133,10 @@ class Push_Main_Server:
         workday_schedule.every().thursday.at(self.Kfc_Time).do(self.push_kfc)
         workday_schedule.every().day.at(self.Off_Work_Time).do(self.push_off_work)
         workday_schedule.every().day.at('00:00').do(self.clear_sign)
+        workday_schedule.every().day.at('03:00').do(self.clear_cache)
 
         non_workday_schedule.every().day.at('00:00').do(self.clear_sign)
+        non_workday_schedule.every().day.at('03:00').do(self.clear_cache)
 
         OutPut.outPut(f'[+]: 已开启定时推送服务！！！')
 
