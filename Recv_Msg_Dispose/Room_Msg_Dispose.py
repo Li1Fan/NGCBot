@@ -233,12 +233,12 @@ class Room_Msg_Dispose:
                 self.wcf.send_text(msg='美女视频接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
         # 天气查询
         elif self.judge_keyword(keyword=self.Weather_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-            weather_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.query_weather(
+            weather_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.query_weather(
                 msg.content.strip())
             self.wcf.send_text(msg=weather_msg, receiver=msg.roomid, aters=msg.sender)
         # 舔狗日记
         elif self.judge_keyword(keyword=self.Dog_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            dog_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_dog()
+            dog_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_dog()
             self.wcf.send_text(msg=dog_msg, receiver=msg.roomid, aters=msg.sender)
         # # 星座查询
         # elif self.judge_keyword(keyword=self.Constellation_Words, msg=msg.content.strip(), list_bool=True,
@@ -248,7 +248,7 @@ class Room_Msg_Dispose:
         #     self.wcf.send_text(msg=constellation_msg, receiver=msg.roomid, aters=msg.sender)
         # 早安寄语
         elif self.judge_keyword(keyword=self.Morning_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            morning_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_morning()
+            morning_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_morning()
             self.wcf.send_text(msg=morning_msg, receiver=msg.roomid, aters=msg.sender)
             # try:
             #     self.wcf.send_image(path=self.Ams.Pic_path+'/daily.gif', receiver=msg.roomid)
@@ -257,11 +257,11 @@ class Room_Msg_Dispose:
         # 毒鸡汤
         elif self.judge_keyword(keyword=self.Poison_Chicken_Soup_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
-            poison_chicken_soup_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_soup()
+            poison_chicken_soup_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_soup()
             self.wcf.send_text(msg=poison_chicken_soup_msg, receiver=msg.roomid, aters=msg.sender)
         # 讲笑话
         elif self.judge_keyword(keyword=self.Joke_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            joke_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_joke()
+            joke_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_joke()
             self.wcf.send_text(msg=joke_msg, receiver=msg.roomid, aters=msg.sender)
         # 60s
         elif self.judge_keyword(keyword=self.s60_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
