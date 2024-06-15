@@ -517,7 +517,11 @@ class Room_Msg_Dispose:
                     if os.path.exists(save_path):
                         self.wcf.send_image(path=save_path, receiver=msg.roomid)
                         self.save_path = save_path
-                    usr_msg = f'@{wx_name}\n [{question}]：\n{url}'
+                    # usr_msg = f'@{wx_name}\n [{question}]：\n{url}'
+                    usr_msg = f'@{wx_name}\n [{question}]：\n图片已发送，请查收！'
+                    self.wcf.send_text(msg=usr_msg, receiver=msg.roomid)
+                else:
+                    usr_msg = f'@{wx_name}\n [{question}]：\n图片生成失败！'
                     self.wcf.send_text(msg=usr_msg, receiver=msg.roomid)
         # 不是管理员
         else:
@@ -557,7 +561,11 @@ class Room_Msg_Dispose:
                         if os.path.exists(save_path):
                             self.wcf.send_image(path=save_path, receiver=msg.roomid)
                             self.save_path = save_path
-                        usr_msg = f'@{wx_name}\n [{question}]：\n{url}'
+                        # usr_msg = f'@{wx_name}\n [{question}]：\n{url}'
+                        usr_msg = f'@{wx_name}\n [{question}]：\n图片已发送，请查收！'
+                        self.wcf.send_text(msg=usr_msg, receiver=msg.roomid)
+                    else:
+                        usr_msg = f'@{wx_name}\n [{question}]：\n图片生成失败！'
                         self.wcf.send_text(msg=usr_msg, receiver=msg.roomid)
             else:
                 send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
