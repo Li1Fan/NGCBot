@@ -119,7 +119,7 @@ Point_Config:
     # 签到口令
     Word: '恭喜发财！'
     # 签到积分
-    Point: '30'
+    Point: '20'
   # 功能积分配置
   Function_Point:
     # Md5积分配置
