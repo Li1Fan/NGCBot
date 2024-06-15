@@ -78,6 +78,9 @@ class Room_Msg_Dispose:
         self.Ai_Point = config['Point_Config']['Function_Point']['Ai_point']
         self.Port_Scan_Point = config['Point_Config']['Function_Point']['Port_Scan']
 
+        # 管理员模式
+        self.manager_mode = False
+
     # 主消息处理
     def Msg_Dispose(self, msg):
         at_user_lists = []
@@ -93,18 +96,26 @@ class Room_Msg_Dispose:
         # 超级管理员功能
         if msg.sender in self.administrators:
             Thread(target=self.Administrator_Function, name="超级管理员处理流程", args=(msg, at_user_lists,)).start()
+            return
         # 管理员功能
         elif msg.sender in admin_dicts.keys():
             Thread(target=self.Admin_Function, name="管理员处理流程", args=(msg, at_user_lists)).start()
+            return
+        # 管理员模式下，屏蔽所有非管理员消息
+        elif self.manager_mode:
+            return
         # 白名单群聊功能
-        elif msg.roomid in whiteRooms_dicts.keys() and msg.sender not in admin_dicts.keys() and msg.sender not in self.administrators:
+        elif msg.roomid in whiteRooms_dicts.keys():
             Thread(target=self.WhiteRoom_Function, name="白名单群聊处理流程", args=(msg, at_user_lists)).start()
+            return
         # 黑名单群聊功能
-        elif msg.roomid in blackRooms_dicts.keys() and msg.sender not in admin_dicts and msg.sender not in self.administrators:
+        elif msg.roomid in blackRooms_dicts.keys():
             Thread(target=self.BlackRoom_Function, name="黑名单群聊处理流程", args=(msg, at_user_lists)).start()
+            return
         # 普通群聊功能
         else:
             Thread(target=self.OrdinaryRoom_Function, name="普通群聊处理流程", args=(msg, at_user_lists)).start()
+            return
 
     def Administrator_Function(self, msg, at_user_lists):
         # 新增管理员流程
@@ -172,14 +183,20 @@ class Room_Msg_Dispose:
         # 添加白名单公众号
         elif msg.type == 49:
             Thread(target=self.add_white_gh, name="添加白名单公众号", args=(msg,)).start()
-        Thread(target=self.OrdinaryRoom_Function, name="普通群聊功能", args=(msg, at_user_lists)).start()
         # 积分限制功能
-        if msg.content.strip() in ['取消积分限制', '取消积分', '取消限制', '关闭积分限制', '关闭积分', '关闭限制']:
+        elif msg.content.strip() in ['取消积分限制', '取消积分', '取消限制', '关闭积分限制', '关闭积分', '关闭限制']:
             self.Ai_Point = 0
             self.wcf.send_text(msg='关闭积分限制成功', receiver=msg.roomid, aters=msg.sender)
         elif msg.content.strip() in ['开启积分限制', '开启积分', '开启限制']:
             self.Ai_Point = 10
             self.wcf.send_text(msg='开启积分限制成功', receiver=msg.roomid, aters=msg.sender)
+        elif msg.content.strip() in ['开启管理员模式', '管理员模式']:
+            self.manager_mode = True
+            self.wcf.send_text(msg=f'管理员模式开启成功，仅响应管理员消息', receiver=msg.roomid, aters=msg.sender)
+        elif msg.content.strip() in ['关闭管理员模式', '取消管理员模式', '退出管理员模式', '普通模式']:
+            self.manager_mode = False
+            self.wcf.send_text(msg=f'管理员模式关闭成功，恢复正常消息响应', receiver=msg.roomid, aters=msg.sender)
+        Thread(target=self.OrdinaryRoom_Function, name="普通群聊功能", args=(msg, at_user_lists)).start()
 
     # 白名单群聊功能
     def WhiteRoom_Function(self, msg, at_user_lists):
@@ -363,8 +380,10 @@ class Room_Msg_Dispose:
                                     thumburl='https://metaso.cn/apple-touch-icon.png',
                                     receiver=msg.roomid)
         # 文生图
-        elif self.judge_keyword(keyword=['画', '画画', '画图', '绘画', 'ai画画', 'Ai画画', 'AI画画', 'ai绘画', 'Ai绘画', 'AI绘画', '文生图'],
-                                msg=msg.content.strip(), list_bool=True, split_bool=True):
+        elif self.judge_keyword(
+                keyword=['画', '画画', '画图', '绘画', 'ai画画', 'Ai画画', 'AI画画', 'ai绘画', 'Ai绘画', 'AI绘画',
+                         '文生图'],
+                msg=msg.content.strip(), list_bool=True, split_bool=True):
             Thread(target=self.get_ai, name="Spark文生图", args=(msg, at_user_lists, 'image')).start()
         # Ai对话
         elif self.wcf.self_wxid in at_user_lists and '所有人' not in msg.content:
