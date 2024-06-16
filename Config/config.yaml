@@ -419,6 +419,7 @@ Api_Server:
   Joke_Api: 'https://api.vvhan.com/api/text/joke?type=json'
   # 每天60秒读懂世界API配置
   60s_Api: 'https://60s.viki.moe/60s'
+  60s_Pic_Api: 'https://api.jun.la/60s.php?format=imgapi'
   # 虎扑热搜API配置
   Hupu_Api: 'https://api.vvhan.com/api/hotlist/huPu'
 

@@ -267,6 +267,13 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=self.s60_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             s60_msg = self.Ams.get_60s()
             self.wcf.send_text(msg=s60_msg, receiver=msg.roomid, aters=msg.sender)
+        elif self.judge_keyword(keyword=["60s图片", "60pic", "60spic"], msg=msg.content.strip(), list_bool=True,
+                                equal_bool=True):
+            save_path = self.Ams.get_60s_pic()
+            if 'Pic_Cache' in save_path:
+                self.wcf.send_image(path=save_path, receiver=msg.roomid)
+            else:
+                self.wcf.send_text(msg='60s图片接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
         # 虎扑热搜
         elif self.judge_keyword(keyword=self.Hupu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             hupu_msg = self.Ams.get_hupu()

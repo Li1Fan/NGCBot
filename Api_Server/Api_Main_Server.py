@@ -66,6 +66,7 @@ class Api_Main_Server:
         self.Chicken_Soup_Api = config['Api_Server']['Chicken_Soup_Api']
         self.Joke_Api = config['Api_Server']['Joke_Api']
         self.s60_Api = config['Api_Server']['60s_Api']
+        self.s60_Pic_Api = config['Api_Server']['60s_Pic_Api']
         self.Hupu_Api = config['Api_Server']['Hupu_Api']
         # 星火配置
         self.Spark_url = config['Api_Server']['Ai_Config']['SparkApi']['Spark_url']
@@ -462,6 +463,36 @@ class Api_Main_Server:
         except Exception as e:
             msg = f'[-]: 60s接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
+
+    def get_60s_pic_url(self):
+        url = self.s60_Pic_Api
+        try:
+            json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
+            if json_data['code'] != "200":
+                return None
+            pic_url = json_data['imageBaidu']
+            return pic_url
+        except Exception as e:
+            return None
+
+    def get_60s_pic(self):
+        OutPut.outPut('[*]: 正在调用60s图片接口... ...')
+        url = self.get_60s_pic_url()
+        save_path = self.Cache_path + '/Pic_Cache/' + str(int(time.time() * 1000)) + '.jpg'
+        if not url:
+            msg = f'[-]: 60s图片API接口出现错误, 错误信息请查看日志 ~~~~~~'
+            OutPut.outPut(msg)
+            return None
+        try:
+            pic_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).content
+            with open(file=save_path, mode='wb') as pd:
+                pd.write(pic_data)
+        except Exception as e:
+            msg = f'[-]: 60s图片API接口出现错误，错误信息：{e}'
+            OutPut.outPut(msg)
+            return None
+        OutPut.outPut(f'[+]: 60s图片API接口调用成功！！！')
+        return save_path
 
     # 虎扑热搜
     def get_hupu(self):
