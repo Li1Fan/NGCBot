@@ -416,7 +416,7 @@ Api_Server:
   # 毒鸡汤API配置
   Chicken_Soup_Api: 'https://apis.tianapi.com/dujitang/index?key={}'
   # 笑话API配置
-  Joke_Api: 'https://apis.tianapi.com/joke/index?key={}&num=1'
+  Joke_Api: 'https://api.vvhan.com/api/text/joke?type=json'
   # 每天60秒读懂世界API配置
   60s_Api: 'https://60s.viki.moe/60s'
   # 虎扑热搜API配置

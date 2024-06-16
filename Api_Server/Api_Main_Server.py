@@ -434,10 +434,10 @@ class Api_Main_Server:
         url = self.Joke_Api.format(self.Key)
         try:
             json_data = requests.get(url=url, timeout=30, verify=False).json()
-            if json_data['code'] != 200 and json_data['msg'] != 'success':
+            if json_data['success'] is not True:
                 msg = f'[~]: 讲笑话接口出现错误, 错误信息请查看日志 ~~~~~~'
                 return msg
-            content = json_data['result']['list'][0]['content']
+            content = json_data['data']['content']
             OutPut.outPut(f'[+]: 讲笑话API接口调用成功！！！')
             return content
         except Exception as e:
