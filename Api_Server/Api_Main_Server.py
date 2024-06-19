@@ -1,14 +1,17 @@
 import datetime
-import feedparser
 import os
-import qianfan
 import random
-import requests
+import re
 import time
+from urllib.parse import urljoin
+
+import feedparser
+# import qianfan
+import requests
 import urllib3
 import yaml
+from bs4 import BeautifulSoup
 from lxml import etree
-from urllib.parse import urljoin
 
 import Api_Server.SparkApi as SparkApi
 from OutPut import OutPut
@@ -84,9 +87,10 @@ class Api_Main_Server:
         self.qf_ak = config['Api_Server']['Ai_Config']['QianFan']['Qf_Access_Key']
         self.qf_sk = config['Api_Server']['Ai_Config']['QianFan']['Qf_Secret_Key']
         if self.qf_ak and self.qf_sk:
-            self.chat_comp = qianfan.ChatCompletion(ak=self.qf_ak,
-                                                    sk=self.qf_sk)
-            self.chat_mess = qianfan.Messages()
+            # self.chat_comp = qianfan.ChatCompletion(ak=self.qf_ak,
+            #                                         sk=self.qf_sk)
+            # self.chat_mess = qianfan.Messages()
+            pass
         else:
             OutPut.outPut(f'[-]: 千帆模型未配置，请修改配置文件已启用模型！！！')
         # 秘塔搜索
@@ -333,6 +337,52 @@ class Api_Main_Server:
             save_path = self.get_girl_pic()
         OutPut.outPut(f'[+]: 美女视频API接口调用成功！！！')
         return save_path
+
+    # COSPLAY视频
+    def get_cosplay_video(self):
+        OutPut.outPut('[*]: 正在调用COSPLAY视频API接口... ...')
+        url = 'https://api.qvqa.cn/cos/'
+        video_url = self.extract_video_url(url)
+        if not video_url:
+            video_url = self.extract_video_url(url)
+        if not video_url:
+            OutPut.outPut(f'[-]: COSPLAY视频API接口出现错误，请查看日志！')
+            return None
+
+        save_path = self.Cache_path + '/Cosplay_Cache/' + str(int(time.time() * 1000)) + '.mp4'
+        try:
+            video_data = requests.get(url=video_url, headers=self.headers, timeout=90, verify=False).content
+            with open(file=save_path, mode='wb') as vd:
+                vd.write(video_data)
+        except Exception as e:
+            msg = f'[-]: COSPLAY视频API接口出现错误，错误信息：{e}'
+            OutPut.outPut(msg)
+            return None
+        OutPut.outPut(f'[+]: COSPLAY视频API接口调用成功！！！')
+        return save_path
+
+    @staticmethod
+    def extract_video_url(url):
+        headers = {
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36",
+            "Content-Type": "application/json, text/plain, */*",
+            "Accept": "application/json, text/plain, */*"
+        }
+
+        try:
+            res = requests.get(url, headers=headers, timeout=30)
+            soup = BeautifulSoup(res.text, 'html.parser')
+            source_tag = soup.find('source', type='video/mp4')
+
+            if source_tag:
+                video_url = source_tag.get('src')
+                cleaned_url = re.match(r'(https?://[^\s]+?\.mp4)', video_url).group(1)
+                return cleaned_url
+            else:
+                return None
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return None
 
     # 天气查询接口
     def query_weather(self, content):
@@ -824,4 +874,4 @@ if __name__ == '__main__':
     # print(Ams.get_whois('whois查询 qq.com'))
     # print(Ams.get_attribution('归属查询 121264'))
     # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
-    print(Ams.get_dream('解梦 淹死'))
+    print(Ams.get_cosplay_video())

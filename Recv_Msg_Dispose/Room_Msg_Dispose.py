@@ -270,7 +270,7 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=["60s图片", "60pic", "60spic"], msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             save_path = self.Ams.get_60s_pic()
-            if 'Pic_Cache' in save_path:
+            if save_path:
                 self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='60s图片接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
@@ -302,6 +302,13 @@ class Room_Msg_Dispose:
             digest = '点击进入点歌页面'
             url = 'https://tool.liumingye.cn/music/'
             self.send_music_message(digest, url, msg.roomid)
+        elif msg.content.strip().upper() in ["COS", "COSPLAY"]:
+            save_path = self.Ams.get_cosplay_video()
+            if save_path:
+                self.wcf.send_file(path=save_path, receiver=msg.roomid)
+            else:
+                self.wcf.send_text(msg='COSPLAY接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
+
         # # Whois查询
         # elif self.judge_keyword(keyword=self.Whois_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
         #     whois_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_whois(
