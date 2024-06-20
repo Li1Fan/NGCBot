@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import random
 import re
@@ -503,6 +504,19 @@ class Api_Main_Server:
 
     # 60s读懂世界
     def get_60s(self):
+        current_time = time.time()
+        while current_time + 30 > time.time():
+            res = self.get_60s_by_api()
+            if res and '微语' in res:
+                return res
+
+            res_request = self.get_60s_by_request()
+            if res_request and '微语' in res_request:
+                return res_request
+            time.sleep(3)
+        return None
+
+    def get_60s_by_api(self):
         OutPut.outPut('[*]: 正在调用60s接口... ...')
         url = self.s60_Api
         try:
@@ -518,6 +532,40 @@ class Api_Main_Server:
             return content
         except Exception as e:
             msg = f'[-]: 60s接口出现错误, 错误信息：{e}'
+            OutPut.outPut(msg)
+
+    @staticmethod
+    def get_60s_by_request():
+        OutPut.outPut('[*]: 正在调用new 60s接口... ...')
+        try:
+            url = 'https://www.zhihu.com/api/v4/columns/c_1715391799055720448/items'
+            headers = {
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "accept-language": "zh-CN,zh;q=0.9",
+                "sec-ch-ua": "\"Chromium\";v=\"110\", \"Not A(Brand\";v=\"24\", \"Google Chrome\";v=\"110\"",
+                "sec-ch-ua-mobile": "?1",
+                "sec-ch-ua-platform": "\"Android\"",
+                "sec-fetch-dest": "document",
+                "sec-fetch-mode": "navigate",
+                "sec-fetch-site": "none",
+                "sec-fetch-user": "?1",
+                "upgrade-insecure-requests": "1",
+                "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Mobile Safari/537.36"
+            }
+            res = requests.get(url, headers=headers, timeout=10)
+            res_json = json.loads(res.text)
+            content = res_json.get('data')[0].get('content')
+
+            # 使用BeautifulSoup提取出所有p标签的内容
+            soup = BeautifulSoup(content, 'html.parser')
+            info = soup.find_all('p')
+            result = [i.get_text().strip() for i in info if i.get_text().strip()]
+            result[0] = '每天60秒读懂世界'
+            OutPut.outPut(f'[+]: new 60s接口调用成功！！！')
+            return "\n".join(result)
+        except Exception as e:
+            print(e)
+            msg = f'[-]: new 60s接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
 
     def get_60s_pic_url(self):

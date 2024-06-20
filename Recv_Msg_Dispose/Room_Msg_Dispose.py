@@ -266,7 +266,8 @@ class Room_Msg_Dispose:
         # 60s
         elif self.judge_keyword(keyword=self.s60_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             s60_msg = self.Ams.get_60s()
-            self.wcf.send_text(msg=s60_msg, receiver=msg.roomid, aters=msg.sender)
+            if s60_msg:
+                self.wcf.send_text(msg=s60_msg, receiver=msg.roomid, aters=msg.sender)
         elif self.judge_keyword(keyword=["60s图片", "60pic", "60spic"], msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             save_path = self.Ams.get_60s_pic()
