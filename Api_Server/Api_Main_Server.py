@@ -325,7 +325,11 @@ class Api_Main_Server:
     # 美女视频
     def get_girl_video(self):
         OutPut.outPut('[*]: 正在调用美女视频API接口... ...')
+        base_url = "https://api.zxz.ee/api/video/?format=&type="
+        api_urls = [f"{base_url}{i}" for i in range(1, 62) if i != 8 and i != 10]
+        self.Video_Apis = self.Video_Apis + api_urls
         url = random.choice(self.Video_Apis)
+        print(url)
         save_path = self.Cache_path + '/Video_Cache/' + str(int(time.time() * 1000)) + '.mp4'
         try:
             video_data = requests.get(url=url, headers=self.headers, timeout=90, verify=False).content
