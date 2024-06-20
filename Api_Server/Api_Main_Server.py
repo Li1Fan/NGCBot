@@ -341,14 +341,14 @@ class Api_Main_Server:
     # COSPLAY视频
     def get_cosplay_video(self):
         OutPut.outPut('[*]: 正在调用COSPLAY视频API接口... ...')
-        url = 'https://api.qvqa.cn/cos/'
-        video_url = self.extract_video_url(url)
-        if not video_url:
-            video_url = self.extract_video_url(url)
-        if not video_url:
-            OutPut.outPut(f'[-]: COSPLAY视频API接口出现错误，请查看日志！')
-            return None
-
+        # url = 'https://api.qvqa.cn/cos/'
+        # video_url = self.extract_video_url(url)
+        # if not video_url:
+        #     video_url = self.extract_video_url(url)
+        # if not video_url:
+        #     OutPut.outPut(f'[-]: COSPLAY视频API接口出现错误，请查看日志！')
+        #     return None
+        video_url = 'https://api.zxz.ee/api/video/?format=&type=37'
         save_path = self.Cache_path + '/Cosplay_Cache/' + str(int(time.time() * 1000)) + '.mp4'
         try:
             video_data = requests.get(url=video_url, headers=self.headers, timeout=90, verify=False).content
