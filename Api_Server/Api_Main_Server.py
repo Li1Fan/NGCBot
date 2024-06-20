@@ -326,7 +326,9 @@ class Api_Main_Server:
     def get_girl_video(self):
         OutPut.outPut('[*]: 正在调用美女视频API接口... ...')
         base_url = "https://api.zxz.ee/api/video/?format=&type="
-        api_urls = [f"{base_url}{i}" for i in range(1, 62) if i != 8 and i != 10]
+        num_lst = [i for i in range(1, 26)] + [30, 33, 34, 35, 37, 60]
+        dislike = [8, 10]
+        api_urls = [f"{base_url}{i}" for i in num_lst if i not in dislike]
         self.Video_Apis = self.Video_Apis + api_urls
         url = random.choice(self.Video_Apis)
         print(url)
