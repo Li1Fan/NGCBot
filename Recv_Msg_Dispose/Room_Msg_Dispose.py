@@ -79,7 +79,9 @@ class Room_Msg_Dispose:
         self.Port_Scan_Point = config['Point_Config']['Function_Point']['Port_Scan']
 
         # 管理员模式
-        self.manager_mode = False
+        self.manager_mode_rooms = {}
+        # 游戏模式
+        self.game_mode_rooms = {}
 
     # 主消息处理
     def Msg_Dispose(self, msg):
@@ -102,7 +104,7 @@ class Room_Msg_Dispose:
             Thread(target=self.Admin_Function, name="管理员处理流程", args=(msg, at_user_lists)).start()
             return
         # 管理员模式下，屏蔽所有非管理员消息
-        elif self.manager_mode:
+        elif self.manager_mode_rooms.get(msg.roomid, False):
             return
         # 白名单群聊功能
         elif msg.roomid in whiteRooms_dicts.keys():
@@ -191,10 +193,10 @@ class Room_Msg_Dispose:
             self.Ai_Point = 10
             self.wcf.send_text(msg='开启积分限制成功', receiver=msg.roomid, aters=msg.sender)
         elif msg.content.strip() in ['开启管理员模式', '管理员模式']:
-            self.manager_mode = True
+            self.manager_mode_rooms[msg.roomid] = True
             self.wcf.send_text(msg=f'管理员模式开启成功，仅响应管理员消息', receiver=msg.roomid, aters=msg.sender)
         elif msg.content.strip() in ['关闭管理员模式', '取消管理员模式', '退出管理员模式', '普通模式']:
-            self.manager_mode = False
+            self.manager_mode_rooms[msg.roomid] = False
             self.wcf.send_text(msg=f'管理员模式关闭成功，恢复正常消息响应', receiver=msg.roomid, aters=msg.sender)
         Thread(target=self.OrdinaryRoom_Function, name="普通群聊功能", args=(msg, at_user_lists)).start()
 
