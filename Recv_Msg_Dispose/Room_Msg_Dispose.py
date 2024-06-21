@@ -430,18 +430,21 @@ class Room_Msg_Dispose:
             self.wcf.send_image(path=self.idiom_pic[msg.roomid], receiver=msg.roomid)
             return
         else:
-            if self.judge_keyword(keyword=[self.game_answer[msg.roomid].get('答案', '')],
-                                  msg=msg.content.strip(), list_bool=True, equal_bool=True):
-                wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
-                self.wcf.send_text(msg=f'恭喜{wx_name}答对了！', receiver=msg.roomid)
-                if msg.roomid in self.game_point.keys():
-                    if wx_name in self.game_point[msg.roomid].keys():
-                        self.game_point[msg.roomid][wx_name] += 1
+            try:
+                if self.judge_keyword(keyword=[self.game_answer[msg.roomid].get('答案', '')],
+                                      msg=msg.content.strip(), list_bool=True, equal_bool=True):
+                    wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+                    self.wcf.send_text(msg=f'恭喜{wx_name}答对了！', receiver=msg.roomid)
+                    if msg.roomid in self.game_point.keys():
+                        if wx_name in self.game_point[msg.roomid].keys():
+                            self.game_point[msg.roomid][wx_name] += 1
+                        else:
+                            self.game_point[msg.roomid][wx_name] = 1
                     else:
-                        self.game_point[msg.roomid][wx_name] = 1
-                else:
-                    self.game_point[msg.roomid] = {wx_name: 1}
-                self.game_success[msg.roomid] = True
+                        self.game_point[msg.roomid] = {wx_name: 1}
+                    self.game_success[msg.roomid] = True
+            except Exception as e:
+                print(e)
 
     def start_guess_idiom_image(self, msg):
         wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)

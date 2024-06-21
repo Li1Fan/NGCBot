@@ -603,7 +603,7 @@ class Api_Main_Server:
         url = "https://api.andeer.top/API/guess_idiom_img.php"
         try:
             json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
-            if json_data['code'] != "200":
+            if json_data['code'] != 200:
                 return None
             data = json_data['data']
             return data
@@ -958,4 +958,4 @@ if __name__ == '__main__':
     # print(Ams.get_whois('whois查询 qq.com'))
     # print(Ams.get_attribution('归属查询 121264'))
     # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
-    print(Ams.get_cosplay_video())
+    print(Ams.get_idiom_data())
