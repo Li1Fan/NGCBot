@@ -367,7 +367,7 @@ class Room_Msg_Dispose:
             sign_msg = f'@{wx_name}\n'
             sign_msg += self.Dps.sign(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name)
             self.wcf.send_text(msg=sign_msg, receiver=msg.roomid, aters=msg.sender)
-        elif msg.content.strip() in ['重新发送图片', '重新发送', '重发图片', '重发']:
+        elif msg.content.strip() in ['重新发送图片', '重新发送', '重发图片']:
             self.wcf.send_image(path=self.save_path, receiver=msg.roomid)
         # 赠送积分功能
         elif self.judge_keyword(keyword=self.Send_Point_Words, msg=self.handle_atMsg(msg, at_user_lists),
@@ -464,9 +464,9 @@ class Room_Msg_Dispose:
             self.game_answer[msg.roomid] = idiom_data
             self.wcf.send_image(path=save_path, receiver=msg.roomid)
             self.wcf.send_text(msg=f'第{i + 1}轮题目：', receiver=msg.roomid)
-            self.wcf.send_text(msg='请在三十秒内回答，否则将跳过此题', receiver=msg.roomid)
+            self.wcf.send_text(msg='请在六十秒内回答，否则将跳过此题', receiver=msg.roomid)
             cur_time = time.time()
-            while time.time() - cur_time < 33:
+            while time.time() - cur_time < 63:
                 if not self.game_mode_rooms.get(msg.roomid, False):
                     return
                 if self.game_success.get(msg.roomid, False):
