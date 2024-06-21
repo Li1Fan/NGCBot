@@ -426,7 +426,7 @@ class Room_Msg_Dispose:
             self.game_mode_rooms[msg.roomid] = False
             self.wcf.send_text(msg=f'游戏已中止！', receiver=msg.roomid)
             return
-        elif self.judge_keyword(keyword=["重发成语图片"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+        elif self.judge_keyword(keyword=["重发"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             self.wcf.send_image(path=self.idiom_pic[msg.roomid], receiver=msg.roomid)
             return
         else:
@@ -449,9 +449,11 @@ class Room_Msg_Dispose:
     def start_guess_idiom_image(self, msg):
         wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
         self.wcf.send_text(msg=f'@{wx_name} '
-                               f'\n看图猜成语游戏开始，总共五轮题目！'
-                               f'\n如果要提前中止游戏，请说“退出游戏”。'
-                               f'\n如果未成功收到图片，请说“重发成语图片”。',
+                               f'\n看图猜成语游戏开始，总共五轮！'
+                               f'\n如果要提前中止游戏，'
+                               f'\n请回复“退出游戏”。'
+                               f'\n如果未成功收到图片，'
+                               f'\n请回复“重发”。',
                            receiver=msg.roomid, aters=msg.sender)
         self.game_mode_rooms[msg.roomid] = True
         for i in range(5):
@@ -464,7 +466,7 @@ class Room_Msg_Dispose:
             self.wcf.send_text(msg=f'第{i + 1}轮题目：', receiver=msg.roomid)
             self.wcf.send_text(msg='请在三十秒内回答，否则将跳过此题', receiver=msg.roomid)
             cur_time = time.time()
-            while time.time() - cur_time < 30:
+            while time.time() - cur_time < 33:
                 if not self.game_mode_rooms.get(msg.roomid, False):
                     return
                 if self.game_success.get(msg.roomid, False):
@@ -533,6 +535,7 @@ class Room_Msg_Dispose:
                    f"[烟花]【2.4】、秒懂世界\n" \
                    f"[烟花]【2.5】、天气查询\n" \
                    f"[烟花]【2.6】、点歌\n" \
+                   f"[烟花]【2.7】、看图猜成语\n" \
                    f"{'By #' + self.system_copyright if self.system_copyright else ''}"
         self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
 
