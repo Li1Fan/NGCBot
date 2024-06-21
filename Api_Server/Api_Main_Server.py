@@ -598,6 +598,36 @@ class Api_Main_Server:
         OutPut.outPut(f'[+]: 60s图片API接口调用成功！！！')
         return save_path
 
+    # 看图猜成语
+    def get_idiom_data(self):
+        url = "https://api.andeer.top/API/guess_idiom_img.php"
+        try:
+            json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
+            if json_data['code'] != "200":
+                return None
+            data = json_data['data']
+            return data
+        except Exception as e:
+            return None
+
+    # 看图猜成语
+    def get_idiom(self):
+        OutPut.outPut('[*]: 正在调用看图猜成语API接口... ...')
+        idiom_data = self.get_idiom_data()
+        save_path = self.Cache_path + '/Pic_Cache/' + str(int(time.time() * 1000)) + '.jpg'
+        try:
+            url = idiom_data['图片链接']
+            pic_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).content
+            with open(file=save_path, mode='wb') as pd:
+                pd.write(pic_data)
+        except Exception as e:
+            msg = f'[-]: 看图猜成语接口出现错误，错误信息：{e}，回调中... ...'
+            OutPut.outPut(msg)
+            time.sleep(0.2)
+            return self.get_idiom()
+        OutPut.outPut(f'[+]: 看图猜成语接口调用成功！！！')
+        return save_path, idiom_data
+
     # 虎扑热搜
     def get_hupu(self):
         OutPut.outPut('[*]: 正在调用虎扑热搜API接口... ...')

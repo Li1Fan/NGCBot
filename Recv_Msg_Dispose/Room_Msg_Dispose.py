@@ -82,6 +82,10 @@ class Room_Msg_Dispose:
         self.manager_mode_rooms = {}
         # 游戏模式
         self.game_mode_rooms = {}
+        self.game_point = {}
+        self.game_answer = {}
+        self.game_success = {}
+        self.idiom_pic = {}
 
     # 主消息处理
     def Msg_Dispose(self, msg):
@@ -219,6 +223,11 @@ class Room_Msg_Dispose:
 
     # 娱乐功能
     def Happy_Function(self, msg):
+        if self.game_mode_rooms.get(msg.roomid, False):
+            self.gaming_function(msg)
+            return
+        if self.game_function(msg):
+            return
         # 美女图片
         if self.judge_keyword(keyword=self.Pic_Words, msg=msg.content, list_bool=True, equal_bool=True):
             save_path = self.Ams.get_girl_pic()
@@ -406,6 +415,83 @@ class Room_Msg_Dispose:
         # Ai对话
         elif self.wcf.self_wxid in at_user_lists and '所有人' not in msg.content:
             Thread(target=self.get_ai, name="Ai对话", args=(msg, at_user_lists)).start()
+
+    def game_function(self, msg):
+        if self.judge_keyword(keyword=["看图猜成语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+            Thread(target=self.start_guess_idiom_image, name="看图猜成语", args=(msg,)).start()
+            return True
+
+    def gaming_function(self, msg):
+        if self.judge_keyword(keyword=["退出游戏"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+            self.game_mode_rooms[msg.roomid] = False
+            self.wcf.send_text(msg=f'游戏已中止！', receiver=msg.roomid)
+            return
+        elif self.judge_keyword(keyword=["重发成语图片"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+            self.wcf.send_image(path=self.idiom_pic[msg.roomid], receiver=msg.roomid)
+            return
+        else:
+            if self.judge_keyword(keyword=[self.game_answer[msg.roomid].get('答案', '')],
+                                  msg=msg.content.strip(), list_bool=True, equal_bool=True):
+                wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+                self.wcf.send_text(msg=f'恭喜{wx_name}答对了！', receiver=msg.roomid)
+                if msg.roomid in self.game_point.keys():
+                    if wx_name in self.game_point[msg.roomid].keys():
+                        self.game_point[msg.roomid][wx_name] += 1
+                    else:
+                        self.game_point[msg.roomid][wx_name] = 1
+                else:
+                    self.game_point[msg.roomid] = {wx_name: 1}
+                self.game_success[msg.roomid] = True
+
+    def start_guess_idiom_image(self, msg):
+        wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+        self.wcf.send_text(msg=f'@{wx_name} '
+                               f'\n看图猜成语游戏开始，总共五轮题目！'
+                               f'\n如果要提前中止游戏，请说“退出游戏”。'
+                               f'\n如果未成功收到图片，请说“重发成语图片”。',
+                           receiver=msg.roomid, aters=msg.sender)
+        self.game_mode_rooms[msg.roomid] = True
+        for i in range(5):
+            if not self.game_mode_rooms.get(msg.roomid):
+                break
+            save_path, idiom_data = self.Ams.get_idiom()
+            self.idiom_pic[msg.roomid] = save_path
+            self.game_answer[msg.roomid] = idiom_data
+            self.wcf.send_image(path=save_path, receiver=msg.roomid)
+            self.wcf.send_text(msg=f'第{i + 1}轮题目：', receiver=msg.roomid)
+            self.wcf.send_text(msg='请在三十秒内回答，否则将跳过此题', receiver=msg.roomid)
+            cur_time = time.time()
+            while time.time() - cur_time < 30:
+                if not self.game_mode_rooms.get(msg.roomid, False):
+                    return
+                if self.game_success.get(msg.roomid, False):
+                    break
+                time.sleep(1)
+            if not self.game_mode_rooms.get(msg.roomid, False):
+                return
+            if self.game_success.get(msg.roomid, False):
+                self.game_success[msg.roomid] = False
+                self.wcf.send_text(msg='回答正确！', receiver=msg.roomid)
+            else:
+                self.wcf.send_text(msg='没有人回答正确！', receiver=msg.roomid)
+            answer = f"答案: {idiom_data['答案']}\n" \
+                     f"拼音: {idiom_data['拼音']}\n" \
+                     f"解释: {idiom_data['解释']}\n" \
+                     f"出处: {idiom_data['出处']}\n" \
+                     f"例句: {idiom_data['例句']}"
+            self.wcf.send_text(msg=answer, receiver=msg.roomid)
+            time.sleep(0.5)
+        msg_over = ["游戏结束！"]
+        for wx_name, point in self.game_point[msg.roomid].items():
+            msg_over.append(f"{wx_name}：{point} 分")
+        self.wcf.send_text(msg='\n'.join(msg_over), receiver=msg.roomid)
+
+        # 清空游戏数据
+        self.game_mode_rooms[msg.roomid] = False
+        self.game_point[msg.roomid] = {}
+        self.game_answer[msg.roomid] = None
+        self.idiom_pic[msg.roomid] = None
+        self.game_success[msg.roomid] = False
 
     # 积分查询
     def query_point(self, msg):
