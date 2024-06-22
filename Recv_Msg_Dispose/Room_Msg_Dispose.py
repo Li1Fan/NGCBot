@@ -1,5 +1,6 @@
 import os
 import re
+import threading
 import time
 import xml.etree.ElementTree as ET
 from threading import Thread
@@ -86,6 +87,8 @@ class Room_Msg_Dispose:
         self.game_answer = {}
         self.game_success = {}
         self.idiom_pic = {}
+        # 创建一个线程锁
+        self.counter_lock = threading.Lock()
 
     # 主消息处理
     def Msg_Dispose(self, msg):
@@ -431,18 +434,22 @@ class Room_Msg_Dispose:
             return
         else:
             try:
-                if self.judge_keyword(keyword=[self.game_answer[msg.roomid].get('答案', '')],
-                                      msg=msg.content.strip(), list_bool=True, equal_bool=True):
-                    wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
-                    self.wcf.send_text(msg=f'恭喜{wx_name}答对了！', receiver=msg.roomid)
-                    if msg.roomid in self.game_point.keys():
-                        if wx_name in self.game_point[msg.roomid].keys():
-                            self.game_point[msg.roomid][wx_name] += 1
+                with self.counter_lock:
+                    if self.game_success.get(msg.roomid, False):
+                        return
+                    if self.judge_keyword(keyword=[self.game_answer[msg.roomid].get('答案', '')],
+                                          msg=msg.content.strip(), list_bool=True, equal_bool=True):
+                        self.game_success[msg.roomid] = True
+                        self.game_answer[msg.roomid] = None
+                        wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+                        self.wcf.send_text(msg=f'恭喜{wx_name}答对了！', receiver=msg.roomid)
+                        if msg.roomid in self.game_point.keys():
+                            if wx_name in self.game_point[msg.roomid].keys():
+                                self.game_point[msg.roomid][wx_name] += 1
+                            else:
+                                self.game_point[msg.roomid][wx_name] = 1
                         else:
-                            self.game_point[msg.roomid][wx_name] = 1
-                    else:
-                        self.game_point[msg.roomid] = {wx_name: 1}
-                    self.game_success[msg.roomid] = True
+                            self.game_point[msg.roomid] = {wx_name: 1}
             except Exception as e:
                 print(e)
 
