@@ -1117,4 +1117,5 @@ class Room_Msg_Dispose:
             if not check_file(random_path):
                 print(f"文件 {random_path} 不存在或大小大于10KB，重新生成...")
             else:
+                print(f"文件 {random_path}")
                 return random_path
