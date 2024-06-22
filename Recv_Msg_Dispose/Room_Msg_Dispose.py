@@ -1,4 +1,5 @@
 import os
+import random
 import re
 import threading
 import time
@@ -26,8 +27,8 @@ class Room_Msg_Dispose:
         self.Ams = Api_Main_Server(wcf=self.wcf)
 
         # 读取配置文件
-        current_path = os.path.dirname(__file__)
-        config = yaml.load(open(current_path + '/../config/config.yaml', encoding='UTF-8'), yaml.Loader)
+        self.current_path = os.path.dirname(__file__)
+        config = yaml.load(open(self.current_path + '/../config/config.yaml', encoding='UTF-8'), yaml.Loader)
         self.system_copyright = config['System_Config']['System_Copyright']
 
         self.administrators = config['Administrators']
@@ -364,12 +365,14 @@ class Room_Msg_Dispose:
         if msg.content.strip() == '签到':
             sign_word = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + f'签到口令已改为：{self.Sign_Words}'
             self.wcf.send_text(msg=sign_word, receiver=msg.roomid, aters=msg.sender)
+            return
         elif msg.content.strip() == self.Sign_Words:
             wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
             room_name = self.Dms.query_room_name(room_id=msg.roomid)
             sign_msg = f'@{wx_name}\n'
             sign_msg += self.Dps.sign(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name)
             self.wcf.send_text(msg=sign_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         elif msg.content.strip() in ['重新发送图片', '重新发送', '重发图片']:
             self.wcf.send_image(path=self.save_path, receiver=msg.roomid)
         # 赠送积分功能
@@ -377,29 +380,39 @@ class Room_Msg_Dispose:
                                 list_bool=True, split_bool=True):
             Thread(target=self.send_point, name="赠送积分",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
-        # Md5查询
-        elif self.judge_keyword(keyword=self.Md5_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-            Thread(target=self.get_md5, name="Md5查询", args=(msg,)).start()
-        # 微步IP查询
-        elif self.judge_keyword(keyword=self.ThreatBook_Words, msg=msg.content.strip(), list_bool=True,
-                                split_bool=True):
-            Thread(target=self.get_ip, name="IP查询", args=(msg,)).start()
-        # 端口查询
-        elif self.judge_keyword(keyword=self.Port_Scan_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-            Thread(target=self.get_port, name="端口查询", args=(msg,)).start()
+            return
+        # # Md5查询
+        # elif self.judge_keyword(keyword=self.Md5_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
+        #     Thread(target=self.get_md5, name="Md5查询", args=(msg,)).start()
+        # # 微步IP查询
+        # elif self.judge_keyword(keyword=self.ThreatBook_Words, msg=msg.content.strip(), list_bool=True,
+        #                         split_bool=True):
+        #     Thread(target=self.get_ip, name="IP查询", args=(msg,)).start()
+        # # 端口查询
+        # elif self.judge_keyword(keyword=self.Port_Scan_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
+        #     Thread(target=self.get_port, name="端口查询", args=(msg,)).start()
+        # 拒绝者
+        elif self.judge_keyword(keyword=['拒绝者'], msg=msg.content.strip(), list_bool=True,
+                                equal_bool=True):
+            Thread(target=self.get_xiuren_pic, name="积分查询", args=(msg,)).start()
+            return
         # 积分查询
         elif self.judge_keyword(keyword=self.Query_Point_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.query_point, name="积分查询", args=(msg,)).start()
+            return
         # GPT对话
         elif self.judge_keyword(keyword=self.GPT_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
             Thread(target=self.get_ai, name="GPT对话", args=(msg, at_user_lists, 'gpt')).start()
+            return
         # 星火对话
         elif self.judge_keyword(keyword=self.Spark_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
             Thread(target=self.get_ai, name="星火对话", args=(msg, at_user_lists, 'xh')).start()
+            return
         # 秘塔搜索
         elif self.judge_keyword(keyword=self.Metaso_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
             Thread(target=self.get_ai, name="秘塔搜索", args=(msg, at_user_lists, 'metaso')).start()
+            return
         elif ' ' in msg.content.strip() and msg.content.strip().split(' ')[0] in ['秘塔搜索', '秘塔AI搜索']:
             question = msg.content.strip().split(' ', 1)[1]
             self.wcf.send_rich_text(name='搜索',
@@ -409,15 +422,18 @@ class Room_Msg_Dispose:
                                     url='https://metaso.cn/?q=%s' % question,
                                     thumburl='https://metaso.cn/apple-touch-icon.png',
                                     receiver=msg.roomid)
+            return
         # 文生图
         elif self.judge_keyword(
                 keyword=['画', '画画', '画图', '绘画', 'ai画画', 'Ai画画', 'AI画画', 'ai绘画', 'Ai绘画', 'AI绘画',
                          '文生图'],
                 msg=msg.content.strip(), list_bool=True, split_bool=True):
             Thread(target=self.get_ai, name="Spark文生图", args=(msg, at_user_lists, 'image')).start()
+            return
         # Ai对话
         elif self.wcf.self_wxid in at_user_lists and '所有人' not in msg.content:
             Thread(target=self.get_ai, name="Ai对话", args=(msg, at_user_lists)).start()
+            return
 
     def game_function(self, msg):
         if self.judge_keyword(keyword=["看图猜成语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
@@ -767,6 +783,32 @@ class Room_Msg_Dispose:
                 self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
             else:
                 send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
+                self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)  # 端口查询
+
+    def get_xiuren_pic(self, msg):
+        admin_dicts = self.Dms.show_admins(wx_id=msg.sender, room_id=msg.roomid)
+        room_name = self.Dms.query_room_name(room_id=msg.roomid)
+        wx_name = self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)
+        # 是管理员
+        if msg.sender in admin_dicts.keys() or msg.sender in self.administrators:
+            admin_msg = f'@{wx_name} 您是尊贵的管理员/超级管理员，本次操作不扣除积分'
+            self.wcf.send_text(msg=admin_msg, receiver=msg.roomid, aters=msg.sender)
+            pic_path = self.get_xiuren_pic_path()
+            self.wcf.send_image(path=pic_path, receiver=msg.roomid)
+        # 不是管理员
+        else:
+            if self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name) >= int(
+                    self.Port_Scan_Point):
+                self.Dps.del_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name,
+                                   point=int(self.Port_Scan_Point))
+                now_point = self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid,
+                                                 room_name=room_name, )
+                scan_msg = f'@{wx_name} 您使用了隐藏功能-拒绝者，扣除您 {self.Port_Scan_Point} 点积分,\n当前剩余积分: {now_point}'
+                self.wcf.send_text(msg=scan_msg, receiver=msg.roomid, aters=msg.sender)
+                pic_path = self.get_xiuren_pic_path()
+                self.wcf.send_image(path=pic_path, receiver=msg.roomid)
+            else:
+                send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
                 self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)
 
     # 赠送积分
@@ -1053,3 +1095,26 @@ class Room_Msg_Dispose:
                                 url=url,
                                 thumburl='https://tool.liumingye.cn/music/img/pwa-192x192.png',
                                 receiver=receiver)
+
+    def get_xiuren_pic_path(self):
+        root_dir = self.current_path + '/../XiuRen_downloads'
+
+        def generate_path():
+            page_number = random.randint(1, 59)
+            second_number = random.randint(1, 24)
+            image_number = random.randint(0, 4)
+            return f"{root_dir}/page_{page_number}/{second_number}/image_{image_number}.jpg"
+
+        def check_file(path):
+            if os.path.exists(path):
+                file_size = os.path.getsize(path)
+                if file_size > 10240:  # 10KB
+                    return True
+            return False
+
+        while True:
+            random_path = generate_path()
+            if not check_file(random_path):
+                print(f"文件 {random_path} 不存在或大小大于10KB，重新生成...")
+            else:
+                return random_path
