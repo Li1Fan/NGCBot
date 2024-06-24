@@ -1,5 +1,7 @@
-from Bot_Server.Main_Server import Main_Server
 from cprint import cprint
+
+from Bot_Server.Main_Server import Main_Server
+from advanced_path import PRJ_PATH
 
 Bot_Logo = """
 ███▄▄▄▄      ▄██████▄   ▄████████ ▀█████████▄   ▄██████▄      ███     
@@ -17,4 +19,5 @@ Bot_Logo = """
 
 if __name__ == '__main__':
     cprint.info(Bot_Logo.strip())
+    cprint.info(f'当前工作目录: {PRJ_PATH}')
     Ms = Main_Server()
