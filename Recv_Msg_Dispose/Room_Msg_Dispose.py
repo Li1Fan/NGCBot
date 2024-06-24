@@ -304,7 +304,7 @@ class Room_Msg_Dispose:
             ret = f'[*]: 摸鱼日记API接口返回值：{save_path}'
             OutPut.outPut(ret)
             if 'Fish_Cache' in save_path:
-                # TODO: send_image() 频繁调用时，会发送不成功
+                # TODO: send_image() 图片有概率会发送不成功，怀疑是微信客户端安装在虚拟机中导致
                 self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
@@ -988,7 +988,7 @@ class Room_Msg_Dispose:
             OutPut.outPut(f'[-]: 检测广告功能出现错误，错误信息: {e}')
 
     # 增加积分
-    # TODO: 出现过异常，暂不确定原因
+    # TODO: 出现过异常，暂不确定原因，有可能是“退出的群聊”导致
     def Add_Point(self, msg, content, at_user_list):
         try:
             OutPut.outPut(f'[*]: 增加积分接口接收到的消息: {content}')
