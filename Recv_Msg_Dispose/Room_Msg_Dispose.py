@@ -488,7 +488,7 @@ class Room_Msg_Dispose:
                                               msg=msg.content.strip(), list_bool=True, equal_bool=True):
                             self.game_success[msg.roomid] = True
                             self.game_answer[msg.roomid] = None
-                            self.idiom_usr_answer = msg.content.strip()
+                            self.idiom_usr_answer[msg.roomid] = msg.content.strip()
                             wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
                             self.wcf.send_text(msg=f'恭喜{wx_name}接龙成功！', receiver=msg.roomid)
                             if msg.roomid in self.game_point.keys():
