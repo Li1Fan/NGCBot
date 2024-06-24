@@ -92,7 +92,7 @@ class MySQLite:
         if where:
             sql += " WHERE {}".format(where)
         # log.info('SQL request:{}'.format(sql))
-        print('SQL request:{}'.format(sql))
+        # print('SQL request:{}'.format(sql))
         self.connect()
         try:
             self.cur.execute(sql)

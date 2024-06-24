@@ -88,6 +88,7 @@ class Room_Msg_Dispose:
         self.game_answer = {}
         self.game_success = {}
         self.idiom_pic = {}
+        self.idiom_usr_answer = {}
         # 创建一个线程锁
         self.counter_lock = threading.Lock()
 
@@ -319,7 +320,8 @@ class Room_Msg_Dispose:
             url = 'https://tool.liumingye.cn/music/'
             self.send_music_message(digest, url, msg.roomid)
         # 成语解析功能
-        elif self.judge_keyword(keyword=["成语解析", "成语解释"], msg=msg.content.strip(), list_bool=True, split_bool=True):
+        elif self.judge_keyword(keyword=["成语解析", "成语解释", "成语查询"], msg=msg.content.strip(), list_bool=True,
+                                split_bool=True):
             idiom_name = msg.content.strip().split(' ', 1)[1].strip()
             idiom_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
                         + self.Ams.get_idiom_explain(idiom_name)
@@ -444,6 +446,9 @@ class Room_Msg_Dispose:
         if self.judge_keyword(keyword=["看图猜成语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             Thread(target=self.start_guess_idiom_image, name="看图猜成语", args=(msg,)).start()
             return True
+        elif self.judge_keyword(keyword=["成语接龙"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+            Thread(target=self.start_idiom_chain, name="猜成语", args=(msg,)).start()
+            return True
 
     def gaming_function(self, msg):
         if self.judge_keyword(keyword=["退出游戏"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
@@ -454,25 +459,47 @@ class Room_Msg_Dispose:
             self.wcf.send_image(path=self.idiom_pic[msg.roomid], receiver=msg.roomid)
             return
         else:
-            try:
-                with self.counter_lock:
-                    if self.game_success.get(msg.roomid, False):
-                        return
-                    if self.judge_keyword(keyword=[self.game_answer[msg.roomid].get('答案', '')],
-                                          msg=msg.content.strip(), list_bool=True, equal_bool=True):
-                        self.game_success[msg.roomid] = True
-                        self.game_answer[msg.roomid] = None
-                        wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
-                        self.wcf.send_text(msg=f'恭喜{wx_name}答对了！', receiver=msg.roomid)
-                        if msg.roomid in self.game_point.keys():
-                            if wx_name in self.game_point[msg.roomid].keys():
-                                self.game_point[msg.roomid][wx_name] += 1
+            if self.game_mode_rooms.get(msg.roomid, False) == "guess_idiom_image":
+                try:
+                    with self.counter_lock:
+                        if self.game_success.get(msg.roomid, False):
+                            return
+                        if self.judge_keyword(keyword=[self.game_answer[msg.roomid].get('答案', '')],
+                                              msg=msg.content.strip(), list_bool=True, equal_bool=True):
+                            self.game_success[msg.roomid] = True
+                            self.game_answer[msg.roomid] = None
+                            wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+                            self.wcf.send_text(msg=f'恭喜{wx_name}答对了！', receiver=msg.roomid)
+                            if msg.roomid in self.game_point.keys():
+                                if wx_name in self.game_point[msg.roomid].keys():
+                                    self.game_point[msg.roomid][wx_name] += 1
+                                else:
+                                    self.game_point[msg.roomid][wx_name] = 1
                             else:
-                                self.game_point[msg.roomid][wx_name] = 1
-                        else:
-                            self.game_point[msg.roomid] = {wx_name: 1}
-            except Exception as e:
-                print(e)
+                                self.game_point[msg.roomid] = {wx_name: 1}
+                except Exception as e:
+                    print(e)
+            elif self.game_mode_rooms.get(msg.roomid, None) == "idiom_chain":
+                try:
+                    with self.counter_lock:
+                        if self.game_success.get(msg.roomid, False):
+                            return
+                        if self.judge_keyword(keyword=self.game_answer[msg.roomid],
+                                              msg=msg.content.strip(), list_bool=True, equal_bool=True):
+                            self.game_success[msg.roomid] = True
+                            self.game_answer[msg.roomid] = None
+                            self.idiom_usr_answer = msg.content.strip()
+                            wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+                            self.wcf.send_text(msg=f'恭喜{wx_name}接龙成功！', receiver=msg.roomid)
+                            if msg.roomid in self.game_point.keys():
+                                if wx_name in self.game_point[msg.roomid].keys():
+                                    self.game_point[msg.roomid][wx_name] += 1
+                                else:
+                                    self.game_point[msg.roomid][wx_name] = 1
+                            else:
+                                self.game_point[msg.roomid] = {wx_name: 1}
+                except Exception as e:
+                    print(e)
 
     def start_guess_idiom_image(self, msg):
         wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
@@ -483,7 +510,7 @@ class Room_Msg_Dispose:
                                f'\n如果未成功收到图片，'
                                f'\n请回复“重发”。',
                            receiver=msg.roomid, aters=msg.sender)
-        self.game_mode_rooms[msg.roomid] = True
+        self.game_mode_rooms[msg.roomid] = "guess_idiom_image"
         for i in range(5):
             if not self.game_mode_rooms.get(msg.roomid):
                 break
@@ -494,7 +521,7 @@ class Room_Msg_Dispose:
             self.wcf.send_text(msg=f'第{i + 1}轮题目：', receiver=msg.roomid)
             self.wcf.send_text(msg='请在六十秒内回答，否则将跳过此题', receiver=msg.roomid)
             cur_time = time.time()
-            while time.time() - cur_time < 63:
+            while time.time() - cur_time < 61:
                 if not self.game_mode_rooms.get(msg.roomid, False):
                     return
                 if self.game_success.get(msg.roomid, False):
@@ -525,6 +552,73 @@ class Room_Msg_Dispose:
         self.game_answer[msg.roomid] = None
         self.idiom_pic[msg.roomid] = None
         self.game_success[msg.roomid] = False
+
+    # 成语接龙
+    def start_idiom_chain(self, msg):
+        wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+        self.wcf.send_text(msg=f'@{wx_name} '
+                               f'\n成语接龙游戏开始，总共十轮！'
+                               f'\n如果要提前中止游戏，'
+                               f'\n请回复“退出游戏”。',
+                           receiver=msg.roomid, aters=msg.sender)
+        self.game_mode_rooms[msg.roomid] = "idiom_chain"
+        pinyin_lst = ['a', 'an', 'ang', 'ao', 'ba', 'bai', 'ban', 'bang', 'bao', 'bei', 'ben', 'beng', 'bi', 'bian',
+                      'biao', 'bie', 'bin', 'bing', 'bo', 'bu', 'ca', 'cai', 'can', 'cang', 'cao', 'ce', 'cen', 'ceng',
+                      'cha', 'chai', 'chan', 'chang', 'chao', 'che', 'chen', 'cheng', 'chi', 'chong', 'chou', 'chu',
+                      'chuai', 'chuan', 'chuang', 'chui', 'chun', 'chuo', 'ci', 'cong', 'cu', 'cuan', 'cui', 'cun',
+                      'cuo', 'da', 'dai', 'dan', 'dang', 'dao', 'de', 'deng', 'di', 'dian', 'diao', 'die', 'ding',
+                      'diu', 'dong', 'dou', 'du', 'duan', 'dui', 'dun', 'duo', 'e', 'en', 'er', 'fa', 'fan', 'fang',
+                      'fei', 'fen', 'feng', 'fo', 'fu', 'ga', 'gai', 'gan', 'gang', 'gao', 'ge', 'gen', 'geng', 'gong',
+                      'gou', 'gu', 'gua', 'guai', 'guan', 'guang', 'gui', 'gun', 'guo', 'hai', 'han', 'hang', 'hao',
+                      'he', 'hei', 'hen', 'heng', 'hong', 'hou', 'hu', 'hua', 'huai', 'huan', 'huang', 'hui', 'hun',
+                      'huo', 'ji', 'jia', 'jian', 'jiang', 'jiao', 'jie', 'jin', 'jing', 'jiong', 'jiu', 'ju', 'juan',
+                      'jue', 'jun', 'kai', 'kan', 'kang', 'kao', 'ke', 'ken', 'keng', 'kong', 'kou', 'ku', 'kua',
+                      'kuai', 'kuan', 'kuang', 'kui', 'kun', 'kuo', 'la', 'lai', 'lan', 'lang', 'lao', 'le', 'lei',
+                      'leng', 'li', 'lian', 'liang', 'liao', 'lie', 'lin', 'ling', 'liu', 'long', 'lou', 'lu', 'luan',
+                      'lun', 'luo', 'lv', 'lve', 'ma', 'mai']
+        pinyin = random.choice(pinyin_lst)
+        idiom_lst = self.Ams.db_idiom.get_words_by_first(pinyin)
+        idiom = random.choice(idiom_lst)
+
+        for i in range(10):
+            if not self.game_mode_rooms.get(msg.roomid):
+                break
+            answers = self.Ams.db_idiom.get_words_by_word(idiom)
+            if not answers:
+                self.wcf.send_text(msg='成语接龙已到达终点，游戏提前结束！', receiver=msg.roomid)
+                return
+            self.game_answer[msg.roomid] = answers
+            self.wcf.send_text(msg=f'第{i + 1}轮题目：\n【{idiom}】', receiver=msg.roomid)
+            self.wcf.send_text(msg='请在六十秒内回答，否则结束游戏', receiver=msg.roomid)
+            cur_time = time.time()
+            while time.time() - cur_time < 61:
+                if not self.game_mode_rooms.get(msg.roomid, False):
+                    return
+                if self.game_success.get(msg.roomid, False):
+                    break
+                time.sleep(1)
+            if not self.game_mode_rooms.get(msg.roomid, False):
+                return
+            if self.game_success.get(msg.roomid, False):
+                self.game_success[msg.roomid] = False
+            else:
+                self.wcf.send_text(msg='没有人接龙成功！游戏结束！', receiver=msg.roomid)
+                return
+            usr_answer = self.idiom_usr_answer[msg.roomid]
+            idiom_lst = self.Ams.db_idiom.get_words_by_word(usr_answer)
+            idiom = random.choice(idiom_lst)
+            time.sleep(0.25)
+        msg_over = ["游戏结束！"]
+        for wx_name, point in self.game_point[msg.roomid].items():
+            msg_over.append(f"{wx_name}：{point} 分")
+        self.wcf.send_text(msg='\n'.join(msg_over), receiver=msg.roomid)
+
+        # 清空游戏数据
+        self.game_mode_rooms[msg.roomid] = False
+        self.game_point[msg.roomid] = {}
+        self.game_answer[msg.roomid] = None
+        self.game_success[msg.roomid] = False
+        self.idiom_usr_answer[msg.roomid] = None
 
     # 积分查询
     def query_point(self, msg):
@@ -563,6 +657,7 @@ class Room_Msg_Dispose:
                    f"【2.5】、天气查询\n" \
                    f"【2.6】、点歌\n" \
                    f"【2.7】、看图猜成语\n" \
+                   f"【2.8】、成语接龙\n" \
                    f"{'By #' + self.system_copyright if self.system_copyright else ''}"
         self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
 
