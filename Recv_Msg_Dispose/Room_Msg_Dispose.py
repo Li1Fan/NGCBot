@@ -310,7 +310,7 @@ class Room_Msg_Dispose:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
         # 点歌功能
         elif self.judge_keyword(keyword=["点歌", "听歌"], msg=msg.content.strip(), list_bool=True, split_bool=True):
-            music_name = msg.content.strip().split(' ', 1)[1]
+            music_name = msg.content.strip().split(' ', 1)[1].strip()
             digest = '搜索歌曲：{}'.format(music_name)
             url = 'https://tool.liumingye.cn/music/#/search/M/song/{}'.format(music_name)
             self.send_music_message(digest, url, msg.roomid)
@@ -318,6 +318,12 @@ class Room_Msg_Dispose:
             digest = '点击进入点歌页面'
             url = 'https://tool.liumingye.cn/music/'
             self.send_music_message(digest, url, msg.roomid)
+        # 成语解析功能
+        elif self.judge_keyword(keyword=["成语解析", "成语解释"], msg=msg.content.strip(), list_bool=True, split_bool=True):
+            idiom_name = msg.content.strip().split(' ', 1)[1].strip()
+            idiom_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
+                        + self.Ams.get_idiom_explain(idiom_name)
+            self.wcf.send_text(msg=idiom_msg, receiver=msg.roomid, aters=msg.sender)
         # 接口不稳定，暂时关闭
         # elif msg.content.strip().upper() in ["COS", "COSPLAY"]:
         #     save_path = self.Ams.get_cosplay_video()
@@ -502,11 +508,11 @@ class Room_Msg_Dispose:
                 self.wcf.send_text(msg='回答正确！', receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='没有人回答正确！', receiver=msg.roomid)
-            answer = f"答案: {idiom_data['答案']}\n" \
-                     f"拼音: {idiom_data['拼音']}\n" \
-                     f"解释: {idiom_data['解释']}\n" \
-                     f"出处: {idiom_data['出处']}\n" \
-                     f"例句: {idiom_data['例句']}"
+            answer = f"答案：{idiom_data['答案']}\n" \
+                     f"拼音：{idiom_data['拼音']}\n" \
+                     f"解释：{idiom_data['解释']}\n" \
+                     f"出处：{idiom_data['出处']}\n" \
+                     f"例句：{idiom_data['例句']}"
             self.wcf.send_text(msg=answer, receiver=msg.roomid)
             time.sleep(0.5)
         msg_over = ["游戏结束！"]

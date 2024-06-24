@@ -7,7 +7,6 @@ import time
 from urllib.parse import urljoin
 
 import feedparser
-# import qianfan
 import requests
 import urllib3
 import yaml
@@ -16,6 +15,8 @@ from lxml import etree
 
 import Api_Server.SparkApi as SparkApi
 from OutPut import OutPut
+from Util.my_db import IdiomDB
+from advanced_path import PRJ_PATH
 
 
 class Api_Main_Server:
@@ -103,6 +104,9 @@ class Api_Main_Server:
         # qwen_free_api
         self.Qwen_Free_Api = config['Api_Server']['Ai_Config']['Qwen_Free_Api']['Api']
         self.Qwen_Free_Key = config['Api_Server']['Ai_Config']['Qwen_Free_Api']['Key']
+
+        # 成语数据库
+        self.db_idiom = IdiomDB(PRJ_PATH + '/Config/idiom.db')
 
     # Ai功能
     def get_ai(self, question, model=None):
@@ -627,6 +631,19 @@ class Api_Main_Server:
             return self.get_idiom()
         OutPut.outPut(f'[+]: 看图猜成语接口调用成功！！！')
         return save_path, idiom_data
+
+    # 成语解析
+    def get_idiom_explain(self, idiom):
+        info = self.db_idiom.get_info_by_word(idiom)
+        if info:
+            res = f"【{info.get('word')}】\n" \
+                  f"拼音：[{info.get('pinyin')}]\n" \
+                  f"解释：{info.get('explanation')}\n" \
+                  f"出处：{info.get('derivation')}\n" \
+                  f"例句：{info.get('example')}"
+            return res
+        else:
+            return f"未查询到该成语【{idiom}】"
 
     # 虎扑热搜
     def get_hupu(self):
