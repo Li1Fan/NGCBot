@@ -586,7 +586,7 @@ class Room_Msg_Dispose:
             answers = self.Ams.db_idiom.get_words_by_word(idiom)
             if not answers:
                 self.wcf.send_text(msg='成语接龙已到达终点，游戏提前结束！', receiver=msg.roomid)
-                return
+                break
             self.game_answer[msg.roomid] = answers
             self.wcf.send_text(msg=f'第{i + 1}轮题目：【{idiom}】', receiver=msg.roomid)
             self.wcf.send_text(msg='请在六十秒内回答，否则结束游戏', receiver=msg.roomid)
@@ -603,11 +603,7 @@ class Room_Msg_Dispose:
                 self.game_success[msg.roomid] = False
             else:
                 self.wcf.send_text(msg='没有人接龙成功！', receiver=msg.roomid)
-                msg_over = ["游戏结束！"]
-                for wx_name, point in self.game_point[msg.roomid].items():
-                    msg_over.append(f"{wx_name}：{point} 分")
-                self.wcf.send_text(msg='\n'.join(msg_over), receiver=msg.roomid)
-                return
+                break
             usr_answer = self.idiom_usr_answer[msg.roomid]
             idiom_lst = self.Ams.db_idiom.get_words_by_word(usr_answer)
             idiom = random.choice(idiom_lst)
