@@ -480,7 +480,7 @@ class Room_Msg_Dispose:
                             # 如果获取不到群昵称，则获取微信昵称
                             if not wx_name:
                                 wx_name = self.wcf.get_info_by_wxid(wxid=msg.sender).get("name")
-                            self.wcf.send_text(msg=f'恭喜{wx_name}答对了！', receiver=msg.roomid)
+                            self.wcf.send_text(msg=f'恭喜 {wx_name} 答对了！', receiver=msg.roomid)
                             if msg.roomid in self.game_point.keys():
                                 if wx_name in self.game_point[msg.roomid].keys():
                                     self.game_point[msg.roomid][wx_name] += 1
@@ -504,7 +504,7 @@ class Room_Msg_Dispose:
                             # 如果获取不到群昵称，则获取微信昵称
                             if not wx_name:
                                 wx_name = self.wcf.get_info_by_wxid(wxid=msg.sender).get("name")
-                            self.wcf.send_text(msg=f'恭喜{wx_name}接龙成功！', receiver=msg.roomid)
+                            self.wcf.send_text(msg=f'恭喜 {wx_name} 接龙成功！', receiver=msg.roomid)
                             if msg.roomid in self.game_point.keys():
                                 if wx_name in self.game_point[msg.roomid].keys():
                                     self.game_point[msg.roomid][wx_name] += 1
