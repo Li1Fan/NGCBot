@@ -469,6 +469,9 @@ class Room_Msg_Dispose:
                             self.game_success[msg.roomid] = True
                             self.game_answer[msg.roomid] = None
                             wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+                            # 如果获取不到群昵称，则获取微信昵称
+                            if not wx_name:
+                                wx_name = self.wcf.get_info_by_wxid(wxid=msg.sender).get("name")
                             self.wcf.send_text(msg=f'恭喜{wx_name}答对了！', receiver=msg.roomid)
                             if msg.roomid in self.game_point.keys():
                                 if wx_name in self.game_point[msg.roomid].keys():
@@ -490,6 +493,9 @@ class Room_Msg_Dispose:
                             self.game_answer[msg.roomid] = None
                             self.idiom_usr_answer[msg.roomid] = msg.content.strip()
                             wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+                            # 如果获取不到群昵称，则获取微信昵称
+                            if not wx_name:
+                                wx_name = self.wcf.get_info_by_wxid(wxid=msg.sender).get("name")
                             self.wcf.send_text(msg=f'恭喜{wx_name}接龙成功！', receiver=msg.roomid)
                             if msg.roomid in self.game_point.keys():
                                 if wx_name in self.game_point[msg.roomid].keys():
