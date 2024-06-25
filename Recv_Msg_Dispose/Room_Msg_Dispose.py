@@ -551,11 +551,11 @@ class Room_Msg_Dispose:
                     self.wcf.send_text(msg='回答正确！', receiver=msg.roomid)
                 else:
                     self.wcf.send_text(msg='没有人回答正确！', receiver=msg.roomid)
-                answer = f"答案：{idiom_data['答案']}\n" \
-                         f"拼音：{idiom_data['拼音']}\n" \
-                         f"解释：{idiom_data['解释']}\n" \
-                         f"出处：{idiom_data['出处']}\n" \
-                         f"例句：{idiom_data['例句']}"
+                answer = f"答案：{idiom_data.get('答案', '')}\n" \
+                         f"拼音：{idiom_data.get('拼音', '')}\n" \
+                         f"解释：{idiom_data.get('解释', '')}\n" \
+                         f"出处：{idiom_data.get('出处', '')}\n" \
+                         f"例句：{idiom_data.get('例句', '')}"
                 self.wcf.send_text(msg=answer, receiver=msg.roomid)
                 time.sleep(0.7)
             msg_over = ["游戏结束！"]
