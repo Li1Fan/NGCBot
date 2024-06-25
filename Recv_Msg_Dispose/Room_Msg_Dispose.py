@@ -458,6 +458,14 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=["重发"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             self.wcf.send_image(path=self.idiom_pic[msg.roomid], receiver=msg.roomid)
             return
+        # 成语解析功能
+        elif self.judge_keyword(keyword=["成语解析", "成语解释", "成语查询"], msg=msg.content.strip(), list_bool=True,
+                                split_bool=True):
+            idiom_name = msg.content.strip().split(' ', 1)[1].strip()
+            idiom_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
+                        + self.Ams.get_idiom_explain(idiom_name)
+            self.wcf.send_text(msg=idiom_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         else:
             if self.game_mode_rooms.get(msg.roomid, False) == "guess_idiom_image":
                 try:
