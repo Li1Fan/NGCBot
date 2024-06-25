@@ -542,6 +542,7 @@ class Room_Msg_Dispose:
                 self.wcf.send_text(msg=f'第{i + 1}轮题目：', receiver=msg.roomid)
                 self.wcf.send_text(msg='请在六十秒内回答，否则将跳过此题', receiver=msg.roomid)
                 cur_time = time.time()
+                flag_tip = False
                 while time.time() - cur_time < 61:
                     if not self.game_mode_rooms.get(msg.roomid, False):
                         # 清空游戏数据
@@ -553,6 +554,12 @@ class Room_Msg_Dispose:
                         return
                     if self.game_success.get(msg.roomid, False):
                         break
+                    if time.time() - cur_time > 40 and not flag_tip:
+                        answer = idiom_data.get("答案", "")
+                        answer_tip = answer[0] + ' ? ' * (len(answer) - 2) + answer[-1]
+                        msg_tip = f'还剩 20 秒！\n答案提示：{answer_tip}'
+                        self.wcf.send_text(msg=msg_tip, receiver=msg.roomid)
+                        flag_tip = True
                     time.sleep(0.5)
                 if self.game_success.get(msg.roomid, False):
                     self.game_success[msg.roomid] = False
@@ -591,7 +598,7 @@ class Room_Msg_Dispose:
                            receiver=msg.roomid, aters=msg.sender)
         self.game_mode_rooms[msg.roomid] = "idiom_chain"
         try:
-            pinyin_lst = ['a', 'an', 'ang', 'ao', 'ba', 'bai', 'ban',    'bang', 'bao', 'bei', 'ben', 'beng', 'bi', 'bian',
+            pinyin_lst = ['a', 'an', 'ang', 'ao', 'ba', 'bai', 'ban', 'bang', 'bao', 'bei', 'ben', 'beng', 'bi', 'bian',
                           'biao', 'bie', 'bin', 'bing', 'bo', 'bu', 'ca', 'cai', 'can', 'cang', 'cao', 'ce', 'cen',
                           'ceng',
                           'cha', 'chai', 'chan', 'chang', 'chao', 'che', 'chen', 'cheng', 'chi', 'chong', 'chou', 'chu',
@@ -630,6 +637,8 @@ class Room_Msg_Dispose:
                 self.wcf.send_text(msg=f'第{i + 1}轮题目：【{idiom}】', receiver=msg.roomid)
                 self.wcf.send_text(msg='请在六十秒内回答，否则结束游戏', receiver=msg.roomid)
                 cur_time = time.time()
+                flag_tip = False
+                random_answer = random.choice(answers)
                 while time.time() - cur_time < 61:
                     if not self.game_mode_rooms.get(msg.roomid, False):
                         # 清空游戏数据
@@ -641,11 +650,16 @@ class Room_Msg_Dispose:
                         return
                     if self.game_success.get(msg.roomid, False):
                         break
+                    if time.time() - cur_time > 40 and not flag_tip:
+                        answer = random_answer
+                        answer_tip = answer[0] + ' ? ' * (len(answer) - 2) + answer[-1]
+                        msg_tip = f'还剩 20 秒！\n参考答案提示：{answer_tip}'
+                        self.wcf.send_text(msg=msg_tip, receiver=msg.roomid)
+                        flag_tip = True
                     time.sleep(0.5)
                 if self.game_success.get(msg.roomid, False):
                     self.game_success[msg.roomid] = False
                 else:
-                    random_answer = random.choice(answers)
                     self.wcf.send_text(msg=f'没有人接龙成功！\n'
                                            f'参考答案：{random_answer}', receiver=msg.roomid)
                     break
