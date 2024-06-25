@@ -1050,12 +1050,6 @@ class Room_Msg_Dispose:
         if msg.sender in admin_dicts.keys() or msg.sender in self.administrators:
             admin_msg = f'@{wx_name} 您是尊贵的管理员/超级管理员，本次操作不扣除积分'
             self.wcf.send_text(msg=admin_msg, receiver=msg.roomid, aters=msg.sender)
-            try:
-                num = random.randint(1, 10305)
-                emoji = self.Ams.db_emoji.get_emoji_by_id(num)
-                self.wcf.send_text(msg=emoji, receiver=msg.roomid)
-            except Exception as e:
-                self.wcf.send_text(msg=str(e), receiver=msg.roomid)
             pic_path = self.get_xiuren_pic_path()
             self.wcf.send_image(path=pic_path, receiver=msg.roomid)
         # 不是管理员
