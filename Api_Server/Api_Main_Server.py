@@ -15,7 +15,7 @@ from lxml import etree
 
 import Api_Server.SparkApi as SparkApi
 from OutPut import OutPut
-from Util.my_db import IdiomDB
+from Util.my_db import IdiomDB, EmojiDB
 from advanced_path import PRJ_PATH
 
 
@@ -107,6 +107,8 @@ class Api_Main_Server:
 
         # 成语数据库
         self.db_idiom = IdiomDB(PRJ_PATH + '/Config/idiom.db')
+        # emoji数据库
+        self.db_emoji = EmojiDB(PRJ_PATH + '/Config/emoji.db')
 
     # Ai功能
     def get_ai(self, question, model=None):

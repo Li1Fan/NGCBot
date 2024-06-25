@@ -72,6 +72,12 @@ class EmojiDB:
             return dev_dict
         return {}
 
+    def get_emoji_by_id(self, id: int) -> str:
+        """
+        通过id获取表情包
+        """
+        return self.get_info_by_id(id).get('emoji', '')
+
 
 if __name__ == '__main__':
     db = IdiomDB('/home/frz/github/NGCBot/Config/idiom.db')
