@@ -53,12 +53,35 @@ class IdiomDB:
         return self.get_words_by_first(last)
 
 
+class EmojiDB:
+    def __init__(self, db_path: str) -> None:
+        self.db_path = db_path
+        self.db = MySQLite(self.db_path)
+
+    def get_info_by_id(self, id: int) -> dict:
+        """
+        通过id获取表情包
+        """
+        dev = self.db.select('idiom', where='id = "{}"'.format(id))
+        if dev:
+            dev_dict = {
+                "id": dev[0][0],
+                "idiom": dev[0][1],
+                "emoji": dev[0][2]
+            }
+            return dev_dict
+        return {}
+
+
 if __name__ == '__main__':
     db = IdiomDB('/home/frz/github/NGCBot/Config/idiom.db')
-    # print(db.get_info_by_word('喜上眉梢'))
+    print(db.get_info_by_word('煎水作冰'))
     # print(db.get_last_by_word('喜上眉梢'))
     # print(db.get_words_by_first(''))
     print(db.get_words_by_word('喜上眉梢'))
+
+    db_emoji = EmojiDB('/home/frz/github/NGCBot/Config/emoji.db')
+    print(db_emoji.get_info_by_id(1033))
 
     lst = ['a', 'an', 'ang', 'ao', 'ba', 'bai', 'ban', 'bang', 'bao', 'bei', 'ben', 'beng', 'bi', 'bian', 'biao', 'bie',
            'bin', 'bing', 'bo', 'bu', 'ca', 'cai', 'can', 'cang', 'cao', 'ce', 'cen', 'ceng', 'cha', 'chai', 'chan',
