@@ -725,10 +725,15 @@ class Room_Msg_Dispose:
                     self.game_answer[msg.roomid] = None
                     self.game_success[msg.roomid] = False
                     return
-                num = random.randint(1, 10305)
-                emoji_info = self.Ams.db_emoji.get_info_by_id(num)
-                emoji = emoji_info.get("emoji", "")
-                idiom = emoji_info.get("idiom", "")
+                # TODO：不确定是不是成语库不全，这里需要保证随机到的成语在成语库中
+                while True:
+                    num = random.randint(1, 10305)
+                    emoji_info = self.Ams.db_emoji.get_info_by_id(num)
+                    emoji = emoji_info.get("emoji", "")
+                    idiom = emoji_info.get("idiom", "")
+                    idiom_data = self.Ams.db_idiom.get_info_by_word(idiom)
+                    if idiom_data:
+                        break
                 self.game_answer[msg.roomid] = idiom
                 self.wcf.send_text(msg=f'第{i + 1}轮题目：\n{emoji}', receiver=msg.roomid)
                 self.wcf.send_text(msg='请在六十秒内回答，否则将跳过此题', receiver=msg.roomid)
@@ -755,7 +760,6 @@ class Room_Msg_Dispose:
                     self.game_success[msg.roomid] = False
                 else:
                     self.wcf.send_text(msg='没有人回答正确！', receiver=msg.roomid)
-                idiom_data = self.Ams.db_idiom.get_info_by_word(idiom)
                 answer = f"答案：{idiom_data.get('word', '')}\n" \
                          f"拼音：{idiom_data.get('pinyin', '')}\n" \
                          f"解释：{idiom_data.get('explanation', '')}\n" \
