@@ -447,7 +447,10 @@ class Room_Msg_Dispose:
             Thread(target=self.start_guess_idiom_image, name="看图猜成语", args=(msg,)).start()
             return True
         elif self.judge_keyword(keyword=["成语接龙"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            Thread(target=self.start_idiom_chain, name="猜成语", args=(msg,)).start()
+            Thread(target=self.start_idiom_chain, name="成语接龙", args=(msg,)).start()
+            return True
+        elif self.judge_keyword(keyword=["表情猜成语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+            Thread(target=self.start_guess_idiom_emoji, name="表情猜成语", args=(msg,)).start()
             return True
 
     def gaming_function(self, msg):
@@ -514,6 +517,29 @@ class Room_Msg_Dispose:
                                 self.game_point[msg.roomid] = {wx_name: 1}
                 except Exception as e:
                     print(e)
+            elif self.game_mode_rooms.get(msg.roomid, False) == "guess_idiom_emoji":
+                try:
+                    with self.counter_lock:
+                        if self.game_success.get(msg.roomid, False):
+                            return
+                        if self.judge_keyword(keyword=[self.game_answer[msg.roomid]],
+                                              msg=msg.content.strip(), list_bool=True, equal_bool=True):
+                            self.game_success[msg.roomid] = True
+                            self.game_answer[msg.roomid] = None
+                            wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+                            # 如果获取不到群昵称，则获取微信昵称
+                            if not wx_name:
+                                wx_name = self.wcf.get_info_by_wxid(wxid=msg.sender).get("name")
+                            self.wcf.send_text(msg=f'恭喜 {wx_name} 答对了！', receiver=msg.roomid)
+                            if msg.roomid in self.game_point.keys():
+                                if wx_name in self.game_point[msg.roomid].keys():
+                                    self.game_point[msg.roomid][wx_name] += 1
+                                else:
+                                    self.game_point[msg.roomid][wx_name] = 1
+                            else:
+                                self.game_point[msg.roomid] = {wx_name: 1}
+                except Exception as e:
+                    print(e)
 
     def start_guess_idiom_image(self, msg):
         wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
@@ -563,7 +589,6 @@ class Room_Msg_Dispose:
                     time.sleep(0.5)
                 if self.game_success.get(msg.roomid, False):
                     self.game_success[msg.roomid] = False
-                    self.wcf.send_text(msg='回答正确！', receiver=msg.roomid)
                 else:
                     self.wcf.send_text(msg='没有人回答正确！', receiver=msg.roomid)
                 answer = f"答案：{idiom_data.get('答案', '')}\n" \
@@ -682,6 +707,76 @@ class Room_Msg_Dispose:
             self.game_success[msg.roomid] = False
             self.idiom_usr_answer[msg.roomid] = None
 
+    # 表情猜成语
+    def start_guess_idiom_emoji(self, msg):
+        wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+        self.wcf.send_text(msg=f'@{wx_name} '
+                               f'\n表情猜成语游戏开始，总共五轮！'
+                               f'\n如果要提前中止游戏，'
+                               f'\n请回复“退出游戏”。',
+                           receiver=msg.roomid, aters=msg.sender)
+        self.game_mode_rooms[msg.roomid] = "guess_idiom_emoji"
+        try:
+            for i in range(5):
+                if not self.game_mode_rooms.get(msg.roomid, False):
+                    # 清空游戏数据
+                    self.game_mode_rooms[msg.roomid] = False
+                    self.game_point[msg.roomid] = {}
+                    self.game_answer[msg.roomid] = None
+                    self.game_success[msg.roomid] = False
+                    return
+                num = random.randint(1, 10305)
+                emoji_info = self.Ams.db_emoji.get_info_by_id(num)
+                emoji = emoji_info.get("emoji", "")
+                idiom = emoji_info.get("idiom", "")
+                self.game_answer[msg.roomid] = idiom
+                self.wcf.send_text(msg=f'第{i + 1}轮题目：\n{emoji}', receiver=msg.roomid)
+                self.wcf.send_text(msg='请在六十秒内回答，否则将跳过此题', receiver=msg.roomid)
+                cur_time = time.time()
+                flag_tip = False
+                while time.time() - cur_time < 61:
+                    if not self.game_mode_rooms.get(msg.roomid, False):
+                        # 清空游戏数据
+                        self.game_mode_rooms[msg.roomid] = False
+                        self.game_point[msg.roomid] = {}
+                        self.game_answer[msg.roomid] = None
+                        self.game_success[msg.roomid] = False
+                        return
+                    if self.game_success.get(msg.roomid, False):
+                        break
+                    if time.time() - cur_time > 40 and not flag_tip:
+                        answer = idiom
+                        answer_tip = answer[0] + ' ? ' * (len(answer) - 2) + answer[-1]
+                        msg_tip = f'还剩 20 秒！\n答案提示：{answer_tip}'
+                        self.wcf.send_text(msg=msg_tip, receiver=msg.roomid)
+                        flag_tip = True
+                    time.sleep(0.5)
+                if self.game_success.get(msg.roomid, False):
+                    self.game_success[msg.roomid] = False
+                else:
+                    self.wcf.send_text(msg='没有人回答正确！', receiver=msg.roomid)
+                idiom_data = self.Ams.db_idiom.get_info_by_word(idiom)
+                answer = f"答案：{idiom_data.get('word', '')}\n" \
+                         f"拼音：{idiom_data.get('pinyin', '')}\n" \
+                         f"解释：{idiom_data.get('explanation', '')}\n" \
+                         f"出处：{idiom_data.get('derivation', '')}\n" \
+                         f"例句：{idiom_data.get('example', '')}"
+                self.wcf.send_text(msg=answer, receiver=msg.roomid)
+                time.sleep(0.3)
+            msg_over = ["游戏结束！"]
+            if msg.roomid in self.game_point.keys():
+                for wx_name, point in self.game_point[msg.roomid].items():
+                    msg_over.append(f"{wx_name}：{point} 分")
+            self.wcf.send_text(msg='\n'.join(msg_over), receiver=msg.roomid)
+        except Exception as e:
+            OutPut.outPut(f'[~]: 表情猜词游戏出问题了 :{e}')
+        finally:
+            # 清空游戏数据
+            self.game_mode_rooms[msg.roomid] = False
+            self.game_point[msg.roomid] = {}
+            self.game_answer[msg.roomid] = None
+            self.game_success[msg.roomid] = False
+
     # 积分查询
     def query_point(self, msg):
         wx_name = self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)
@@ -719,7 +814,8 @@ class Room_Msg_Dispose:
                    f"【2.5】、天气查询\n" \
                    f"【2.6】、点歌\n" \
                    f"【2.7】、看图猜成语\n" \
-                   f"【2.8】、成语接龙\n" \
+                   f"【2.8】、表情猜成语\n" \
+                   f"【2.9】、成语接龙\n" \
                    f"{'By #' + self.system_copyright if self.system_copyright else ''}"
         self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
 
