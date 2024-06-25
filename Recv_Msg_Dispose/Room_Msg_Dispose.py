@@ -591,7 +591,7 @@ class Room_Msg_Dispose:
                            receiver=msg.roomid, aters=msg.sender)
         self.game_mode_rooms[msg.roomid] = "idiom_chain"
         try:
-            pinyin_lst = ['a', 'an', 'ang', 'ao', 'ba', 'bai', 'ban', 'bang', 'bao', 'bei', 'ben', 'beng', 'bi', 'bian',
+            pinyin_lst = ['a', 'an', 'ang', 'ao', 'ba', 'bai', 'ban',    'bang', 'bao', 'bei', 'ben', 'beng', 'bi', 'bian',
                           'biao', 'bie', 'bin', 'bing', 'bo', 'bu', 'ca', 'cai', 'can', 'cang', 'cao', 'ce', 'cen',
                           'ceng',
                           'cha', 'chai', 'chan', 'chang', 'chao', 'che', 'chen', 'cheng', 'chi', 'chong', 'chou', 'chu',
@@ -645,7 +645,9 @@ class Room_Msg_Dispose:
                 if self.game_success.get(msg.roomid, False):
                     self.game_success[msg.roomid] = False
                 else:
-                    self.wcf.send_text(msg='没有人接龙成功！', receiver=msg.roomid)
+                    random_answer = random.choice(answers)
+                    self.wcf.send_text(msg=f'没有人接龙成功！\n'
+                                           f'参考答案：{random_answer}', receiver=msg.roomid)
                     break
                 usr_answer = self.idiom_usr_answer[msg.roomid]
                 idiom_lst = self.Ams.db_idiom.get_words_by_word(usr_answer)
