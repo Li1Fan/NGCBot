@@ -479,7 +479,7 @@ class Room_Msg_Dispose:
                                 self.game_point[msg.roomid] = {wx_name: 1}
                 except Exception as e:
                     print(e)
-            elif self.game_mode_rooms.get(msg.roomid, None) == "idiom_chain":
+            elif self.game_mode_rooms.get(msg.roomid, False) == "idiom_chain":
                 try:
                     with self.counter_lock:
                         if self.game_success.get(msg.roomid, False):
@@ -512,8 +512,8 @@ class Room_Msg_Dispose:
                            receiver=msg.roomid, aters=msg.sender)
         self.game_mode_rooms[msg.roomid] = "guess_idiom_image"
         for i in range(5):
-            if not self.game_mode_rooms.get(msg.roomid):
-                break
+            if not self.game_mode_rooms.get(msg.roomid, False):
+                return
             save_path, idiom_data = self.Ams.get_idiom()
             self.idiom_pic[msg.roomid] = save_path
             self.game_answer[msg.roomid] = idiom_data
@@ -526,9 +526,7 @@ class Room_Msg_Dispose:
                     return
                 if self.game_success.get(msg.roomid, False):
                     break
-                time.sleep(1)
-            if not self.game_mode_rooms.get(msg.roomid, False):
-                return
+                time.sleep(0.5)
             if self.game_success.get(msg.roomid, False):
                 self.game_success[msg.roomid] = False
                 self.wcf.send_text(msg='回答正确！', receiver=msg.roomid)
@@ -540,7 +538,7 @@ class Room_Msg_Dispose:
                      f"出处：{idiom_data['出处']}\n" \
                      f"例句：{idiom_data['例句']}"
             self.wcf.send_text(msg=answer, receiver=msg.roomid)
-            time.sleep(0.5)
+            time.sleep(0.7)
         msg_over = ["游戏结束！"]
         for wx_name, point in self.game_point[msg.roomid].items():
             msg_over.append(f"{wx_name}：{point} 分")
@@ -581,8 +579,8 @@ class Room_Msg_Dispose:
         idiom = random.choice(idiom_lst)
 
         for i in range(10):
-            if not self.game_mode_rooms.get(msg.roomid):
-                break
+            if not self.game_mode_rooms.get(msg.roomid, False):
+                return
             answers = self.Ams.db_idiom.get_words_by_word(idiom)
             if not answers:
                 self.wcf.send_text(msg='成语接龙已到达终点，游戏提前结束！', receiver=msg.roomid)
@@ -596,9 +594,7 @@ class Room_Msg_Dispose:
                     return
                 if self.game_success.get(msg.roomid, False):
                     break
-                time.sleep(1)
-            if not self.game_mode_rooms.get(msg.roomid, False):
-                return
+                time.sleep(0.5)
             if self.game_success.get(msg.roomid, False):
                 self.game_success[msg.roomid] = False
             else:
@@ -607,7 +603,7 @@ class Room_Msg_Dispose:
             usr_answer = self.idiom_usr_answer[msg.roomid]
             idiom_lst = self.Ams.db_idiom.get_words_by_word(usr_answer)
             idiom = random.choice(idiom_lst)
-            time.sleep(0.25)
+            time.sleep(0.3)
         msg_over = ["游戏结束！"]
         for wx_name, point in self.game_point[msg.roomid].items():
             msg_over.append(f"{wx_name}：{point} 分")
