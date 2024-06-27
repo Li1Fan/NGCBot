@@ -11,6 +11,7 @@ from Cache.Cache_Main_Server import Cache_Main_Server
 from Db_Server.Db_Main_Server import Db_Main_Server
 from Db_Server.Db_Point_Server import Db_Point_Server
 from OutPut import OutPut
+from advanced_path import PRJ_PATH
 
 
 class Push_Main_Server:
@@ -102,6 +103,14 @@ class Push_Main_Server:
         self.Cms.delete_file()
         OutPut.outPut(f'[+]: 定时缓存文件夹清空成功！！！')
 
+    # 清空日志文件夹
+    @staticmethod
+    def clear_log():
+        OutPut.outPut(f'[*]: 定时日志文件夹清空中... ...')
+        with open(f"{PRJ_PATH}/Log/log.txt", 'w') as f:
+            f.write(f'NEW\n')
+        OutPut.outPut(f'[+]: 定时日志文件夹清空成功！！！')
+
     # 每周四KFC文案推送
     def push_kfc(self):
         OutPut.outPut(f'[*]: 定时KFC文案推送中... ...')
@@ -135,6 +144,7 @@ class Push_Main_Server:
         workday_schedule.every().day.at(self.Off_Work_Time).do(self.push_off_work)
         workday_schedule.every().day.at('00:00').do(self.clear_sign)
         workday_schedule.every().day.at('03:00').do(self.clear_cache)
+        workday_schedule.every().tuesday.at('00:00').do(self.clear_log)
 
         non_workday_schedule.every().day.at('00:00').do(self.clear_sign)
         non_workday_schedule.every().day.at('03:00').do(self.clear_cache)

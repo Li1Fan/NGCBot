@@ -1,5 +1,8 @@
-from cprint import cprint
 import time
+
+from cprint import cprint
+
+from advanced_path import PRJ_PATH
 
 
 def outPut(msg: str):
@@ -17,3 +20,8 @@ def outPut(msg: str):
         cprint.warn(f'[{now_time}]: {msg}')
     else:
         cprint(f'[{now_time}]: {msg}')
+
+    # 增加保存日志功能
+    with open(f"{PRJ_PATH}/Log/log.txt", 'a') as f:
+        f.write(f'[{now_time}]: {msg}\n')
+    return
