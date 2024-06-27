@@ -1076,6 +1076,7 @@ class Room_Msg_Dispose:
     # 赠送积分
     def send_point(self, msg, content, at_user_lists):
         try:
+            OutPut.outPut(f'[*]: 赠送积分接口接收到的消息: {content}')
             point = content.split(' ')[-1]
             wx_name = self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)
             room_name = self.Dms.query_room_name(room_id=msg.roomid)
@@ -1270,6 +1271,7 @@ class Room_Msg_Dispose:
     # 减少积分
     def Del_Point(self, msg, content, at_user_list):
         try:
+            OutPut.outPut(f'[*]: 减少积分接口接收到的消息: {content}')
             point = content.strip().split(' ')[-1]
             for wx_id in at_user_list:
                 wx_name = self.wcf.get_alias_in_chatroom(wxid=wx_id, roomid=msg.roomid)
