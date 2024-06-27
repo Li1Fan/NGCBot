@@ -104,6 +104,7 @@ class Room_Msg_Dispose:
         # 处理@消息
         if '@' in msg.content and msg.type == 1:
             at_user_lists = self.get_at_wx_id(msg.xml)
+            OutPut.outPut(f"[*]: 艾特列表 {at_user_lists}")
         # 超级管理员功能
         if msg.sender in self.administrators:
             Thread(target=self.Administrator_Function, name="超级管理员处理流程", args=(msg, at_user_lists,)).start()
@@ -401,7 +402,7 @@ class Room_Msg_Dispose:
         # 拒绝者
         elif self.judge_keyword(keyword=['拒绝者'], msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
-            Thread(target=self.get_xiuren_pic, name="积分查询", args=(msg,)).start()
+            Thread(target=self.get_xiuren_pic, name="拒绝者", args=(msg,)).start()
             return
         # 积分查询
         elif self.judge_keyword(keyword=self.Query_Point_Words, msg=msg.content.strip(), list_bool=True,
@@ -492,7 +493,7 @@ class Room_Msg_Dispose:
                             else:
                                 self.game_point[msg.roomid] = {wx_name: 1}
                 except Exception as e:
-                    print(e)
+                    OutPut.outPut(f'[-]: 看图猜成语游戏出问题了 :{e}')
             elif self.game_mode_rooms.get(msg.roomid, False) == "idiom_chain":
                 try:
                     with self.counter_lock:
@@ -516,7 +517,7 @@ class Room_Msg_Dispose:
                             else:
                                 self.game_point[msg.roomid] = {wx_name: 1}
                 except Exception as e:
-                    print(e)
+                    OutPut.outPut(f'[-]: 成语接龙游戏出问题了 :{e}')
             elif self.game_mode_rooms.get(msg.roomid, False) == "guess_idiom_emoji":
                 try:
                     with self.counter_lock:
@@ -539,7 +540,7 @@ class Room_Msg_Dispose:
                             else:
                                 self.game_point[msg.roomid] = {wx_name: 1}
                 except Exception as e:
-                    print(e)
+                    OutPut.outPut(f'[-]: 表情猜成语游戏出问题了 :{e}')
 
     def start_guess_idiom_image(self, msg):
         wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
@@ -604,7 +605,7 @@ class Room_Msg_Dispose:
                     msg_over.append(f"{wx_name}：{point} 分")
             self.wcf.send_text(msg='\n'.join(msg_over), receiver=msg.roomid)
         except Exception as e:
-            OutPut.outPut(f'[~]: 猜词游戏出问题了 :{e}')
+            OutPut.outPut(f'[-]: 看图猜成语游戏出问题了 :{e}')
         finally:
             # 清空游戏数据
             self.game_mode_rooms[msg.roomid] = False
@@ -698,7 +699,7 @@ class Room_Msg_Dispose:
                     msg_over.append(f"{wx_name}：{point} 分")
             self.wcf.send_text(msg='\n'.join(msg_over), receiver=msg.roomid)
         except Exception as e:
-            OutPut.outPut(f'[~]: 成语接龙游戏出问题了：{e}')
+            OutPut.outPut(f'[-]: 成语接龙游戏出问题了：{e}')
         finally:
             # 清空游戏数据
             self.game_mode_rooms[msg.roomid] = False
@@ -773,7 +774,7 @@ class Room_Msg_Dispose:
                     msg_over.append(f"{wx_name}：{point} 分")
             self.wcf.send_text(msg='\n'.join(msg_over), receiver=msg.roomid)
         except Exception as e:
-            OutPut.outPut(f'[~]: 表情猜词游戏出问题了 :{e}')
+            OutPut.outPut(f'[-]: 表情猜成语游戏出问题了 :{e}')
         finally:
             # 清空游戏数据
             self.game_mode_rooms[msg.roomid] = False
