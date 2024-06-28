@@ -620,7 +620,9 @@ class Api_Main_Server:
     def get_idiom(self):
         OutPut.outPut('[*]: 正在调用看图猜成语API接口... ...')
         idiom_data = self.get_idiom_data()
-        save_path = self.Cache_path + '/Pic_Cache/' + str(int(time.time() * 1000)) + '.jpg'
+        # save_path = self.Cache_path + '/Pic_Cache/' + str(int(time.time() * 1000)) + '.jpg'
+        pic_name = idiom_data.get('答案', '未知')
+        save_path = self.Pic_path + '/guess_idiom_image/' + pic_name + '.jpg'
         try:
             url = idiom_data['图片链接']
             pic_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).content
