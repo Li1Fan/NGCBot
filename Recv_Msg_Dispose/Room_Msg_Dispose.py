@@ -92,6 +92,9 @@ class Room_Msg_Dispose:
         # 创建一个线程锁
         self.counter_lock = threading.Lock()
 
+        # 屏蔽
+        self.block_wx_ids = []
+
     # 主消息处理
     def Msg_Dispose(self, msg):
         at_user_lists = []
@@ -167,6 +170,15 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=self.Del_User_Words, msg=self.handle_atMsg(msg, at_user_lists), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.del_user, name="把人移出群聊", args=(msg.sender, msg.roomid, at_user_lists,)).start()
+        # 屏蔽个人消息
+        elif self.judge_keyword(keyword=["屏蔽", "屏蔽消息"], msg=self.handle_atMsg(msg, at_user_lists), list_bool=True,
+                                equal_bool=True):
+            Thread(target=self.block_personal_msg, name="屏蔽个人消息", args=(msg.sender, msg.roomid, at_user_lists,)).start()
+        # 取消屏蔽个人消息
+        elif self.judge_keyword(keyword=["取消屏蔽", "取消屏蔽消息"], msg=self.handle_atMsg(msg, at_user_lists), list_bool=True,
+                                equal_bool=True):
+            Thread(target=self.unblock_personal_msg, name="取消屏蔽个人消息",
+                   args=(msg.sender, msg.roomid, at_user_lists,)).start()
         # 移除白名单公众号
         elif self.judge_keyword(keyword=self.Del_WhiteGh_Words, msg=self.handle_xml_msg(msg), list_bool=True,
                                 equal_bool=True) and self.handle_xml_type(msg) == '57':
@@ -922,6 +934,8 @@ class Room_Msg_Dispose:
                     self.wcf.send_text(msg=usr_msg, receiver=msg.roomid)
         # 不是管理员
         else:
+            if msg.sender in self.block_wx_ids:
+                return
             if self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name) >= int(
                     self.Ai_Point):
                 self.Dps.del_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name,
@@ -1234,6 +1248,28 @@ class Room_Msg_Dispose:
                 msg = f'@{wx_name}\n 你小子想退群了是吧'
             OutPut.outPut(msg)
             self.wcf.send_text(msg=msg, receiver=room_id, aters=sender)
+
+    # 屏蔽个人消息
+    def block_personal_msg(self, sender, room_id, wx_ids):
+        wx_name = self.wcf.get_alias_in_chatroom(roomid=room_id, wxid=sender)
+        for wx_id in wx_ids:
+            if wx_id not in self.administrators:
+                self.block_wx_ids.append(wx_id) if wx_id not in self.block_wx_ids else None
+                block_user_name = self.wcf.get_alias_in_chatroom(roomid=room_id, wxid=wx_id)
+                msg = f'@{wx_name}\n群友 [{block_user_name}] 消息已被屏蔽'
+                OutPut.outPut(msg)
+                self.wcf.send_text(msg=msg, receiver=room_id, aters=sender)
+
+    # 解除屏蔽个人消息
+    def unblock_personal_msg(self, sender, room_id, wx_ids):
+        wx_name = self.wcf.get_alias_in_chatroom(roomid=room_id, wxid=sender)
+        for wx_id in wx_ids:
+            if wx_id not in self.administrators:
+                self.block_wx_ids.remove(wx_id) if wx_id in self.block_wx_ids else None
+                unblock_user_name = self.wcf.get_alias_in_chatroom(roomid=room_id, wxid=wx_id)
+                msg = f'@{wx_name}\n群友 [{unblock_user_name}] 消息已解除屏蔽'
+                OutPut.outPut(msg)
+                self.wcf.send_text(msg=msg, receiver=room_id, aters=sender)
 
     # 检测广告并自动踢出
     def detecting_advertisements(self, msg):
