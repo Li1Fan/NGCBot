@@ -21,10 +21,10 @@ def outPut(msg: str):
     else:
         cprint(f'[{now_time}]: {msg}')
 
-    # 增加保存日志功能
-    try:
-        with open(f"{PRJ_PATH}/Log/log.txt", 'a', encoding='utf-8') as f:
-            f.write(f'[{now_time}]: {msg}\n')
-        return
-    except Exception as e:
-        cprint.err(f'[{now_time}]: {e}')
+    # # 增加保存日志功能
+    # try:
+    #     with open(f"{PRJ_PATH}/Log/log.txt", 'a', encoding='utf-8') as f:
+    #         f.write(f'[{now_time}]: {msg}\n')
+    #     return
+    # except Exception as e:
+    #     cprint.err(f'[{now_time}]: {e}')

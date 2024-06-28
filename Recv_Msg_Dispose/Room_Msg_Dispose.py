@@ -1364,20 +1364,9 @@ class Room_Msg_Dispose:
             return content.strip()
 
     # 关键词判断
-    def judge_keyword(self, keyword, msg, list_bool=False, equal_bool=False, in_bool=False,
+    @staticmethod
+    def judge_keyword(keyword, msg, list_bool=False, equal_bool=False, in_bool=False,
                       split_bool=False):
-        if keyword == self.Del_Point_Words:
-            OutPut.outPut(f'[*]: 触发了减少积分关键词')
-            OutPut.outPut(f'[*]: 关键词: {keyword}')
-            OutPut.outPut(f'[*]: 消息: {msg}')
-        if keyword == self.Add_Point_Words:
-            OutPut.outPut(f'[*]: 触发了增加积分关键词')
-            OutPut.outPut(f'[*]: 关键词: {keyword}')
-            OutPut.outPut(f'[*]: 消息: {msg}')
-        if keyword == self.Send_Point_Words:
-            OutPut.outPut(f'[*]: 触发了赠送积分关键词')
-            OutPut.outPut(f'[*]: 关键词: {keyword}')
-            OutPut.outPut(f'[*]: 消息: {msg}')
         # 如果触发词是列表 并且只需要包含则执行
         if list_bool and in_bool:
             for word in keyword:
