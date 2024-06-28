@@ -728,8 +728,10 @@ class Room_Msg_Dispose:
                     return
                 # TODO：不确定是不是成语库不全，这里需要保证随机到的成语在成语库中
                 while True:
-                    num = random.randint(1, 10305)
-                    emoji_info = self.Ams.db_emoji.get_info_by_id(num)
+                    # num = random.randint(1, 10305)
+                    # emoji_info = self.Ams.db_emoji.get_info_by_id(num)
+                    num = random.randint(1, 1653)
+                    emoji_info = self.Ams.db_emoji.get_common_idiom_info_by_id(num)
                     emoji = emoji_info.get("emoji", "")
                     idiom = emoji_info.get("idiom", "")
                     idiom_data = self.Ams.db_idiom.get_info_by_word(idiom)
