@@ -1,6 +1,7 @@
 import os
 import random
 import re
+import traceback
 import xml.etree.ElementTree as ET
 import yaml
 from cprint import cprint
@@ -126,6 +127,7 @@ class Main_Server:
             except Exception as e:
                 # 打印异常
                 OutPut.outPut(f'[-]: 出现错误, 错误信息: {e}')
+                OutPut.outPut(f'[-]: {traceback.format_exc()}')
 
     # 添加好友后自动回复
     def Accept_Friend_Msg(self, msg):
