@@ -312,6 +312,12 @@ class Room_Msg_Dispose:
                 return
             self.wcf.send_text(msg=hupu_msg[0], receiver=msg.roomid, aters=msg.sender)
             self.wcf.send_text(msg=hupu_msg[1], receiver=msg.roomid, aters=msg.sender)
+        # 神回复
+        elif self.judge_keyword(keyword=["神回复"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+            god_msg = self.Ams.get_god_reply()
+            if god_msg is None:
+                return
+            self.wcf.send_text(msg=god_msg, receiver=msg.roomid, aters=msg.sender)
         # 摸鱼日记
         elif self.judge_keyword(keyword=self.Fish_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_fish()

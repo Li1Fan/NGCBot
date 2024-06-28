@@ -679,6 +679,16 @@ class Api_Main_Server:
             msg = f'[-]: 虎扑热搜接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
 
+    # 神回复
+    def get_god_reply(self):
+        url = "https://api.52hyjs.com/api/shenhuifu"
+        try:
+            json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
+            content = json_data['0']['shenhuifu']
+            return content
+        except Exception as e:
+            return None
+
     # 摸鱼日记
     def get_fish(self):
         OutPut.outPut(f'[*]: 正在调用摸鱼日记接口... ...')
