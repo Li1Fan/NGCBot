@@ -93,7 +93,7 @@ class Room_Msg_Dispose:
         self.counter_lock = threading.Lock()
 
         # 屏蔽
-        self.block_wx_ids = []
+        self.block_wx_ids = ['wxid_5neoavqeubzm22']
 
     # 主消息处理
     def Msg_Dispose(self, msg):
