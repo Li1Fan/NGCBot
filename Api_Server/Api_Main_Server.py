@@ -681,13 +681,18 @@ class Api_Main_Server:
 
     # 神回复
     def get_god_reply(self):
-        url = "https://api.52hyjs.com/api/shenhuifu"
+        url = "https://api.yujn.cn/api/shf.php?"
         try:
-            json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
-            content = json_data['0']['shenhuifu']
-            return content
+            content = requests.get(url=url, headers=self.headers, timeout=30, verify=False).text
+            return content.replace('<br>', '\n')
         except Exception as e:
-            return None
+            url = "https://api.52hyjs.com/api/shenhuifu"
+            try:
+                json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
+                content = json_data['0']['shenhuifu']
+                return content.replace('<br>', '\n')
+            except Exception as e:
+                return None
 
     # 摸鱼日记
     def get_fish(self):

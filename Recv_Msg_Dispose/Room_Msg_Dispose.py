@@ -345,6 +345,7 @@ class Room_Msg_Dispose:
             idiom_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
                         + self.Ams.get_idiom_explain(idiom_name)
             self.wcf.send_text(msg=idiom_msg, receiver=msg.roomid, aters=msg.sender)
+        # 谷歌翻译
         # 接口不稳定，暂时关闭
         # elif msg.content.strip().upper() in ["COS", "COSPLAY"]:
         #     save_path = self.Ams.get_cosplay_video()
