@@ -320,6 +320,12 @@ class Room_Msg_Dispose:
             if god_msg is None:
                 return
             self.wcf.send_text(msg=god_msg, receiver=msg.roomid, aters=msg.sender)
+        # 每日英语
+        elif self.judge_keyword(keyword=["每日英语", "来一句英语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+            english_msg = self.Ams.get_daily_english()
+            if english_msg is None:
+                return
+            self.wcf.send_text(msg=english_msg, receiver=msg.roomid, aters=msg.sender)
         # 摸鱼日记
         elif self.judge_keyword(keyword=self.Fish_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_fish()

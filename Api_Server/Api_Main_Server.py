@@ -714,6 +714,24 @@ class Api_Main_Server:
             except Exception as e:
                 return None
 
+    # 每日英语
+    def get_daily_english(self):
+        OutPut.outPut('[*]: 正在调用每日英语API接口... ...')
+        url = "https://api.oioweb.cn/api/common/OneDayEnglish"
+        try:
+            json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
+            if json_data['code'] != 200:
+                msg = '[~]: 每日英语接口出现错误，具体原因请看日志 ~~~~~~'
+                OutPut.outPut(msg)
+                return None
+            msg = json_data['content'] + '\n' + json_data['note']
+            OutPut.outPut(f'[+]: 每日英语API接口调用成功！！！')
+            return msg
+        except Exception as e:
+            msg = f'[-]: 每日英语接口出现错误, 错误信息：{e}'
+            OutPut.outPut(msg)
+            return None
+
     # 摸鱼日记
     def get_fish(self):
         OutPut.outPut(f'[*]: 正在调用摸鱼日记接口... ...')
