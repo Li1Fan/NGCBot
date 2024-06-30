@@ -616,6 +616,7 @@ class Room_Msg_Dispose:
                         self.wcf.send_text(msg=msg_tip, receiver=msg.roomid)
                         flag_tip = True
                     time.sleep(0.5)
+                self.game_answer[msg.roomid] = None
                 if self.game_success.get(msg.roomid, False):
                     self.game_success[msg.roomid] = False
                 else:
@@ -711,6 +712,7 @@ class Room_Msg_Dispose:
                         self.wcf.send_text(msg=msg_tip, receiver=msg.roomid)
                         flag_tip = True
                     time.sleep(0.5)
+                self.game_answer[msg.roomid] = None
                 if self.game_success.get(msg.roomid, False):
                     self.game_success[msg.roomid] = False
                 else:
@@ -787,6 +789,7 @@ class Room_Msg_Dispose:
                         self.wcf.send_text(msg=msg_tip, receiver=msg.roomid)
                         flag_tip = True
                     time.sleep(0.5)
+                self.game_answer[msg.roomid] = None
                 if self.game_success.get(msg.roomid, False):
                     self.game_success[msg.roomid] = False
                 else:
