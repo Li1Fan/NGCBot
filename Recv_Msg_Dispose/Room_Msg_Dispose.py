@@ -173,9 +173,11 @@ class Room_Msg_Dispose:
         # 屏蔽个人消息
         elif self.judge_keyword(keyword=["屏蔽", "屏蔽消息"], msg=self.handle_atMsg(msg, at_user_lists), list_bool=True,
                                 equal_bool=True):
-            Thread(target=self.block_personal_msg, name="屏蔽个人消息", args=(msg.sender, msg.roomid, at_user_lists,)).start()
+            Thread(target=self.block_personal_msg, name="屏蔽个人消息",
+                   args=(msg.sender, msg.roomid, at_user_lists,)).start()
         # 取消屏蔽个人消息
-        elif self.judge_keyword(keyword=["取消屏蔽", "取消屏蔽消息"], msg=self.handle_atMsg(msg, at_user_lists), list_bool=True,
+        elif self.judge_keyword(keyword=["取消屏蔽", "取消屏蔽消息"], msg=self.handle_atMsg(msg, at_user_lists),
+                                list_bool=True,
                                 equal_bool=True):
             Thread(target=self.unblock_personal_msg, name="取消屏蔽个人消息",
                    args=(msg.sender, msg.roomid, at_user_lists,)).start()
@@ -346,6 +348,13 @@ class Room_Msg_Dispose:
                         + self.Ams.get_idiom_explain(idiom_name)
             self.wcf.send_text(msg=idiom_msg, receiver=msg.roomid, aters=msg.sender)
         # 谷歌翻译
+        elif self.judge_keyword(keyword=["谷歌翻译", "翻译", "翻译翻译", "给我翻译翻译"], msg=msg.content.strip(),
+                                list_bool=True,
+                                split_bool=True):
+            chinese_content = msg.content.strip().split(' ', 1)[1].strip()
+            english_content = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
+                              + self.Ams.get_translate(chinese_content)
+            self.wcf.send_text(msg=english_content, receiver=msg.roomid, aters=msg.sender)
         # 接口不稳定，暂时关闭
         # elif msg.content.strip().upper() in ["COS", "COSPLAY"]:
         #     save_path = self.Ams.get_cosplay_video()

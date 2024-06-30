@@ -649,6 +649,23 @@ class Api_Main_Server:
         else:
             return f"未查询到该成语【{idiom}】"
 
+    # 谷歌翻译
+    def get_translate(self, content):
+        OutPut.outPut('[*]: 正在调用谷歌翻译API接口... ...')
+        url = "https://findmyip.net/api/translate.php?text={}".format(content)
+        try:
+            json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
+            if json_data['code'] != 200:
+                msg = f'[~]: 谷歌翻译接口出现错误, 错误信息请查看日志 ~~~~~~'
+                return msg
+            content = json_data['data']['translate_result']
+            OutPut.outPut(f'[+]: 谷歌翻译API接口调用成功！！！')
+            return content
+        except Exception as e:
+            msg = f'[-]: 谷歌翻译接口出现错误, 错误信息：{e}'
+            OutPut.outPut(msg)
+            return msg
+
     # 虎扑热搜
     def get_hupu(self):
         OutPut.outPut('[*]: 正在调用虎扑热搜API接口... ...')
@@ -681,15 +698,18 @@ class Api_Main_Server:
 
     # 神回复
     def get_god_reply(self):
+        OutPut.outPut('[*]: 正在调用神回复API接口... ...')
         url = "https://api.yujn.cn/api/shf.php?"
         try:
             content = requests.get(url=url, headers=self.headers, timeout=30, verify=False).text
+            OutPut.outPut(f'[+]: 神回复API接口调用成功！！！')
             return content.replace('<br>', '\n')
         except Exception as e:
             url = "https://api.52hyjs.com/api/shenhuifu"
             try:
                 json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
                 content = json_data['0']['shenhuifu']
+                OutPut.outPut(f'[+]: 神回复API接口调用成功！！！')
                 return content.replace('<br>', '\n')
             except Exception as e:
                 return None
