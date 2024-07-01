@@ -649,27 +649,48 @@ class Api_Main_Server:
         else:
             return f"未查询到该成语【{idiom}】"
 
+    # # 谷歌翻译
+    # @staticmethod
+    # def get_translate(content):
+    #     OutPut.outPut('[*]: 正在调用谷歌翻译API接口... ...')
+    #     url = "https://findmyip.net/api/translate.php?text={}".format(content)
+    #     proxies = {
+    #         'http': 'http://127.0.0.1:7890',  # HTTP 代理
+    #         'https': 'https://127.0.0.1:7890'  # HTTPS 代理
+    #     }
+    #     try:
+    #         json_data = requests.get(url=url, timeout=30, verify=False, proxies=proxies).json()
+    #         print(json_data)
+    #         if json_data['code'] != 200:
+    #             msg = f'[~]: 谷歌翻译接口出现错误, 错误信息请查看日志 ~~~~~~'
+    #             return msg
+    #         content = json_data['data']['translate_result']
+    #         OutPut.outPut(f'[+]: 谷歌翻译API接口调用成功！！！')
+    #         return content
+    #     except Exception as e:
+    #         msg = f'[-]: 谷歌翻译接口出现错误, 错误信息：{e}'
+    #         OutPut.outPut(msg)
+    #         return msg
+
     # 谷歌翻译
     @staticmethod
     def get_translate(content):
         OutPut.outPut('[*]: 正在调用谷歌翻译API接口... ...')
-        url = "https://findmyip.net/api/translate.php?text={}".format(content)
-        proxies = {
-            'http': 'http://192.168.222.108:7890',  # HTTP 代理
-            'https': 'https://192.168.222.108:7890'  # HTTPS 代理
-        }
+        url = "http://192.168.222.108:9200/translate/{}".format(content)
         try:
-            json_data = requests.get(url=url, timeout=30, verify=False, proxies=proxies).json()
-            if json_data['code'] != 200:
+            json_data = requests.get(url=url, timeout=30).json()
+            print(json_data)
+            if not json_data['success']:
                 msg = f'[~]: 谷歌翻译接口出现错误, 错误信息请查看日志 ~~~~~~'
-                return msg
-            content = json_data['data']['translate_result']
+                OutPut.outPut(msg)
+                return None
+            content = json_data['result']
             OutPut.outPut(f'[+]: 谷歌翻译API接口调用成功！！！')
             return content
         except Exception as e:
             msg = f'[-]: 谷歌翻译接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
-            return msg
+            return None
 
     # 虎扑热搜
     def get_hupu(self):

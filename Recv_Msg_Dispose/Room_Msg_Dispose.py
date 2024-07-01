@@ -358,9 +358,13 @@ class Room_Msg_Dispose:
                                 list_bool=True,
                                 split_bool=True):
             chinese_content = msg.content.strip().split(' ', 1)[1].strip()
-            english_content = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
-                              + self.Ams.get_translate(chinese_content)
-            self.wcf.send_text(msg=english_content, receiver=msg.roomid, aters=msg.sender)
+            english_content = self.Ams.get_translate(chinese_content)
+            if not english_content:
+                return
+            trans_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
+                        + f'原文：{chinese_content}\n' \
+                        + f'译文：{english_content}'
+            self.wcf.send_text(msg=trans_msg, receiver=msg.roomid, aters=msg.sender)
         # 接口不稳定，暂时关闭
         # elif msg.content.strip().upper() in ["COS", "COSPLAY"]:
         #     save_path = self.Ams.get_cosplay_video()
