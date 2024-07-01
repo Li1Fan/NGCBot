@@ -762,7 +762,6 @@ class Room_Msg_Dispose:
                     self.game_answer[msg.roomid] = None
                     self.game_success[msg.roomid] = False
                     return
-                # TODO：不确定是不是成语库不全，这里需要保证随机到的成语在成语库中
                 while True:
                     # num = random.randint(1, 10305)
                     # emoji_info = self.Ams.db_emoji.get_info_by_id(num)
@@ -1315,7 +1314,7 @@ class Room_Msg_Dispose:
             OutPut.outPut(f'[-]: 检测广告功能出现错误，错误信息: {e}')
 
     # 增加积分
-    # TODO: 出现过异常，暂不确定原因，有可能是“退出的群聊”导致
+    # TODO: 出现过异常，暂不确定原因，有可能是“退出的群聊”获取不到群昵称导致
     def Add_Point(self, msg, content, at_user_list):
         try:
             OutPut.outPut(f'[*]: 增加积分接口接收到的消息: {content}')
@@ -1392,6 +1391,8 @@ class Room_Msg_Dispose:
     @staticmethod
     def judge_keyword(keyword, msg, list_bool=False, equal_bool=False, in_bool=False,
                       split_bool=False):
+        if '加' in msg:
+            print(f'msg:{msg}')
         # 如果触发词是列表 并且只需要包含则执行
         if list_bool and in_bool:
             for word in keyword:

@@ -133,7 +133,7 @@ class Push_Main_Server:
         # OutPut.outPut(f'[+]: 已开启定时推送服务！！！')
 
         # 创建两个schedule对象，分别用于工作日和非工作日
-        # TODO:推送在周一零点时出现过异常，待排查
+        # TODO:推送在周一零点时会异常，不确定原因，暂时规避
         workday_schedule = schedule.Scheduler()
         non_workday_schedule = schedule.Scheduler()
 

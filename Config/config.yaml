@@ -10,7 +10,7 @@ System_Config:
   # 好友Ai开关 1开/0关
   Ai_Lock: 1
 
-## 定时发送配置（TODO 功能待进一步升级，支持定时推送、定时执行任务）
+## 定时发送配置
 Push_Config:
   # 早安寄语发送时间
   Morning_Push_Time: '08:00'
