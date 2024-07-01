@@ -142,16 +142,23 @@ class Push_Main_Server:
         workday_schedule.every().day.at(self.Fish_Time).do(self.push_fish)
         workday_schedule.every().thursday.at(self.Kfc_Time).do(self.push_kfc)
         workday_schedule.every().day.at(self.Off_Work_Time).do(self.push_off_work)
-        workday_schedule.every().day.at('00:00').do(self.clear_sign)
+        workday_schedule.every().day.at('00:01').do(self.clear_sign)
         workday_schedule.every().day.at('03:00').do(self.clear_cache)
-        workday_schedule.every().tuesday.at('00:00').do(self.clear_log)
+        # workday_schedule.every().tuesday.at('00:00').do(self.clear_log)
 
-        non_workday_schedule.every().day.at('00:00').do(self.clear_sign)
+        non_workday_schedule.every().day.at('00:01').do(self.clear_sign)
         non_workday_schedule.every().day.at('03:00').do(self.clear_cache)
 
         OutPut.outPut(f'[+]: 已开启定时推送服务！！！')
 
         while True:
+            # 获取当前时间
+            current_time = datetime.now().time()
+            # 如果当前时间是午夜（00:00）
+            if current_time.hour == 0 and current_time.minute == 0:
+                time.sleep(60)  # 等待一分钟
+                continue
+
             # 获取当前日期
             current_date = datetime.now().date()
 
