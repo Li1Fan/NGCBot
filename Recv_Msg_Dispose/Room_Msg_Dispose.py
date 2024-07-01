@@ -1391,30 +1391,34 @@ class Room_Msg_Dispose:
     @staticmethod
     def judge_keyword(keyword, msg, list_bool=False, equal_bool=False, in_bool=False,
                       split_bool=False):
-        if '加' in msg:
-            print(f'msg:{msg}')
-        # 如果触发词是列表 并且只需要包含则执行
-        if list_bool and in_bool:
-            for word in keyword:
-                if word in msg:
-                    return True
+        try:
+            if msg and '加' in msg:
+                print(f'msg:{msg}')
+            # 如果触发词是列表 并且只需要包含则执行
+            if list_bool and in_bool:
+                for word in keyword:
+                    if word in msg:
+                        return True
 
-        # 如果触发词是列表 并且需要相等则执行
-        if list_bool and equal_bool:
-            for word in keyword:
-                if word == msg:
-                    return True
+            # 如果触发词是列表 并且需要相等则执行
+            if list_bool and equal_bool:
+                for word in keyword:
+                    if word == msg:
+                        return True
 
-        # 如果关键词是列表, 并且判断的消息需要以空格切割 判断第一个元素位置与关键词相等则触发
-        if list_bool and split_bool:
-            try:
-                if ' ' in msg or msg == 'help':
-                    for word in keyword:
-                        split_one = msg.split(' ')[0]
-                        if word == split_one:
-                            return True
-            except Exception:
-                return
+            # 如果关键词是列表, 并且判断的消息需要以空格切割 判断第一个元素位置与关键词相等则触发
+            if list_bool and split_bool:
+                try:
+                    if ' ' in msg or msg == 'help':
+                        for word in keyword:
+                            split_one = msg.split(' ')[0]
+                            if word == split_one:
+                                return True
+                except Exception:
+                    return
+        except Exception as e:
+            OutPut.outPut(f'[-]: 关键词判断出现错误, 错误信息: {e}')
+            return False
 
     def send_music_message(self, digest, url, receiver):
         self.wcf.send_rich_text(name='点歌',
