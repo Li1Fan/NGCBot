@@ -650,11 +650,16 @@ class Api_Main_Server:
             return f"未查询到该成语【{idiom}】"
 
     # 谷歌翻译
-    def get_translate(self, content):
+    @staticmethod
+    def get_translate(content):
         OutPut.outPut('[*]: 正在调用谷歌翻译API接口... ...')
         url = "https://findmyip.net/api/translate.php?text={}".format(content)
+        proxies = {
+            'http': 'http://192.168.222.108:7890',  # HTTP 代理
+            'https': 'https://192.168.222.108:7890'  # HTTPS 代理
+        }
         try:
-            json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
+            json_data = requests.get(url=url, timeout=30, verify=False, proxies=proxies).json()
             if json_data['code'] != 200:
                 msg = f'[~]: 谷歌翻译接口出现错误, 错误信息请查看日志 ~~~~~~'
                 return msg
@@ -715,15 +720,18 @@ class Api_Main_Server:
                 return None
 
     # 每日英语
-    def get_daily_english(self):
+    @staticmethod
+    def get_daily_english():
         OutPut.outPut('[*]: 正在调用每日英语API接口... ...')
         url = "https://api.oioweb.cn/api/common/OneDayEnglish"
         try:
-            json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
+            json_data = requests.get(url=url, timeout=30, verify=False).json()
+            # print(json_data)
             if json_data['code'] != 200:
                 msg = '[~]: 每日英语接口出现错误，具体原因请看日志 ~~~~~~'
                 OutPut.outPut(msg)
                 return None
+            json_data = json_data['result']
             msg = json_data['content'] + '\n' + json_data['note']
             OutPut.outPut(f'[+]: 每日英语API接口调用成功！！！')
             return msg
@@ -1032,4 +1040,4 @@ if __name__ == '__main__':
     # print(Ams.get_whois('whois查询 qq.com'))
     # print(Ams.get_attribution('归属查询 121264'))
     # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
-    print(Ams.get_idiom_data())
+    print(Ams.get_translate("你好"))
