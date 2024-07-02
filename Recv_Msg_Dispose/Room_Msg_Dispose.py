@@ -3,6 +3,7 @@ import random
 import re
 import threading
 import time
+import traceback
 import xml.etree.ElementTree as ET
 from threading import Thread
 
@@ -96,21 +97,24 @@ class Room_Msg_Dispose:
         # 防撤回功能
         self.recall_msg_dict = {}
         # 启动撤回消息删除线程
-        threading.Thread(target=self.del_recall_msg_dict).start()
+        self.thread_del_recall_msg_dict = threading.Thread(target=self.del_recall_msg_dict)
+        self.thread_del_recall_msg_dict.start()
 
     def del_recall_msg_dict(self):
         while True:
-            # 删除超过3分钟的撤回消息
-            for msg_id, msg in self.recall_msg_dict.items():
-                if time.time() - msg['ts'] > 180:
-                    self.recall_msg_dict.pop(msg_id)
+            with self.counter_lock:
+                # 删除超过3分钟的撤回消息
+                for msg_id, msg in self.recall_msg_dict.items():
+                    if time.time() - msg['ts'] > 180:
+                        self.recall_msg_dict.pop(msg_id)
             time.sleep(60)
 
     def handle_recall(self, msg):
         try:
             # 撤回消息
             if msg.type == 10002:
-                msg_id = re.findall(f"<newmsgid>(.*)</newmsgid>", msg.xml)[0]
+                msg_id = re.findall(f"<newmsgid>(.*)</newmsgid>", msg.content)[0]
+                msg_id = str(msg_id)
                 if msg_id in self.recall_msg_dict.keys():
                     recall_msg = self.recall_msg_dict[msg_id]
                     wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
@@ -121,9 +125,11 @@ class Room_Msg_Dispose:
                     self.recall_msg_dict.pop(msg_id)
             # 普通文本消息
             elif msg.type == 1:
-                self.recall_msg_dict.update(
-                    {msg.id: {'sender': msg.sender, 'roomid': msg.roomid, 'ts': msg.ts, 'content': msg.content}})
+                with self.counter_lock:
+                    self.recall_msg_dict.update(
+                        {str(msg.id): {'sender': msg.sender, 'roomid': msg.roomid, 'ts': msg.ts, 'content': msg.content}})
         except Exception as e:
+            print(traceback.format_exc())
             OutPut.outPut(f"[-]: 撤回消息处理失败 {e}")
 
     # 主消息处理
