@@ -110,7 +110,7 @@ class Room_Msg_Dispose:
         try:
             # 撤回消息
             if msg.type == 10002:
-                msg_id = msg.xml.find('newmsgid').text
+                msg_id = re.findall(f"<newmsgid>(.*)</newmsgid>", msg.xml)[0]
                 if msg_id in self.recall_msg_dict.keys():
                     recall_msg = self.recall_msg_dict[msg_id]
                     wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
