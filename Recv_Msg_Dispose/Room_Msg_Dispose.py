@@ -104,9 +104,9 @@ class Room_Msg_Dispose:
         while True:
             with self.counter_lock:
                 # 删除超过3分钟的撤回消息
-                for msg_id, msg in self.recall_msg_dict.items():
-                    if time.time() - msg['ts'] > 180:
-                        self.recall_msg_dict.pop(msg_id)
+                for key in list(self.recall_msg_dict.keys()):
+                    if time.time() - self.recall_msg_dict[key]['ts'] > 180:
+                        self.recall_msg_dict.pop(key)
             time.sleep(60)
 
     def handle_recall(self, msg):
