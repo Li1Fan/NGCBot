@@ -91,12 +91,44 @@ class Room_Msg_Dispose:
         self.idiom_usr_answer = {}
         # 创建一个线程锁
         self.counter_lock = threading.Lock()
-
         # 屏蔽
         self.block_wx_ids = ['wxid_5neoavqeubzm22']
+        # 防撤回功能
+        self.recall_msg_dict = {}
+        # 启动撤回消息删除线程
+        threading.Thread(target=self.del_recall_msg_dict).start()
+
+    def del_recall_msg_dict(self):
+        while True:
+            # 删除超过3分钟的撤回消息
+            for msg_id, msg in self.recall_msg_dict.items():
+                if time.time() - msg['ts'] > 180:
+                    self.recall_msg_dict.pop(msg_id)
+            time.sleep(60)
+
+    def handle_recall(self, msg):
+        try:
+            # 撤回消息
+            if msg.type == 10002:
+                msg_id = msg.xml.find('newmsgid').text
+                if msg_id in self.recall_msg_dict.keys():
+                    recall_msg = self.recall_msg_dict[msg_id]
+                    wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
+                    # 如果获取不到群昵称，则获取微信昵称
+                    if not wx_name:
+                        wx_name = self.wcf.get_info_by_wxid(wxid=msg.sender).get("name")
+                    self.wcf.send_text(msg=f'{wx_name} 撤回了 {recall_msg.get("content", "")}', receiver=msg.roomid)
+                    self.recall_msg_dict.pop(msg_id)
+            # 普通文本消息
+            elif msg.type == 1:
+                self.recall_msg_dict.update(
+                    {msg.id: {'sender': msg.sender, 'roomid': msg.roomid, 'ts': msg.ts, 'content': msg.content}})
+        except Exception as e:
+            OutPut.outPut(f"[-]: 撤回消息处理失败 {e}")
 
     # 主消息处理
     def Msg_Dispose(self, msg):
+        self.handle_recall(msg)
         at_user_lists = []
         # 获取所在群所有管理员
         admin_dicts = self.Dms.show_admins(wx_id=msg.sender, room_id=msg.roomid)
