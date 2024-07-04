@@ -88,14 +88,21 @@ class Room_Msg_Dispose:
         self.game_point = {}
         self.game_answer = {}
         self.game_success = {}
+        # 看图猜成语-图片地址
         self.idiom_pic = {}
+        # 成语接龙-用户答案
         self.idiom_usr_answer = {}
+        # 成语接龙-用户答案历史
+        self.idiom_usr_answer_history = {}
+        # 成语接龙-题目
+        self.idiom_question = {}
         # 创建一个线程锁
         self.counter_lock = threading.Lock()
         # 屏蔽
         self.block_wx_ids = ['wxid_5neoavqeubzm22']
         # 防撤回功能
         self.recall_msg_dict = {}
+        self.recall_mode_rooms = {}
         # 启动撤回消息删除线程
         self.thread_del_recall_msg_dict = threading.Thread(target=self.del_recall_msg_dict)
         self.thread_del_recall_msg_dict.start()
@@ -112,7 +119,7 @@ class Room_Msg_Dispose:
     def handle_recall(self, msg):
         try:
             # 撤回消息
-            if msg.type == 10002:
+            if msg.type == 10002 and self.recall_mode_rooms.get(msg.roomid, True):
                 msg_id = re.findall(f"<newmsgid>(.*)</newmsgid>", msg.content)[0]
                 msg_id = str(msg_id)
                 if msg_id in self.recall_msg_dict.keys():
@@ -121,13 +128,14 @@ class Room_Msg_Dispose:
                     # 如果获取不到群昵称，则获取微信昵称
                     if not wx_name:
                         wx_name = self.wcf.get_info_by_wxid(wxid=msg.sender).get("name")
-                    self.wcf.send_text(msg=f'{wx_name} 撤回了 {recall_msg.get("content", "")}', receiver=msg.roomid)
+                    self.wcf.send_text(msg=f'【{wx_name}】 撤回了\n{recall_msg.get("content", "")}', receiver=msg.roomid)
                     self.recall_msg_dict.pop(msg_id)
             # 普通文本消息
             elif msg.type == 1:
                 with self.counter_lock:
                     self.recall_msg_dict.update(
-                        {str(msg.id): {'sender': msg.sender, 'roomid': msg.roomid, 'ts': msg.ts, 'content': msg.content}})
+                        {str(msg.id): {'sender': msg.sender, 'roomid': msg.roomid, 'ts': msg.ts,
+                                       'content': msg.content}})
         except Exception as e:
             print(traceback.format_exc())
             OutPut.outPut(f"[-]: 撤回消息处理失败 {e}")
@@ -260,6 +268,12 @@ class Room_Msg_Dispose:
         elif msg.content.strip() in ['关闭管理员模式', '取消管理员模式', '退出管理员模式', '普通模式']:
             self.manager_mode_rooms[msg.roomid] = False
             self.wcf.send_text(msg=f'管理员模式关闭成功，恢复正常消息响应', receiver=msg.roomid, aters=msg.sender)
+        elif msg.content.strip() in ['开启防撤回', '开启防撤回功能']:
+            self.recall_mode_rooms[msg.roomid] = True
+            self.wcf.send_text(msg=f'已开启防撤回', receiver=msg.roomid, aters=msg.sender)
+        elif msg.content.strip() in ['关闭防撤回', '关闭防撤回功能']:
+            self.recall_mode_rooms[msg.roomid] = False
+            self.wcf.send_text(msg=f'已关闭防撤回', receiver=msg.roomid, aters=msg.sender)
         Thread(target=self.OrdinaryRoom_Function, name="普通群聊功能", args=(msg, at_user_lists)).start()
 
     # 白名单群聊功能
@@ -458,7 +472,8 @@ class Room_Msg_Dispose:
             self.wcf.send_text(msg=sign_msg, receiver=msg.roomid, aters=msg.sender)
             return
         elif msg.content.strip() in ['重新发送图片', '重新发送', '重发图片']:
-            self.wcf.send_image(path=self.save_path, receiver=msg.roomid)
+            if self.save_path:
+                self.wcf.send_image(path=self.save_path, receiver=msg.roomid)
         # 赠送积分功能
         elif self.judge_keyword(keyword=self.Send_Point_Words, msg=self.handle_atMsg(msg, at_user_lists),
                                 list_bool=True, split_bool=True):
@@ -536,7 +551,8 @@ class Room_Msg_Dispose:
             self.wcf.send_text(msg=f'游戏已中止！', receiver=msg.roomid)
             return
         elif self.judge_keyword(keyword=["重发"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            self.wcf.send_image(path=self.idiom_pic[msg.roomid], receiver=msg.roomid)
+            if self.idiom_pic[msg.roomid]:
+                self.wcf.send_image(path=self.idiom_pic[msg.roomid], receiver=msg.roomid)
             return
         # 成语解析功能
         elif self.judge_keyword(keyword=["成语解析", "成语解释", "成语查询"], msg=msg.content.strip(), list_bool=True,
@@ -546,6 +562,18 @@ class Room_Msg_Dispose:
                         + self.Ams.get_idiom_explain(idiom_name)
             self.wcf.send_text(msg=idiom_msg, receiver=msg.roomid, aters=msg.sender)
             return
+        # 成语接龙提示功能
+        elif self.judge_keyword(keyword=["提示", "给点提示", "解释"], msg=msg.content.strip(), list_bool=True,
+                                equal_bool=True):
+            idiom = self.idiom_question.get(msg.roomid, '')
+            answer_tip = self.Ams.db_idiom.get_info_by_word(idiom)
+            if answer_tip:
+                answer = f"成语：{answer_tip.get('word', '')}\n" \
+                         f"拼音：{answer_tip.get('pinyin', '')}\n" \
+                         f"解释：{answer_tip.get('explanation', '')}\n" \
+                         f"出处：{answer_tip.get('derivation', '')}\n" \
+                         f"例句：{answer_tip.get('example', '')}"
+                self.wcf.send_text(msg=answer, receiver=msg.roomid)
         else:
             if self.game_mode_rooms.get(msg.roomid, False) == "guess_idiom_image":
                 try:
@@ -577,9 +605,13 @@ class Room_Msg_Dispose:
                             return
                         if self.judge_keyword(keyword=self.game_answer[msg.roomid],
                                               msg=msg.content.strip(), list_bool=True, equal_bool=True):
+                            if msg.content.strip() in self.idiom_usr_answer_history[msg.roomid]:
+                                self.wcf.send_text(msg=f'[{msg.content.strip()}]已经接过了！', receiver=msg.roomid)
+                                return
                             self.game_success[msg.roomid] = True
                             self.game_answer[msg.roomid] = None
                             self.idiom_usr_answer[msg.roomid] = msg.content.strip()
+                            self.idiom_usr_answer_history[msg.roomid].append(msg.content.strip())
                             wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
                             # 如果获取不到群昵称，则获取微信昵称
                             if not wx_name:
@@ -700,6 +732,7 @@ class Room_Msg_Dispose:
                                f'\n请回复“退出游戏”。',
                            receiver=msg.roomid, aters=msg.sender)
         self.game_mode_rooms[msg.roomid] = "idiom_chain"
+        self.idiom_usr_answer_history[msg.roomid] = []
         try:
             pinyin_lst = ['a', 'an', 'ang', 'ao', 'ba', 'bai', 'ban', 'bang', 'bao', 'bei', 'ben', 'beng', 'bi', 'bian',
                           'biao', 'bie', 'bin', 'bing', 'bo', 'bu', 'ca', 'cai', 'can', 'cang', 'cao', 'ce', 'cen',
@@ -724,6 +757,7 @@ class Room_Msg_Dispose:
             idiom = random.choice(idiom_lst)
 
             for i in range(10):
+                self.idiom_question[msg.roomid] = idiom
                 if not self.game_mode_rooms.get(msg.roomid, False):
                     # 清空游戏数据
                     self.game_mode_rooms[msg.roomid] = False
@@ -731,6 +765,8 @@ class Room_Msg_Dispose:
                     self.game_answer[msg.roomid] = None
                     self.game_success[msg.roomid] = False
                     self.idiom_usr_answer[msg.roomid] = None
+                    self.idiom_usr_answer_history[msg.roomid] = []
+                    self.idiom_question[msg.roomid] = None
                     return
                 answers = self.Ams.db_idiom.get_words_by_word(idiom)
                 if not answers:
@@ -750,6 +786,8 @@ class Room_Msg_Dispose:
                         self.game_answer[msg.roomid] = None
                         self.game_success[msg.roomid] = False
                         self.idiom_usr_answer[msg.roomid] = None
+                        self.idiom_usr_answer_history[msg.roomid] = []
+                        self.idiom_question[msg.roomid] = None
                         return
                     if self.game_success.get(msg.roomid, False):
                         break
@@ -766,6 +804,14 @@ class Room_Msg_Dispose:
                 else:
                     self.wcf.send_text(msg=f'没有人接龙成功！\n'
                                            f'参考答案：{random_answer}', receiver=msg.roomid)
+                    answer_data = self.Ams.db_idiom.get_info_by_word(random_answer)
+                    if answer_data:
+                        answer = f"成语：{answer_data.get('word', '')}\n" \
+                                 f"拼音：{answer_data.get('pinyin', '')}\n" \
+                                 f"解释：{answer_data.get('explanation', '')}\n" \
+                                 f"出处：{answer_data.get('derivation', '')}\n" \
+                                 f"例句：{answer_data.get('example', '')}"
+                        self.wcf.send_text(msg=answer, receiver=msg.roomid)
                     break
                 usr_answer = self.idiom_usr_answer[msg.roomid]
                 idiom_lst = self.Ams.db_idiom.get_words_by_word(usr_answer)
@@ -785,6 +831,8 @@ class Room_Msg_Dispose:
             self.game_answer[msg.roomid] = None
             self.game_success[msg.roomid] = False
             self.idiom_usr_answer[msg.roomid] = None
+            self.idiom_usr_answer_history[msg.roomid] = []
+            self.idiom_question[msg.roomid] = None
 
     # 表情猜成语
     def start_guess_idiom_emoji(self, msg):
