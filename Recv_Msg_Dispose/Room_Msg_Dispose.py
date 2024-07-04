@@ -824,6 +824,9 @@ class Room_Msg_Dispose:
                     break
                 usr_answer = self.idiom_usr_answer[msg.roomid]
                 idiom_lst = self.Ams.db_idiom.get_words_by_word(usr_answer)
+                if not idiom_lst:
+                    self.wcf.send_text(msg='成语接龙已到达终点，游戏提前结束！', receiver=msg.roomid)
+                    break
                 idiom = random.choice(idiom_lst)
                 time.sleep(0.3)
             msg_over = ["游戏结束！"]
