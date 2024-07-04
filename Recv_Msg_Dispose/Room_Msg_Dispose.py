@@ -389,6 +389,14 @@ class Room_Msg_Dispose:
                 self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
+        # 内涵段子
+        elif self.judge_keyword(keyword=["内涵段子", "段子", "讲段子"], msg=msg.content.strip(), list_bool=True,
+                                equal_bool=True):
+            save_path = self.Ams.get_duanzi()
+            ret = f'[*]: 内涵段子API接口返回值：{save_path}'
+            OutPut.outPut(ret)
+            if save_path:
+                self.wcf.send_image(path=save_path, receiver=msg.roomid)
         # 点歌功能
         elif self.judge_keyword(keyword=["点歌", "听歌"], msg=msg.content.strip(), list_bool=True, split_bool=True):
             music_name = msg.content.strip().split(' ', 1)[1].strip()
@@ -946,14 +954,14 @@ class Room_Msg_Dispose:
         #            f"【2.1】、舔狗日记\n" \
         #            f"【2.2】、毒鸡汤\n" \
         #            f"【2.3】、讲笑话\n" \
-        #            f"【2.4】、神回复\n" \
-        #            f"【2.5】、每日英语\n" \
-        #            f"【2.6】、秒懂世界\n" \
-        #            f"【2.7】、虎扑热搜\n" \
-        #            f"【2.8】、翻译\n" \
-        #            f"【2.9】、天气查询\n" \
-        #            f"【2.10】、每日英语\n" \
-        #            f"【2.11】、点歌\n" \
+        #            f"【2.4】、讲段子\n" \
+        #            f"【2.5】、神回复\n" \
+        #            f"【2.6】、每日英语\n" \
+        #            f"【2.7】、秒懂世界\n" \
+        #            f"【2.8】、虎扑热搜\n" \
+        #            f"【2.9】、点歌\n" \
+        #            f"【2.10】、翻译\n" \
+        #            f"【2.11】、天气查询\n" \
         #            f"【三、游戏功能】\n" \
         #            f"【3.1】、看图猜成语\n" \
         #            f"【3.2】、表情猜成语\n" \

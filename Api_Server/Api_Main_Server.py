@@ -776,6 +776,26 @@ class Api_Main_Server:
         OutPut.outPut(f'[+]: 摸鱼日记API接口调用成功！！！')
         return save_path
 
+    # 内涵段子
+    def get_duanzi(self):
+        OutPut.outPut(f'[*]: 正在调用内涵段子接口... ...')
+        try:
+            url = "https://dayu.qqsuu.cn/neihanduanzi/apis.php?type=json"
+            res = requests.get(url=url, timeout=30, verify=False)
+            json_data = res.json()
+            url_pic = json_data['data']
+
+            pic_data = requests.get(url=url_pic, headers=self.headers, timeout=30, verify=False).content
+            save_path = self.Cache_path + '/Pic_Cache/' + str(int(time.time() * 1000)) + '.png'
+            with open(file=save_path, mode='wb') as pd:
+                pd.write(pic_data)
+        except Exception as e:
+            msg = f'[-]: 内涵段子API接口出现错误，错误信息：{e}'
+            OutPut.outPut(msg)
+            return None
+        OutPut.outPut(f'[+]: 内涵段子API接口调用成功！！！')
+        return save_path
+
     # Whois查询
     def get_whois(self, content):
         OutPut.outPut('[*]: 正在调用Whois查询API接口... ...')
@@ -1061,4 +1081,4 @@ if __name__ == '__main__':
     # print(Ams.get_whois('whois查询 qq.com'))
     # print(Ams.get_attribution('归属查询 121264'))
     # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
-    print(Ams.get_translate("你好"))
+    print(Ams.get_duanzi())
