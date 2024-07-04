@@ -14,6 +14,7 @@ from Api_Server.Api_Main_Server import Api_Main_Server
 from Db_Server.Db_Main_Server import Db_Main_Server
 from Db_Server.Db_Point_Server import Db_Point_Server
 from OutPut import OutPut
+from advanced_path import PRJ_PATH
 
 
 class Room_Msg_Dispose:
@@ -933,24 +934,32 @@ class Room_Msg_Dispose:
     # 帮助菜单
     def get_help(self, msg):
         OutPut.outPut(f'[*]: 正在调用Help功能菜单... ...')
-        send_msg = f"【一、积分功能】\n" \
-                   f"【1.1】、@机器人开启Ai对话\n" \
-                   f"【1.2】、GPT3.5\n" \
-                   f"【1.3】、星火大模型（联网）\n" \
-                   f"【1.4】、秘塔搜索\n" \
-                   f"【1.5】、Ai画画\n" \
-                   f"【二、娱乐功能】\n" \
-                   f"【2.1】、舔狗日记\n" \
-                   f"【2.2】、毒鸡汤\n" \
-                   f"【2.3】、讲笑话\n" \
-                   f"【2.4】、秒懂世界\n" \
-                   f"【2.5】、天气查询\n" \
-                   f"【2.6】、点歌\n" \
-                   f"【2.7】、看图猜成语\n" \
-                   f"【2.8】、表情猜成语\n" \
-                   f"【2.9】、成语接龙\n" \
-                   f"{'By #' + self.system_copyright if self.system_copyright else ''}"
-        self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
+        help_pic_path = PRJ_PATH + '/help.jpg'
+        self.wcf.send_image(path=help_pic_path, receiver=msg.roomid)
+        # send_msg = f"【一、积分功能】\n" \
+        #            f"【1.1】、@机器人开启Ai对话\n" \
+        #            f"【1.2】、GPT3.5\n" \
+        #            f"【1.3】、星火大模型（联网）\n" \
+        #            f"【1.4】、秘塔搜索\n" \
+        #            f"【1.5】、Ai画画\n" \
+        #            f"【二、娱乐功能】\n" \
+        #            f"【2.1】、舔狗日记\n" \
+        #            f"【2.2】、毒鸡汤\n" \
+        #            f"【2.3】、讲笑话\n" \
+        #            f"【2.4】、神回复\n" \
+        #            f"【2.5】、每日英语\n" \
+        #            f"【2.6】、秒懂世界\n" \
+        #            f"【2.7】、虎扑热搜\n" \
+        #            f"【2.8】、翻译\n" \
+        #            f"【2.9】、天气查询\n" \
+        #            f"【2.10】、每日英语\n" \
+        #            f"【2.11】、点歌\n" \
+        #            f"【三、游戏功能】\n" \
+        #            f"【3.1】、看图猜成语\n" \
+        #            f"【3.2】、表情猜成语\n" \
+        #            f"【3.3】、成语接龙\n" \
+        #            f"{'By #' + self.system_copyright if self.system_copyright else ''}"
+        # self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
 
         # f"[烟花]【2.1】、舔狗日记\n" \
         # f"[烟花]【2.2】、摸鱼日历\n" \
