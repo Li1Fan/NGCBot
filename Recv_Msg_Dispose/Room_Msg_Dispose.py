@@ -536,13 +536,13 @@ class Room_Msg_Dispose:
             return
 
     def game_function(self, msg):
-        if self.judge_keyword(keyword=["看图猜成语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+        if self.judge_keyword(keyword=["看图猜成语", "萝卜看图猜成语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             Thread(target=self.start_guess_idiom_image, name="看图猜成语", args=(msg,)).start()
             return True
-        elif self.judge_keyword(keyword=["成语接龙"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+        elif self.judge_keyword(keyword=["成语接龙", "萝卜成语接龙"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             Thread(target=self.start_idiom_chain, name="成语接龙", args=(msg,)).start()
             return True
-        elif self.judge_keyword(keyword=["表情猜成语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+        elif self.judge_keyword(keyword=["表情猜成语", "萝卜表情猜成语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             Thread(target=self.start_guess_idiom_emoji, name="表情猜成语", args=(msg,)).start()
             return True
 
