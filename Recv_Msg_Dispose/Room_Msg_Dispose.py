@@ -119,8 +119,10 @@ class Room_Msg_Dispose:
 
     def handle_recall(self, msg):
         try:
+            if not self.recall_mode_rooms.get(msg.roomid, False):
+                return
             # 撤回消息
-            if msg.type == 10002 and self.recall_mode_rooms.get(msg.roomid, True):
+            if msg.type == 10002:
                 msg_id = re.findall(f"<newmsgid>(.*)</newmsgid>", msg.content)[0]
                 msg_id = str(msg_id)
                 if msg_id in self.recall_msg_dict.keys():
