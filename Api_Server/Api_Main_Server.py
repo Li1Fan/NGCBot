@@ -136,92 +136,6 @@ class Api_Main_Server:
                 del text[0]
             return text
 
-        # Gpt模型
-        def getGpt(content):
-            self.messages.append({"role": "user", "content": f'{content}'})
-            data = {
-                "model": "gpt-3.5-turbo",
-                "messages": self.messages
-            }
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"{self.OpenAi_Key}",
-            }
-            try:
-                resp = requests.post(url=self.OpenAi_Api, headers=headers, json=data, timeout=15)
-                json_data = resp.json()
-                assistant_content = json_data['choices'][0]['message']['content']
-                self.messages.append({"role": "assistant", "content": f"{assistant_content}"})
-                if len(self.messages) == 15:
-                    self.messages = [{"role": "system", "content": f"{self.OpenAi_Initiating_Message}"}]
-                return assistant_content
-            except Exception as e:
-                OutPut.outPut(f'[-]: AI对话接口出现错误，错误信息： {e}')
-                self.messages = [{"role": "system", "content": f"{self.OpenAi_Initiating_Message}"}]
-                return None
-
-        # 秘塔搜索
-        def get_metaso(content, model='concise'):
-            messages = [{"role": "user", "content": f'{content}'}]
-            data = {
-                "model": model,
-                "messages": messages
-            }
-            headers = {
-                "Authorization": f"{self.Metaso_Key}",
-                'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-                'Content-Type': 'application/json'
-            }
-            try:
-                resp = requests.post(url=self.Metaso_Api, headers=headers, json=data, timeout=15)
-                json_data = resp.json()
-                print(json_data)
-                assistant_content = json_data['choices'][0]['message']['content']
-                return assistant_content if assistant_content else None
-            except Exception as e:
-                OutPut.outPut(f'[-]: 秘塔搜索接口出现错误，错误信息： {e}')
-                return None
-
-        # spark_free_api
-        def get_spark_free_image(content):
-            data = {
-                "prompt": content
-            }
-            headers = {
-                "Authorization": f"{self.Spark_Free_Key}",
-                'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-                'Content-Type': 'application/json'
-            }
-            try:
-                resp = requests.post(url=self.Spark_Free_Api, headers=headers, json=data, timeout=60)
-                json_data = resp.json()
-                OutPut.outPut(f"[*]: spark_free_api接口返回数据：{json_data}")
-                assistant_content = json_data['data'][0]['url']
-                return assistant_content if assistant_content else None
-            except Exception as e:
-                OutPut.outPut(f'[-]: spark_free_api接口出现错误，错误信息： {e}')
-                return None
-
-        # qwen_free_api
-        def get_qwen_free_image(content):
-            data = {
-                "prompt": content
-            }
-            headers = {
-                "Authorization": f"{self.Qwen_Free_Key}",
-                'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-                'Content-Type': 'application/json'
-            }
-            try:
-                resp = requests.post(url=self.Qwen_Free_Api, headers=headers, json=data, timeout=60)
-                json_data = resp.json()
-                OutPut.outPut(f"[*]: qwen_free_api接口返回数据：{json_data}")
-                assistant_content = json_data['data'][0]['url']
-                return assistant_content if assistant_content else None
-            except Exception as e:
-                OutPut.outPut(f'[-]: qwen_free_api接口出现错误，错误信息： {e}')
-                return None
-
         # 星火大模型
         def get_xh(question):
             try:
@@ -253,7 +167,7 @@ class Api_Main_Server:
                 return None
 
         if model is None:
-            gpt_msg = getGpt(content=question)
+            gpt_msg = self.getGpt(content=question)
             if gpt_msg:
                 OutPut.outPut('[+]: Ai对话接口调用成功！！！')
                 return gpt_msg
@@ -272,7 +186,7 @@ class Api_Main_Server:
                     OutPut.outPut('[+]: Ai对话接口调用成功！！！')
                     return Xh_Msg
         elif model == 'gpt':
-            gpt_msg = getGpt(content=question)
+            gpt_msg = self.getGpt(content=question)
             if gpt_msg:
                 OutPut.outPut('[+]: Ai对话接口调用成功！！！')
                 return gpt_msg
@@ -290,28 +204,114 @@ class Api_Main_Server:
                 OutPut.outPut('[+]: Ai对话接口调用成功！！！')
                 return Xh_Msg
         elif model == 'metaso':
-            metaso_msg = get_metaso(content=question)
+            metaso_msg = self.get_metaso(content=question)
             if metaso_msg:
                 OutPut.outPut('[+]: Ai对话接口调用成功！！！')
                 return metaso_msg
             else:
-                metaso_msg = get_metaso(content=question, model='detail')
+                metaso_msg = self.get_metaso(content=question, model='detail')
                 if metaso_msg:
                     OutPut.outPut('[+]: 秘塔搜索接口调用成功！！！')
                     return metaso_msg
                 else:
                     return '秘塔搜索接口出现错误，请查看日志！'
         elif model == 'image':
-            spark_free_msg = get_spark_free_image(content=question)
+            spark_free_msg = self.get_spark_free_image(content=question)
             if spark_free_msg:
                 OutPut.outPut('[+]: Spark文生图接口调用成功！！！')
                 return spark_free_msg
             else:
-                qwen_free_msg = get_qwen_free_image(content=question)
+                qwen_free_msg = self.get_qwen_free_image(content=question)
                 if qwen_free_msg:
                     OutPut.outPut('[+]: Qwen文生图接口调用成功！！！')
                     return qwen_free_msg
                 return None
+
+    # Gpt模型
+    def getGpt(self, content):
+        self.messages.append({"role": "user", "content": f'{content}'})
+        data = {
+            "model": "gpt-3.5-turbo",
+            "messages": self.messages
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"{self.OpenAi_Key}",
+        }
+        try:
+            resp = requests.post(url=self.OpenAi_Api, headers=headers, json=data, timeout=15)
+            json_data = resp.json()
+            assistant_content = json_data['choices'][0]['message']['content']
+            self.messages.append({"role": "assistant", "content": f"{assistant_content}"})
+            if len(self.messages) == 15:
+                self.messages = [{"role": "system", "content": f"{self.OpenAi_Initiating_Message}"}]
+            return assistant_content
+        except Exception as e:
+            OutPut.outPut(f'[-]: AI对话接口出现错误，错误信息： {e}')
+            self.messages = [{"role": "system", "content": f"{self.OpenAi_Initiating_Message}"}]
+            return None
+
+    # 秘塔搜索
+    def get_metaso(self, content, model='concise'):
+        messages = [{"role": "user", "content": f'{content}'}]
+        data = {
+            "model": model,
+            "messages": messages
+        }
+        headers = {
+            "Authorization": f"{self.Metaso_Key}",
+            'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+            'Content-Type': 'application/json'
+        }
+        try:
+            resp = requests.post(url=self.Metaso_Api, headers=headers, json=data, timeout=15)
+            json_data = resp.json()
+            print(json_data)
+            assistant_content = json_data['choices'][0]['message']['content']
+            return assistant_content if assistant_content else None
+        except Exception as e:
+            OutPut.outPut(f'[-]: 秘塔搜索接口出现错误，错误信息： {e}')
+            return None
+
+    # spark_free_api
+    def get_spark_free_image(self, content):
+        data = {
+            "prompt": content
+        }
+        headers = {
+            "Authorization": f"{self.Spark_Free_Key}",
+            'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+            'Content-Type': 'application/json'
+        }
+        try:
+            resp = requests.post(url=self.Spark_Free_Api, headers=headers, json=data, timeout=60)
+            json_data = resp.json()
+            OutPut.outPut(f"[*]: spark_free_api接口返回数据：{json_data}")
+            assistant_content = json_data['data'][0]['url']
+            return assistant_content if assistant_content else None
+        except Exception as e:
+            OutPut.outPut(f'[-]: spark_free_api接口出现错误，错误信息： {e}')
+            return None
+
+    # qwen_free_api
+    def get_qwen_free_image(self, content):
+        data = {
+            "prompt": content
+        }
+        headers = {
+            "Authorization": f"{self.Qwen_Free_Key}",
+            'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+            'Content-Type': 'application/json'
+        }
+        try:
+            resp = requests.post(url=self.Qwen_Free_Api, headers=headers, json=data, timeout=60)
+            json_data = resp.json()
+            OutPut.outPut(f"[*]: qwen_free_api接口返回数据：{json_data}")
+            assistant_content = json_data['data'][0]['url']
+            return assistant_content if assistant_content else None
+        except Exception as e:
+            OutPut.outPut(f'[-]: qwen_free_api接口出现错误，错误信息： {e}')
+            return None
 
     # 美女图片
     def get_girl_pic(self):
@@ -1122,4 +1122,4 @@ if __name__ == '__main__':
     # print(Ams.get_whois('whois查询 qq.com'))
     # print(Ams.get_attribution('归属查询 121264'))
     # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
-    print(Ams.get_translate('hello'))
+    print(Ams.get_metaso('The Falconeer: Standard Edition', "detail"))
