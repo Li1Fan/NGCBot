@@ -1,6 +1,7 @@
 import os
 import time
 from datetime import datetime
+from functools import wraps
 
 import chinese_calendar
 import schedule
@@ -12,6 +13,23 @@ from Db_Server.Db_Main_Server import Db_Main_Server
 from Db_Server.Db_Point_Server import Db_Point_Server
 from OutPut import OutPut
 from advanced_path import PRJ_PATH
+
+
+def check_workday(flag=True):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            if flag:
+                # 获取当前日期
+                current_date = datetime.now().date()
+                # 如果不是工作日，直接返回
+                if not chinese_calendar.is_workday(current_date):
+                    return
+            return func(self, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 class Push_Main_Server:
@@ -37,6 +55,7 @@ class Push_Main_Server:
         self.Kfc_Time = config['Push_Config']['Kfc_Time']
 
     # 早安寄语推送
+    @check_workday(flag=True)
     def push_morning_msg(self):
         OutPut.outPut('[*]: 定时早安寄语推送中... ...')
         msg = self.Ams.get_morning()
@@ -47,6 +66,7 @@ class Push_Main_Server:
         OutPut.outPut('[+]: 定时早安寄语推送成功！！！')
 
     # 60s推送
+    @check_workday
     def push_60s(self):
         OutPut.outPut('[*]: 定时60s推送中... ...')
         msg = self.Ams.get_60s()
@@ -74,6 +94,7 @@ class Push_Main_Server:
         OutPut.outPut('[+]: 定时晚报推送成功！！！')
 
     # 下班推送
+    @check_workday
     def push_off_work(self):
         OutPut.outPut('[*]: 定时下班消息推送中... ...')
         off_Work_msg = self.Off_Work_msg.replace('\\n', '\n')
@@ -83,6 +104,7 @@ class Push_Main_Server:
         OutPut.outPut('[+]: 定时下班消息推送成功！！！')
 
     # 摸鱼日记推送
+    @check_workday
     def push_fish(self):
         OutPut.outPut(f'[*]: 定时摸鱼日记推送中... ...')
         room_dicts = self.Dms.show_push_rooms()
@@ -112,6 +134,7 @@ class Push_Main_Server:
         OutPut.outPut(f'[+]: 定时日志文件夹清空成功！！！')
 
     # 每周四KFC文案推送
+    @check_workday
     def push_kfc(self):
         OutPut.outPut(f'[*]: 定时KFC文案推送中... ...')
         kfc_msg = self.Ams.get_kfc()
@@ -132,41 +155,18 @@ class Push_Main_Server:
         # # schedule.every().day.at('03:00').do(self.clear_cache)
         # OutPut.outPut(f'[+]: 已开启定时推送服务！！！')
 
-        # 创建两个schedule对象，分别用于工作日和非工作日
-        # TODO:推送在周一零点时会异常，不确定原因，暂时规避
-        workday_schedule = schedule.Scheduler()
-        non_workday_schedule = schedule.Scheduler()
-
-        workday_schedule.every().day.at(self.Morning_Push_Time).do(self.push_morning_msg)
-        workday_schedule.every().day.at(self.Morning_Page_Time).do(self.push_60s)
-        workday_schedule.every().day.at(self.Fish_Time).do(self.push_fish)
-        workday_schedule.every().thursday.at(self.Kfc_Time).do(self.push_kfc)
-        workday_schedule.every().day.at(self.Off_Work_Time).do(self.push_off_work)
-        workday_schedule.every().day.at('00:01').do(self.clear_sign)
-        workday_schedule.every().day.at('03:00').do(self.clear_cache)
-        # workday_schedule.every().tuesday.at('00:00').do(self.clear_log)
-
-        non_workday_schedule.every().day.at('00:01').do(self.clear_sign)
-        non_workday_schedule.every().day.at('03:00').do(self.clear_cache)
+        schedule.every().day.at(self.Morning_Push_Time).do(self.push_morning_msg)
+        schedule.every().day.at(self.Morning_Page_Time).do(self.push_60s)
+        schedule.every().day.at(self.Fish_Time).do(self.push_fish)
+        schedule.every().thursday.at(self.Kfc_Time).do(self.push_kfc)
+        schedule.every().day.at(self.Off_Work_Time).do(self.push_off_work)
+        schedule.every().day.at('00:00').do(self.clear_sign)
+        schedule.every().day.at('03:00').do(self.clear_cache)
 
         OutPut.outPut(f'[+]: 已开启定时推送服务！！！')
 
         while True:
-            # 获取当前时间
-            current_time = datetime.now().time()
-            # 如果当前时间是午夜（00:00）
-            if current_time.hour == 0 and current_time.minute == 0:
-                time.sleep(60)  # 等待一分钟
-                continue
-
-            # 获取当前日期
-            current_date = datetime.now().date()
-
-            # 根据日期判断是否为工作日
-            if chinese_calendar.is_workday(current_date):
-                workday_schedule.run_pending()
-            else:
-                non_workday_schedule.run_pending()
+            schedule.run_pending()
             time.sleep(30)
 
 
