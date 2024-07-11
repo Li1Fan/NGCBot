@@ -397,6 +397,9 @@ class Room_Msg_Dispose:
             OutPut.outPut(ret)
             if save_path:
                 self.wcf.send_image(path=save_path, receiver=msg.roomid)
+            else:
+                text = self.Ams.get_duanzi_text()
+                self.wcf.send_text(msg=text, receiver=msg.roomid) if text else None
         # 点歌功能
         elif self.judge_keyword(keyword=["点歌", "听歌"], msg=msg.content.strip(), list_bool=True, split_bool=True):
             music_name = msg.content.strip().split(' ', 1)[1].strip()
@@ -416,12 +419,15 @@ class Room_Msg_Dispose:
             self.wcf.send_text(msg=idiom_msg, receiver=msg.roomid, aters=msg.sender)
         # 谷歌翻译
         elif self.judge_keyword(keyword=["谷歌翻译", "翻译", "翻译翻译", "给我翻译翻译"], msg=msg.content.strip(),
-                                list_bool=True,
+                                list_bool=True, 
                                 split_bool=True):
             chinese_content = msg.content.strip().split(' ', 1)[1].strip()
-            english_content = self.Ams.get_translate(chinese_content)
+            english_content = self.Ams.get_translate_by_api(chinese_content) or self.Ams.get_translate(chinese_content)
+
             if not english_content:
+                OutPut.outPut('[-]: 翻译接口出错')
                 return
+
             trans_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
                         + f'原文：{chinese_content}\n' \
                         + f'译文：{english_content}'

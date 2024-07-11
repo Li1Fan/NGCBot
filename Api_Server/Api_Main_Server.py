@@ -685,9 +685,29 @@ class Api_Main_Server:
                 msg = f'[~]: 谷歌翻译接口出现错误, 错误信息请查看日志 ~~~~~~'
                 OutPut.outPut(msg)
                 return None
-            content = json_data['result']
+            msg = json_data['result']
             OutPut.outPut(f'[+]: 谷歌翻译API接口调用成功！！！')
-            return content
+            return msg
+        except Exception as e:
+            msg = f'[-]: 谷歌翻译接口出现错误, 错误信息：{e}'
+            OutPut.outPut(msg)
+            return None
+
+    # 谷歌翻译外置API
+    @staticmethod
+    def get_translate_by_api(content):
+        OutPut.outPut('[*]: 正在调用谷歌翻译API接口... ...')
+        url = "https://api.pearktrue.cn/api/googletranslate/?text={}&type=auto".format(content)
+        try:
+            json_data = requests.get(url=url, timeout=30, verify=False).json()
+            # print(json_data)
+            if json_data['code'] != 200:
+                msg = '[~]: 谷歌翻译接口出现错误，具体原因请看日志 ~~~~~~'
+                OutPut.outPut(msg)
+                return None
+            msg = json_data['result']
+            OutPut.outPut(f'[+]: 谷歌翻译API接口调用成功！！！')
+            return msg
         except Exception as e:
             msg = f'[-]: 谷歌翻译接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
@@ -796,6 +816,26 @@ class Api_Main_Server:
             return None
         OutPut.outPut(f'[+]: 内涵段子API接口调用成功！！！')
         return save_path
+
+    # 搞笑段子
+    @staticmethod
+    def get_duanzi_text():
+        OutPut.outPut('[*]: 正在调用搞笑段子API接口... ...')
+        url = "https://api.pearktrue.cn/api/random/duanzi/?type=json"
+        try:
+            json_data = requests.get(url=url, timeout=30, verify=False).json()
+            # print(json_data)
+            if json_data['code'] != 200:
+                msg = '[~]: 搞笑段子接口出现错误，具体原因请看日志 ~~~~~~'
+                OutPut.outPut(msg)
+                return None
+            msg = json_data['duanzi'].replace('<br>', '\n')
+            OutPut.outPut(f'[+]: 搞笑段子API接口调用成功！！！')
+            return msg
+        except Exception as e:
+            msg = f'[-]: 搞笑段子接口出现错误, 错误信息：{e}'
+            OutPut.outPut(msg)
+            return None
 
     # Whois查询
     def get_whois(self, content):
@@ -1082,4 +1122,4 @@ if __name__ == '__main__':
     # print(Ams.get_whois('whois查询 qq.com'))
     # print(Ams.get_attribution('归属查询 121264'))
     # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
-    print(Ams.get_duanzi())
+    print(Ams.get_translate('hello'))
