@@ -512,11 +512,11 @@ class Api_Main_Server:
     def get_60s(self):
         current_time = time.time()
         while current_time + 30 > time.time():
-            res = self.get_60s_by_api()
+            res = self.get_60s_by_request()
             if res and '微语' in res:
                 return res
 
-            res_request = self.get_60s_by_request()
+            res_request = self.get_60s_by_api()
             if res_request and '微语' in res_request:
                 return res_request
             time.sleep(3)
@@ -560,13 +560,14 @@ class Api_Main_Server:
             }
             res = requests.get(url, headers=headers, timeout=10)
             res_json = json.loads(res.text)
+            print(res_json)
             content = res_json.get('data')[0].get('content')
 
             # 使用BeautifulSoup提取出所有p标签的内容
             soup = BeautifulSoup(content, 'html.parser')
             info = soup.find_all('p')
             result = [i.get_text().strip() for i in info if i.get_text().strip()]
-            result[0] = '每天60秒读懂世界'
+            result = ['【秒懂世界】'] + result
             OutPut.outPut(f'[+]: new 60s接口调用成功！！！')
             return "\n".join(result)
         except Exception as e:
@@ -842,7 +843,7 @@ class Api_Main_Server:
         OutPut.outPut('[*]: 正在调用喜加一API接口... ...')
         url = "https://api.pearktrue.cn/api/steamplusone/?type=json"
         try:
-            json_data = requests.get(url=url, timeout=30, verify=False).json()
+            json_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).json()
             print(json_data)
             if json_data['code'] != 200:
                 msg = '[~]: 喜加一接口出现错误，具体原因请看日志 ~~~~~~'
@@ -1152,4 +1153,4 @@ if __name__ == '__main__':
     # print(Ams.get_attribution('归属查询 121264'))
     # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
     # print(Ams.get_metaso('The Falconeer: Standard Edition', "detail"))
-    print(Ams.get_steam_plus_one())
+    print(Ams.get_60s_by_request())
