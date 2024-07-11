@@ -837,6 +837,35 @@ class Api_Main_Server:
             OutPut.outPut(msg)
             return None
 
+    # 喜加一
+    def get_steam_plus_one(self):
+        OutPut.outPut('[*]: 正在调用喜加一API接口... ...')
+        url = "https://api.pearktrue.cn/api/steamplusone/?type=json"
+        try:
+            json_data = requests.get(url=url, timeout=30, verify=False).json()
+            print(json_data)
+            if json_data['code'] != 200:
+                msg = '[~]: 喜加一接口出现错误，具体原因请看日志 ~~~~~~'
+                OutPut.outPut(msg)
+                return None
+            msg_list = []
+            game_list = json_data['data']
+            for game in game_list:
+                msg = f"游戏平台：{game['source']}\n" \
+                      f"游戏名称：{game['name']}\n" \
+                      f"领取时间：{game['starttime']}至{game['endtime']}\n" \
+                      f"游戏链接：{game['url']}"
+                msg_list.append(msg)
+                detail = self.get_metaso(game['name'], 'detail')
+                if detail is not None:
+                    msg_list.append(detail.replace('\n\n', '\n'))
+            OutPut.outPut(f'[+]: 喜加一API接口调用成功！！！')
+            return msg_list
+        except Exception as e:
+            msg = f'[-]: 喜加一接口出现错误, 错误信息：{e}'
+            OutPut.outPut(msg)
+            return None
+
     # Whois查询
     def get_whois(self, content):
         OutPut.outPut('[*]: 正在调用Whois查询API接口... ...')
@@ -1122,4 +1151,5 @@ if __name__ == '__main__':
     # print(Ams.get_whois('whois查询 qq.com'))
     # print(Ams.get_attribution('归属查询 121264'))
     # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
-    print(Ams.get_metaso('The Falconeer: Standard Edition', "detail"))
+    # print(Ams.get_metaso('The Falconeer: Standard Edition', "detail"))
+    print(Ams.get_steam_plus_one())

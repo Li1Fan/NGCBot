@@ -400,6 +400,17 @@ class Room_Msg_Dispose:
             else:
                 text = self.Ams.get_duanzi_text()
                 self.wcf.send_text(msg=text, receiver=msg.roomid) if text else None
+        # 喜加一
+        elif self.judge_keyword(keyword=["喜加一", "EPIC喜加一", "STEAM喜加一", "免费游戏"],
+                                msg=msg.content.strip().upper(),
+                                list_bool=True,
+                                equal_bool=True):
+            content_list = self.Ams.get_steam_plus_one()
+            ret = f'[*]: 喜加一API接口返回值：{content_list}'
+            OutPut.outPut(ret)
+            for content in content_list:
+                if content:
+                    self.wcf.send_text(msg=content, receiver=msg.roomid)
         # 点歌功能
         elif self.judge_keyword(keyword=["点歌", "听歌"], msg=msg.content.strip(), list_bool=True, split_bool=True):
             music_name = msg.content.strip().split(' ', 1)[1].strip()
@@ -419,7 +430,7 @@ class Room_Msg_Dispose:
             self.wcf.send_text(msg=idiom_msg, receiver=msg.roomid, aters=msg.sender)
         # 谷歌翻译
         elif self.judge_keyword(keyword=["谷歌翻译", "翻译", "翻译翻译", "给我翻译翻译"], msg=msg.content.strip(),
-                                list_bool=True, 
+                                list_bool=True,
                                 split_bool=True):
             chinese_content = msg.content.strip().split(' ', 1)[1].strip()
             english_content = self.Ams.get_translate_by_api(chinese_content) or self.Ams.get_translate(chinese_content)
