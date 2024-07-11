@@ -2,8 +2,6 @@ import time
 
 from cprint import cprint
 
-from advanced_path import PRJ_PATH
-
 
 def outPut(msg: str):
     # 获取现在的时间

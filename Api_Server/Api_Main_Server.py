@@ -634,6 +634,7 @@ class Api_Main_Server:
             time.sleep(0.2)
             return self.get_idiom()
         OutPut.outPut(f'[+]: 看图猜成语接口调用成功！！！')
+        OutPut.outPut(f'[+]: 成语图片保存路径：{save_path}')
         return save_path, idiom_data
 
     # 成语解析
