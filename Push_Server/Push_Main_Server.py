@@ -15,21 +15,33 @@ from OutPut import OutPut
 from advanced_path import PRJ_PATH
 
 
-def check_workday(flag=True):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            if flag:
-                # 获取当前日期
-                current_date = datetime.now().date()
-                # 如果不是工作日，直接返回
-                if not chinese_calendar.is_workday(current_date):
-                    return
-            return func(self, *args, **kwargs)
+# def check_workday(flag=True):
+#     def decorator(func):
+#         @wraps(func)
+#         def wrapper(self, *args, **kwargs):
+#             if flag:
+#                 # 获取当前日期
+#                 current_date = datetime.now().date()
+#                 # 如果不是工作日，直接返回
+#                 if not chinese_calendar.is_workday(current_date):
+#                     return
+#             return func(self, *args, **kwargs)
+#
+#         return wrapper
+#
+#     return decorator
 
-        return wrapper
+def check_workday(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        # 获取当前日期
+        current_date = datetime.now().date()
+        # 如果不是工作日，直接返回
+        if not chinese_calendar.is_workday(current_date):
+            return
+        return func(self, *args, **kwargs)
 
-    return decorator
+    return wrapper
 
 
 class Push_Main_Server:
@@ -55,7 +67,7 @@ class Push_Main_Server:
         self.Kfc_Time = config['Push_Config']['Kfc_Time']
 
     # 早安寄语推送
-    @check_workday(flag=True)
+    @check_workday
     def push_morning_msg(self):
         OutPut.outPut('[*]: 定时早安寄语推送中... ...')
         msg = self.Ams.get_morning()
@@ -172,4 +184,4 @@ class Push_Main_Server:
 
 if __name__ == '__main__':
     Pms = Push_Main_Server('1')
-    print(Pms.Off_Work_msg.replace('\\n', '\n'))
+    print(Pms.push_morning_msg())
