@@ -332,11 +332,11 @@ class Api_Main_Server:
     # 美女视频
     def get_girl_video(self):
         OutPut.outPut('[*]: 正在调用美女视频API接口... ...')
-        base_url = "https://api.zxz.ee/api/video/?format=&type="
-        num_lst = [i for i in range(1, 26)] + [30, 33, 34, 35, 37, 60]
-        dislike = [8, 10]
-        api_urls = [f"{base_url}{i}" for i in num_lst if i not in dislike]
-        self.Video_Apis = self.Video_Apis + api_urls
+        # base_url = "https://api.zxz.ee/api/video/?format=&type="
+        # num_lst = [i for i in range(1, 26)] + [30, 33, 34, 35, 37, 60]
+        # dislike = [8, 10]
+        # api_urls = [f"{base_url}{i}" for i in num_lst if i not in dislike]
+        self.Video_Apis = self.Video_Apis
         url = random.choice(self.Video_Apis)
         print(url)
         save_path = self.Cache_path + '/Video_Cache/' + str(int(time.time() * 1000)) + '.mp4'
