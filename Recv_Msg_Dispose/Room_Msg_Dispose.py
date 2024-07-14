@@ -354,7 +354,8 @@ class Room_Msg_Dispose:
             s60_msg = self.Ams.get_60s()
             if s60_msg:
                 self.wcf.send_text(msg=s60_msg, receiver=msg.roomid, aters=msg.sender)
-        elif self.judge_keyword(keyword=["60s图片", "60pic", "60spic"], msg=msg.content.strip(), list_bool=True,
+        elif self.judge_keyword(keyword=["60s图片", "60图片", "60pic", "60spic"], msg=msg.content.strip(),
+                                list_bool=True,
                                 equal_bool=True):
             save_path = self.Ams.get_60s_pic()
             if save_path:
@@ -376,7 +377,8 @@ class Room_Msg_Dispose:
                 return
             self.wcf.send_text(msg=god_msg, receiver=msg.roomid, aters=msg.sender)
         # 每日英语
-        elif self.judge_keyword(keyword=["每日英语", "来一句英语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+        elif self.judge_keyword(keyword=["每日英语", "来一句英语"], msg=msg.content.strip(), list_bool=True,
+                                equal_bool=True):
             english_msg = self.Ams.get_daily_english()
             if english_msg is None:
                 return
@@ -397,7 +399,7 @@ class Room_Msg_Dispose:
             save_path = self.Ams.get_duanzi()
             ret = f'[*]: 内涵段子API接口返回值：{save_path}'
             OutPut.outPut(ret)
-            if save_path:
+            if check_file(save_path):
                 self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
                 text = self.Ams.get_duanzi_text()
@@ -563,13 +565,16 @@ class Room_Msg_Dispose:
             return
 
     def game_function(self, msg):
-        if self.judge_keyword(keyword=["看图猜成语", "萝卜看图猜成语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+        if self.judge_keyword(keyword=["看图猜成语", "萝卜看图猜成语"], msg=msg.content.strip(), list_bool=True,
+                              equal_bool=True):
             Thread(target=self.start_guess_idiom_image, name="看图猜成语", args=(msg,)).start()
             return True
-        elif self.judge_keyword(keyword=["成语接龙", "萝卜成语接龙"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+        elif self.judge_keyword(keyword=["成语接龙", "萝卜成语接龙"], msg=msg.content.strip(), list_bool=True,
+                                equal_bool=True):
             Thread(target=self.start_idiom_chain, name="成语接龙", args=(msg,)).start()
             return True
-        elif self.judge_keyword(keyword=["表情猜成语", "萝卜表情猜成语"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
+        elif self.judge_keyword(keyword=["表情猜成语", "萝卜表情猜成语"], msg=msg.content.strip(), list_bool=True,
+                                equal_bool=True):
             Thread(target=self.start_guess_idiom_emoji, name="表情猜成语", args=(msg,)).start()
             return True
 
@@ -1567,13 +1572,6 @@ class Room_Msg_Dispose:
             image_number = random.randint(0, 4)
             return f"{root_dir}/page_{page_number}/{second_number}/image_{image_number}.jpg"
 
-        def check_file(path):
-            if os.path.exists(path):
-                file_size = os.path.getsize(path)
-                if file_size > 10240:  # 10KB
-                    return True
-            return False
-
         while True:
             random_path = generate_path()
             if not check_file(random_path):
@@ -1581,3 +1579,11 @@ class Room_Msg_Dispose:
             else:
                 print(f"文件 {random_path}")
                 return random_path
+
+
+def check_file(path):
+    if os.path.exists(path):
+        file_size = os.path.getsize(path)
+        if file_size > 10240:  # 10KB
+            return True
+    return False
