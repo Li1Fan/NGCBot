@@ -194,7 +194,7 @@ class Push_Main_Server:
 
         while True:
             schedule.run_pending()
-            time.sleep(30)
+            time.sleep(1)
 
 
 class TimingMsg:
@@ -250,7 +250,8 @@ class TimingMsg:
             id_ = self.db_timing.get_last_id()
             job_dict = {"id": id_, "job_obj": job_obj}
             self.jobs.append(job_dict)
-            content = "定时提醒任务添加成功，可回复“查看提醒”进行查看！"
+            content = ("单次提醒任务添加成功，可回复“提醒查询”进行查看！\n"
+                       "如果需要删除提醒，请回复“删除提醒 ID”！")
             self.send_at_msg(roomid, wxid, content)
             return True
         except Exception as e:
