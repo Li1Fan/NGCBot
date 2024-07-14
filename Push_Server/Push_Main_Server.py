@@ -315,8 +315,9 @@ class TimingMsg:
     def show_jobs(self, roomid, wxid):
         jobs = self.db_timing.get_jobs_by_roomid_and_wx_id(roomid, wxid)
         if not jobs:
-            show_msg = '您还没有设置定时提醒哦！'
+            show_msg = '您还没有设置提醒任务！'
             self.send_at_msg(roomid, wxid, show_msg)
+            return
         job_list = []
         for job in jobs:
             job_str = f'ID: {job.get("id")}, 时间: {job.get("days")} {job.get("times")}, 内容: {job.get("content")}'
@@ -324,6 +325,7 @@ class TimingMsg:
 
         show_msg = '您的定时提醒如下：\n' + '\n'.join(job_list)
         self.send_at_msg(roomid, wxid, show_msg)
+        return
 
     @staticmethod
     def parse_task(days_info):

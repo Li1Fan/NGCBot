@@ -489,7 +489,7 @@ class Room_Msg_Dispose:
         # Thread(target=self.custom_get, name="自定义回复", args=(msg,)).start()
         elif self.judge_keyword(keyword=["定时提醒"], msg=msg.content.strip(), list_bool=True, split_bool=True):
             try:
-                key_, days, times, content = msg.split(' ', 3)
+                key_, days, times, content = msg.content.strip().split(' ', 3)
                 if not days or not times or not content:
                     return
                 Thread(target=self.main_server.Tms.add_normal_remind_task,
@@ -499,7 +499,7 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=["单次提醒", "一次提醒"], msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
             try:
-                key_, days, times, content = msg.split(' ', 3)
+                key_, days, times, content = msg.content.strip().split(' ', 3)
                 if not days or not times or not content:
                     return
                 Thread(target=self.main_server.Tms.add_onetime_remind_task,
@@ -509,7 +509,7 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=["取消提醒", "关闭提醒", "删除提醒"], msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
             try:
-                id_ = msg.split(' ', 1)[1]
+                id_ = msg.content.strip().split(' ', 1)[1]
                 id_ = int(id_)
                 Thread(target=self.main_server.Tms.delete_job,
                        args=(id_, msg.roomid, msg.sender)).start()
