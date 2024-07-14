@@ -38,12 +38,16 @@ def parse_chinese_time(chinese_time):
             try:
                 hour_str, minute_str = chinese_time.split("时", 1)
             except ValueError:
-                hour_str, minute_str = chinese_time.split(":", 1)
+                try:
+                    hour_str, minute_str = chinese_time.split(":", 1)
+                except ValueError:
+                    hour_str, minute_str = chinese_time.split(".", 1)
         if hour_str == "":
             return None
         hour = parse_str(hour_str)
         minute = parse_str(minute_str) if minute_str != "" else "0"
         minute = minute.replace("分", "")
+        minute = minute.replace(".", "")
         # print(f"hour: {hour}, minute: {minute}")
 
         time_obj = datetime.strptime(f"{hour}:{minute}", "%H:%M")

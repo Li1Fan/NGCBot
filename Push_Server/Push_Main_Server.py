@@ -2,6 +2,7 @@ import os
 import threading
 import time
 import traceback
+from collections import namedtuple
 from datetime import datetime
 from functools import wraps
 
@@ -198,8 +199,9 @@ class Push_Main_Server:
 
 
 class TimingMsg:
-    def __init__(self, wcf):
+    def __init__(self, wcf, rms):
         self.wcf = wcf
+        self.rms = rms
         # 存储定时消息的job列表
         self.jobs = []
 
@@ -237,52 +239,41 @@ class TimingMsg:
         try:
             times = parse_chinese_time(times)
             if not parse_chinese_time(times):
-                content = '时间格式错误，任务示例：\n“定时提醒 周一/星期一/每天 十点/一点十分/一时十分/1:10 摸鱼”'
+                content = ('时间格式错误，提醒示例\n'
+                           '重复提醒：\n'
+                           '“定时提醒 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
+                           '单次提醒：\n'
+                           '“定时提醒 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
                 self.send_at_msg(roomid, wxid, content)
                 return False
             schedule_obj = self.parse_task(days)
             if not schedule_obj:
-                content = '日期格式错误，任务示例：\n“定时提醒 周一/星期一/每天 十点/一点十分/一时十分/1:10 摸鱼”'
-                self.send_at_msg(roomid, wxid, content)
-                return False
-            job_obj = schedule_obj.at(times).do(self.send_msg, roomid, wxid, content)
-            self.db_timing.insert_job(days, times, content, roomid, wxid, "normal_remind")
+                date_str = parse_chinese_date(days)
+                if not date_str:
+                    content = ('时间格式错误，提醒示例\n'
+                               '重复提醒：\n'
+                               '“定时提醒 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
+                               '单次提醒：\n'
+                               '“定时提醒 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
+                    self.send_at_msg(roomid, wxid, content)
+                    return False
+                # 单次提醒
+                else:
+                    job_obj = schedule.every().days.at(times).do(self.send_msg, roomid, wxid, content, date_str)
+                    self.db_timing.insert_job(date_str, times, content, roomid, wxid, "onetime_remind")
+            # 重复提醒
+            else:
+                job_obj = schedule_obj.at(times).do(self.send_msg, roomid, wxid, content)
+                self.db_timing.insert_job(days, times, content, roomid, wxid, "normal_remind")
             id_ = self.db_timing.get_last_id()
             job_dict = {"id": id_, "job_obj": job_obj}
             self.jobs.append(job_dict)
-            content = ("单次提醒任务添加成功，可回复“提醒查询”进行查看！\n"
+            content = ("定时提醒添加成功，可回复“提醒查询”进行查看！\n"
                        "如果需要删除提醒，请回复“删除提醒 ID”！")
             self.send_at_msg(roomid, wxid, content)
             return True
         except Exception as e:
-            OutPut.outPut(f'[-]: 定时提醒任务添加失败, 错误信息: {e}')
-            OutPut.outPut(f'[-]: {traceback.format_exc()}')
-            return False
-
-    @global_lock
-    def add_onetime_remind_task(self, days, times, content, roomid, wxid):
-        try:
-            times = parse_chinese_time(times)
-            if not parse_chinese_time(times):
-                content = '时间格式错误，任务示例：\n“单次提醒 明天/12.7/12月7日 十点/一点十分/一时十分/1:10 摸鱼”'
-                self.send_at_msg(roomid, wxid, content)
-                return False
-            date_str = parse_chinese_date(days)
-            if not date_str:
-                content = '日期格式错误，，任务示例：\n“单次提醒 明天/12.7/12月7日 十点/一点十分/一时十分/1:10 摸鱼”'
-                self.send_at_msg(roomid, wxid, content)
-                return False
-            job_obj = schedule.every().days.at(times).do(self.send_msg, roomid, wxid, content, date_str)
-            self.db_timing.insert_job(date_str, times, content, roomid, wxid, "onetime_remind")
-            id_ = self.db_timing.get_last_id()
-            job_dict = {"id": id_, "job_obj": job_obj}
-            self.jobs.append(job_dict)
-            content = ("单次提醒任务添加成功，可回复“提醒查询”进行查看！\n"
-                       "如果需要删除提醒，请回复“删除提醒 ID”！")
-            self.send_at_msg(roomid, wxid, content)
-            return True
-        except Exception as e:
-            OutPut.outPut(f'[-]: 定时提醒任务添加失败, 错误信息: {e}')
+            OutPut.outPut(f'[-]: 定时提醒添加失败, 错误信息: {e}')
             OutPut.outPut(f'[-]: {traceback.format_exc()}')
             return False
 
@@ -291,11 +282,11 @@ class TimingMsg:
         try:
             job = self.db_timing.get_job_by_id(id_)
             if not job:
-                content = '定时提醒任务删除失败！不存在该任务'
+                content = '定时提醒删除失败！不存在该提醒'
                 self.send_at_msg(roomid, wxid, content)
                 return False
             if job.get('roomid') != roomid or job.get('wxid') != wxid:
-                content = '定时提醒任务删除失败！非您或者本群的任务'
+                content = '定时提醒删除失败！非您或者本群的提醒'
                 self.send_at_msg(roomid, wxid, content)
                 return False
             self.db_timing.delete_job_by_id(id_)
@@ -306,18 +297,18 @@ class TimingMsg:
                     content = f'您的定时提醒已删除：\n{job.get("days")} {job.get("times")} {job.get("content")}'
                     self.send_at_msg(roomid, wxid, content)
                     return True
-            content = '定时提醒任务删除失败！'
+            content = '定时提醒删除失败！'
             self.send_at_msg(roomid, wxid, content)
             return False
         except Exception as e:
-            OutPut.outPut(f'[-]: 定时提醒任务删除失败, 错误信息: {e}')
+            OutPut.outPut(f'[-]: 定时提醒删除失败, 错误信息: {e}')
             OutPut.outPut(f'[-]: {traceback.format_exc()}')
             return False
 
     def show_jobs(self, roomid, wxid):
         jobs = self.db_timing.get_jobs_by_roomid_and_wx_id(roomid, wxid)
         if not jobs:
-            show_msg = '您还没有设置提醒任务！'
+            show_msg = '您还没有设置定时提醒！'
             self.send_at_msg(roomid, wxid, show_msg)
             return
         job_list = []
@@ -361,6 +352,11 @@ class TimingMsg:
         except Exception as e:
             OutPut.outPut(f'[-]: 定时提醒发送失败, 错误信息: {e}')
             OutPut.outPut(f'[-]: {traceback.format_exc()}')
+
+    def send_cmd_msg(self, roomid, wxid, content):
+        Msg = namedtuple("Msg", ["roomid", "sender", "content"])
+        msg = Msg(roomid, wxid, content)
+        self.rms.Happy_Function(msg)
 
     def send_at_msg(self, roomid, wxid, content):
         at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"

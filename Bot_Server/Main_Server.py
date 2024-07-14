@@ -43,10 +43,6 @@ class Main_Server:
         self.Pms = Push_Main_Server(wcf=self.wcf)
         Thread(target=self.Pms.run, name="定时推送服务").start()
 
-        # 初始化定时消息
-        self.Tms = TimingMsg(wcf=self.wcf)
-        Thread(target=self.Tms.init_timing_msg, name="初始化定时消息").start()
-
         # 开启全局消息接收(不接收朋友圈消息)
         self.wcf.enable_receiving_msg()
         Thread(target=self.process_msg, name="GetMessage", args=(self.wcf,), daemon=True).start()
@@ -59,6 +55,9 @@ class Main_Server:
         self.Cms = Cache_Main_Server(wcf=self.wcf)
         self.Cms.init_cache()
 
+        # 初始化定时消息
+        self.Tms = TimingMsg(wcf=self.wcf, rms=self.Rms)
+        Thread(target=self.Tms.init_timing_msg, name="初始化定时消息").start()
         # 持续运行
         self.wcf.keep_running()
 
