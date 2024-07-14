@@ -306,7 +306,7 @@ class Room_Msg_Dispose:
         # 美女图片
         if self.judge_keyword(keyword=self.Pic_Words, msg=msg.content, list_bool=True, equal_bool=True):
             save_path = self.Ams.get_girl_pic()
-            if 'Pic_Cache' in save_path:
+            if ('Pic_Cache' in save_path) and check_file(save_path):
                 self.wcf.send_image(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='美女图片接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
@@ -1584,6 +1584,6 @@ class Room_Msg_Dispose:
 def check_file(path):
     if os.path.exists(path):
         file_size = os.path.getsize(path)
-        if file_size > 10240:  # 10KB
+        if file_size > 5120:  # 5KB
             return True
     return False
