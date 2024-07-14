@@ -79,20 +79,31 @@ class MySQLite:
             sql = "UPDATE {} SET {}".format(table, set_clause)
         return self.execute(sql, tuple(data.values()))
 
-    def select(self, table: str, columns: str = '*', where: str = None) -> list:
+    def select(self, table: str, columns: str = '*', where: str = None, order: str = None, desc=False,
+               limit: int = None, offset: int = None) -> list:
         """
         查询数据
-
         :param table: 表名
         :param columns: 要查询的列名，用逗号分隔，默认为所有列
         :param where: 查询数据的条件语句
+        :param order: 排序依据
+        :param desc: 是否降序
+        :param limit: 查询几条
+        :param offset: 从第几条数据开始
         :return: 返回查询到的数据
         """
         sql = "SELECT {} FROM {}".format(columns, table)
         if where:
             sql += " WHERE {}".format(where)
+        if order:
+            sql += " ORDER BY {}".format(order)
+            if desc is True:
+                sql += " DESC"
+        if limit:
+            sql += " LIMIT {}".format(limit)
+        if offset:
+            sql += " OFFSET {}".format(offset)
         # log.info('SQL request:{}'.format(sql))
-        # print('SQL request:{}'.format(sql))
         self.connect()
         try:
             self.cur.execute(sql)
@@ -100,7 +111,7 @@ class MySQLite:
             # log.info('SQL response:{}'.format(ret))
         except Exception as e:
             # log.error('SQL error:{}'.format(e))
-            print('SQL error:{}'.format(e))
+            # log.error(traceback.format_exc())
             ret = None
         self.close()
         return ret

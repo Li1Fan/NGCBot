@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from Util.my_sqlite import MySQLite
 
 
@@ -139,25 +141,129 @@ class EmojiDB:
         return {}
 
 
-if __name__ == '__main__':
-    db = IdiomDB('/home/frz/github/NGCBot/Config/idiom.db')
-    print(db.get_info_by_word('沧海横流'))
-    print(db.get_last_by_word('沧海横流'))
-    # print(db.get_words_by_first(''))
-    # print(db.get_words_by_word('喜上眉梢'))
-    # db.insert_word("沧海横流", "“沧海横流，玉石同碎。” 晋·袁宏《三国名臣序赞》", "无", "海水四处奔流，比喻政治混乱，社会动荡。",
-    #                "cāng hǎi héng liú", "chhl", "cang hai heng liu", "cang", "liu")
+# 定时消息，应包括定时提醒、定时任务、一次提醒？一次任务？
+class TimingMsgDB:
+    def __init__(self, db_path: str) -> None:
+        self.db_path = db_path
+        self.db = MySQLite(self.db_path)
+        self.init_db()
 
-    print(db.get_common_word_info_by_word('人生如寄'))
+    def init_db(self) -> None:
+        columns = OrderedDict({'id': 'integer primary key autoincrement not null',
+                               'days': 'text not null',
+                               'times': 'text not null',
+                               'content': 'text not null',
+                               'roomid': 'text not null',
+                               'wxid': 'text not null',
+                               'type': 'text'})
 
-    db_emoji = EmojiDB('/home/frz/github/NGCBot/Config/emoji.db')
-    print(db_emoji.get_info_by_id(1033))
-    print(db_emoji.get_common_idiom_info_by_id(1643))
+        self.db.create_table('job', columns)
 
-    # i = 0
-    # for w in db.get_common_words():
-    #     if db_emoji.get_emoji_by_idiom(w):
-    #         print(w)
-    #         db_emoji.insert_idiom_common(w)
-    #         i += 1
-    # print(i)
+    def insert_job(self, days: str, times: str, content: str, roomid: str, wxid: str, type_: str = "") -> bool:
+        ret = self.db.insert('job', {
+            'days': days,
+            'times': times,
+            'content': content,
+            'roomid': roomid,
+            'wxid': wxid,
+            'type': type_
+        })
+        return ret
+
+    def delete_job_by_id(self, id_: int) -> bool:
+        ret = self.db.delete('job', where='id = "{}"'.format(id_))
+        return ret
+
+    def delete_job_by_roomid_and_wx_id(self, roomid: str, wxid: str) -> bool:
+        ret = self.db.delete('job', where='roomid = "{}" and wxid = "{}"'.format(roomid, wxid))
+        return ret
+
+    def get_all_jobs(self) -> list:
+        dev = self.db.select('job')
+        if dev:
+            dev_list = []
+            for d in dev:
+                dev_dict = {
+                    "id": d[0],
+                    "days": d[1],
+                    "times": d[2],
+                    "content": d[3],
+                    "roomid": d[4],
+                    "wxid": d[5],
+                    "type": d[6]
+                }
+                dev_list.append(dev_dict)
+            return dev_list
+        return []
+
+    def get_job_by_id(self, id_: int) -> dict:
+        dev = self.db.select('job', where='id = "{}"'.format(id_))
+        if dev:
+            dev_dict = {
+                "id": dev[0][0],
+                "days": dev[0][1],
+                "times": dev[0][2],
+                "content": dev[0][3],
+                "roomid": dev[0][4],
+                "wxid": dev[0][5],
+                "type": dev[0][6]
+            }
+            return dev_dict
+        return {}
+
+    def get_jobs_by_roomid_and_wx_id(self, roomid: str, wxid: str) -> list:
+        dev = self.db.select('job', where='roomid = "{}" and wxid = "{}"'.format(roomid, wxid))
+        if dev:
+            dev_list = []
+            for d in dev:
+                dev_dict = {
+                    "id": d[0],
+                    "days": d[1],
+                    "times": d[2],
+                    "content": d[3],
+                    "roomid": d[4],
+                    "wxid": d[5],
+                    "type": d[6]
+                }
+                dev_list.append(dev_dict)
+            return dev_list
+        return []
+
+    def get_last_id(self) -> int:
+        dev = self.db.select('job', columns='id', order='id desc', limit=1)
+        if dev:
+            return dev[0][0]
+        return 0
+
+
+if __name__ == "__main__":
+    job_db = TimingMsgDB('job.db')
+    job_db.insert_job('周一', '13:00', '早安！打工人', '123456', '654321')
+    print(job_db.get_job_by_id(1))
+    print(job_db.get_jobs_by_roomid_and_wx_id('123456', '654321'))
+    # print(job_db.delete_job_by_id(1))
+    print(job_db.get_last_id())
+
+    job_db.delete_job_by_roomid_and_wx_id('123456', '654321')
+    print(job_db.get_jobs_by_roomid_and_wx_id('123456', '654321'))
+    # db = IdiomDB('/home/frz/github/NGCBot/Config/idiom.db')
+    # print(db.get_info_by_word('沧海横流'))
+    # print(db.get_last_by_word('沧海横流'))
+    # # print(db.get_words_by_first(''))
+    # # print(db.get_words_by_word('喜上眉梢'))
+    # # db.insert_word("沧海横流", "“沧海横流，玉石同碎。” 晋·袁宏《三国名臣序赞》", "无", "海水四处奔流，比喻政治混乱，社会动荡。",
+    # #                "cāng hǎi héng liú", "chhl", "cang hai heng liu", "cang", "liu")
+    #
+    # print(db.get_common_word_info_by_word('人生如寄'))
+    #
+    # db_emoji = EmojiDB('/home/frz/github/NGCBot/Config/emoji.db')
+    # print(db_emoji.get_info_by_id(1033))
+    # print(db_emoji.get_common_idiom_info_by_id(1643))
+    #
+    # # i = 0
+    # # for w in db.get_common_words():
+    # #     if db_emoji.get_emoji_by_idiom(w):
+    # #         print(w)
+    # #         db_emoji.insert_idiom_common(w)
+    # #         i += 1
+    # # print(i)

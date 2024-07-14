@@ -13,7 +13,7 @@ from Cache.Cache_Main_Server import Cache_Main_Server
 from Db_Server.Db_Main_Server import Db_Main_Server
 from Db_Server.Db_Point_Server import Db_Point_Server
 from OutPut import OutPut
-from Push_Server.Push_Main_Server import Push_Main_Server
+from Push_Server.Push_Main_Server import Push_Main_Server, TimingMsg
 from Recv_Msg_Dispose.Friend_Msg_Dispose import Friend_Msg_Dispose
 from Recv_Msg_Dispose.Room_Msg_Dispose import Room_Msg_Dispose
 
@@ -43,6 +43,10 @@ class Main_Server:
         self.Pms = Push_Main_Server(wcf=self.wcf)
         Thread(target=self.Pms.run, name="定时推送服务").start()
 
+        # 初始化定时消息
+        self.Tms = TimingMsg(wcf=self.wcf)
+        Thread(target=self.Tms.init_timing_msg, name="初始化定时消息").start()
+
         # 开启全局消息接收(不接收朋友圈消息)
         self.wcf.enable_receiving_msg()
         Thread(target=self.process_msg, name="GetMessage", args=(self.wcf,), daemon=True).start()
@@ -50,7 +54,7 @@ class Main_Server:
         # 实例化好友消息处理类
         self.Fms = Friend_Msg_Dispose(wcf=self.wcf)
         # 实例化群消息处理类
-        self.Rms = Room_Msg_Dispose(wcf=self.wcf)
+        self.Rms = Room_Msg_Dispose(wcf=self.wcf, main_server=self)
         # 实例化文件处理类
         self.Cms = Cache_Main_Server(wcf=self.wcf)
         self.Cms.init_cache()

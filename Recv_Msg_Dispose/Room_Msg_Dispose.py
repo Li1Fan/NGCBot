@@ -18,8 +18,9 @@ from advanced_path import PRJ_PATH
 
 
 class Room_Msg_Dispose:
-    def __init__(self, wcf):
+    def __init__(self, wcf, main_server):
         self.wcf = wcf
+        self.main_server = main_server
         # 实例化数据操作类
         self.Dms = Db_Main_Server(wcf=self.wcf)
         # 实例化积分数据类
@@ -486,6 +487,41 @@ class Room_Msg_Dispose:
             Thread(target=self.get_help, name="Help帮助菜单", args=(msg,)).start()
         # # 自定义回复
         # Thread(target=self.custom_get, name="自定义回复", args=(msg,)).start()
+        elif self.judge_keyword(keyword=["定时提醒"], msg=msg.content.strip(), list_bool=True, split_bool=True):
+            try:
+                key_, days, times, content = msg.split(' ', 3)
+                if not days or not times or not content:
+                    return
+                Thread(target=self.main_server.Tms.add_normal_remind_task,
+                       args=(days, times, content, msg.roomid, msg.sender)).start()
+            except Exception as e:
+                OutPut.outPut(f'[-]: 定时提醒设置失败 {e}')
+        elif self.judge_keyword(keyword=["单次提醒", "一次提醒"], msg=msg.content.strip(), list_bool=True,
+                                split_bool=True):
+            try:
+                key_, days, times, content = msg.split(' ', 3)
+                if not days or not times or not content:
+                    return
+                Thread(target=self.main_server.Tms.add_onetime_remind_task,
+                       args=(days, times, content, msg.roomid, msg.sender)).start()
+            except Exception as e:
+                OutPut.outPut(f'[-]: 单次提醒设置失败 {e}')
+        elif self.judge_keyword(keyword=["取消提醒", "关闭提醒", "删除提醒"], msg=msg.content.strip(), list_bool=True,
+                                split_bool=True):
+            try:
+                id_ = msg.split(' ', 1)[1]
+                id_ = int(id_)
+                Thread(target=self.main_server.Tms.delete_job,
+                       args=(id_, msg.roomid, msg.sender)).start()
+            except Exception as e:
+                OutPut.outPut(f'[-]: 取消提醒设置失败 {e}')
+        elif self.judge_keyword(keyword=["提醒查询", "查询任务", "查询提醒"], msg=msg.content.strip(), list_bool=True,
+                                equal_bool=True):
+            try:
+                Thread(target=self.main_server.Tms.show_jobs,
+                       args=(msg.roomid, msg.sender)).start()
+            except Exception as e:
+                OutPut.outPut(f'[-]: 取消提醒设置失败 {e}')
 
     # 积分功能
     def Point_Function(self, msg, at_user_lists):
