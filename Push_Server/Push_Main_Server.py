@@ -226,8 +226,19 @@ class TimingMsg:
                     job_obj = schedule_obj.at(times).do(self.send_msg, roomid, wxid, content)
                     job_dict = {"id": id_, "job_obj": job_obj}
                     self.jobs.append(job_dict)
+                elif type_ == "normal_task":
+                    schedule_obj = self.parse_task(days)
+                    if not schedule_obj:
+                        continue
+                    job_obj = schedule_obj.at(times).do(self.send_cmd_msg, roomid, wxid, content)
+                    job_dict = {"id": id_, "job_obj": job_obj}
+                    self.jobs.append(job_dict)
                 elif type_ == "onetime_remind":
                     job_obj = schedule.every().days.at(times).do(self.send_msg, roomid, wxid, content, days)
+                    job_dict = {"id": id_, "job_obj": job_obj}
+                    self.jobs.append(job_dict)
+                elif type_ == "onetime_task":
+                    job_obj = schedule.every().days.at(times).do(self.send_cmd_msg, roomid, wxid, content, days)
                     job_dict = {"id": id_, "job_obj": job_obj}
                     self.jobs.append(job_dict)
             except Exception as e:
@@ -235,41 +246,49 @@ class TimingMsg:
                 OutPut.outPut(f'[-]: {traceback.format_exc()}')
 
     @global_lock
-    def add_normal_remind_task(self, days, times, content, roomid, wxid):
+    def add_remind_task(self, days, times, content, roomid, wxid, is_task=False):
         try:
             times = parse_chinese_time(times)
             if not parse_chinese_time(times):
-                content = ('时间格式错误，提醒示例\n'
-                           '重复提醒：\n'
-                           '“定时提醒 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
-                           '单次提醒：\n'
-                           '“定时提醒 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
+                content = ('时间格式错误，示例：\n'
+                           '“定时提醒/任务 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
+                           '或者：\n'
+                           '“定时提醒/任务 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
                 self.send_at_msg(roomid, wxid, content)
                 return False
             schedule_obj = self.parse_task(days)
             if not schedule_obj:
                 date_str = parse_chinese_date(days)
                 if not date_str:
-                    content = ('时间格式错误，提醒示例\n'
-                               '重复提醒：\n'
-                               '“定时提醒 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
-                               '单次提醒：\n'
-                               '“定时提醒 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
+                    content = ('时间格式错误，示例：\n'
+                               '“定时提醒/任务 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
+                               '或者：\n'
+                               '“定时提醒/任务 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
                     self.send_at_msg(roomid, wxid, content)
                     return False
                 # 单次提醒
                 else:
-                    job_obj = schedule.every().days.at(times).do(self.send_msg, roomid, wxid, content, date_str)
-                    self.db_timing.insert_job(date_str, times, content, roomid, wxid, "onetime_remind")
+                    if not is_task:
+                        job_obj = schedule.every().days.at(times).do(self.send_msg, roomid, wxid, content, date_str)
+                        self.db_timing.insert_job(date_str, times, content, roomid, wxid, "onetime_remind")
+                    else:
+                        job_obj = schedule.every().days.at(times).do(self.send_cmd_msg, roomid, wxid, content, date_str)
+                        self.db_timing.insert_job(date_str, times, content, roomid, wxid, "onetime_task")
             # 重复提醒
             else:
-                job_obj = schedule_obj.at(times).do(self.send_msg, roomid, wxid, content)
-                self.db_timing.insert_job(days, times, content, roomid, wxid, "normal_remind")
+                if not is_task:
+                    job_obj = schedule_obj.at(times).do(self.send_msg, roomid, wxid, content)
+                    self.db_timing.insert_job(days, times, content, roomid, wxid, "normal_remind")
+                else:
+                    job_obj = schedule.every().days.at(times).do(self.send_cmd_msg, roomid, wxid, content)
+                    self.db_timing.insert_job(days, times, content, roomid, wxid, "normal_task")
             id_ = self.db_timing.get_last_id()
             job_dict = {"id": id_, "job_obj": job_obj}
             self.jobs.append(job_dict)
-            content = ("定时提醒添加成功，可回复“提醒查询”进行查看！\n"
-                       "如果需要删除提醒，请回复“删除提醒 ID”！")
+            content = ("定时事件添加成功，"
+                       "可回复“提醒/任务/定时事件查询”进行查看！\n"
+                       "如果需要删除定时事件，"
+                       "可回复“删除提醒/任务/定时事件 ID”！")
             self.send_at_msg(roomid, wxid, content)
             return True
         except Exception as e:
@@ -282,11 +301,11 @@ class TimingMsg:
         try:
             job = self.db_timing.get_job_by_id(id_)
             if not job:
-                content = '定时提醒删除失败！不存在该提醒'
+                content = '定时事件删除失败！不存在该事件'
                 self.send_at_msg(roomid, wxid, content)
                 return False
             if job.get('roomid') != roomid or job.get('wxid') != wxid:
-                content = '定时提醒删除失败！非您或者本群的提醒'
+                content = '定时事件删除失败！非您或者本群的事件'
                 self.send_at_msg(roomid, wxid, content)
                 return False
             self.db_timing.delete_job_by_id(id_)
@@ -294,29 +313,29 @@ class TimingMsg:
                 if job_dict.get('id') == id_:
                     schedule.cancel_job(job_dict.get('job_obj'))
                     self.jobs.remove(job_dict)
-                    content = f'您的定时提醒已删除：\n{job.get("days")} {job.get("times")} {job.get("content")}'
+                    content = f'您的定时事件已删除：\n{job.get("days")} {job.get("times")} {job.get("content")}'
                     self.send_at_msg(roomid, wxid, content)
                     return True
-            content = '定时提醒删除失败！'
+            content = '定时事件删除失败！'
             self.send_at_msg(roomid, wxid, content)
             return False
         except Exception as e:
-            OutPut.outPut(f'[-]: 定时提醒删除失败, 错误信息: {e}')
+            OutPut.outPut(f'[-]: 定时事件删除失败, 错误信息: {e}')
             OutPut.outPut(f'[-]: {traceback.format_exc()}')
             return False
 
     def show_jobs(self, roomid, wxid):
         jobs = self.db_timing.get_jobs_by_roomid_and_wx_id(roomid, wxid)
         if not jobs:
-            show_msg = '您还没有设置定时提醒！'
+            show_msg = '您还没有设置定时事件！'
             self.send_at_msg(roomid, wxid, show_msg)
             return
         job_list = []
         for job in jobs:
-            job_str = f'ID: {job.get("id")}, 时间: {job.get("days")} {job.get("times")}, 内容: {job.get("content")}'
+            job_str = f'ID: {job.get("id")}, 时间: {job.get("days")} {job.get("times")}, 内容: {job.get("content")}，类型: {job.get("type")}'
             job_list.append(job_str)
 
-        show_msg = '您的定时提醒如下：\n' + '\n'.join(job_list)
+        show_msg = '您的定时事件如下：\n' + '\n'.join(job_list)
         self.send_at_msg(roomid, wxid, show_msg)
         return
 

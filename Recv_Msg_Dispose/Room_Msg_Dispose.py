@@ -487,22 +487,29 @@ class Room_Msg_Dispose:
             Thread(target=self.get_help, name="Help帮助菜单", args=(msg,)).start()
         # # 自定义回复
         # Thread(target=self.custom_get, name="自定义回复", args=(msg,)).start()
-        elif self.judge_keyword(keyword=["定时提醒"], msg=msg.content.strip(), list_bool=True, split_bool=True):
+        elif self.judge_keyword(keyword=["定时提醒", "定时任务"], msg=msg.content.strip(), list_bool=True,
+                                split_bool=True):
             try:
                 key_, days, times, content = msg.content.strip().split(' ', 3)
                 if not days or not times or not content:
                     return
-                Thread(target=self.main_server.Tms.add_normal_remind_task,
-                       args=(days, times, content, msg.roomid, msg.sender)).start()
+                if key_ == "定时提醒":
+                    Thread(target=self.main_server.Tms.add_remind_task,
+                           args=(days, times, content, msg.roomid, msg.sender)).start()
+                else:
+                    Thread(target=self.main_server.Tms.add_remind_task,
+                           args=(days, times, content, msg.roomid, msg.sender, True)).start()
             except Exception as e:
-                OutPut.outPut(f'[-]: 定时提醒设置失败 {e}')
-                reply = ('提醒示例\n'
-                         '重复提醒：\n'
-                         '“定时提醒 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
-                         '单次提醒：\n'
-                         '“定时提醒 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
+                OutPut.outPut(f'[-]: 定时事件设置失败 {e}')
+                reply = ('示例：\n'
+                         '“定时提醒/任务 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
+                         '或者：\n'
+                         '“定时提醒/任务 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
                 self.send_at_msg(msg.roomid, msg.sender, reply)
-        elif self.judge_keyword(keyword=["取消提醒", "关闭提醒", "删除提醒"], msg=msg.content.strip(), list_bool=True,
+        elif self.judge_keyword(keyword=["取消提醒", "关闭提醒", "删除提醒",
+                                         "取消任务", "关闭任务", "删除任务",
+                                         "取消定时事件", "关闭定时事件", "删除定时事件"],
+                                msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
             try:
                 id_ = msg.content.strip().split(' ', 1)[1]
@@ -511,7 +518,10 @@ class Room_Msg_Dispose:
                        args=(id_, msg.roomid, msg.sender)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 取消提醒设置失败 {e}')
-        elif self.judge_keyword(keyword=["提醒查询", "提醒查看", "查询提醒", "查看提醒"], msg=msg.content.strip(),
+        elif self.judge_keyword(keyword=["提醒查询", "提醒查看", "查询提醒", "查看提醒",
+                                         "任务查询", "任务查看", "查询任务", "查看任务",
+                                         "定时事件查询", "定时事件查看", "查询定时事件", "查看定时事件"],
+                                msg=msg.content.strip(),
                                 list_bool=True,
                                 equal_bool=True):
             try:
