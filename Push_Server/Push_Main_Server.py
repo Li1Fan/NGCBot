@@ -276,7 +276,8 @@ class TimingMsg:
             id_ = self.db_timing.get_last_id()
             job_dict = {"id": id_, "job_obj": job_obj}
             self.jobs.append(job_dict)
-            content = "单次提醒任务添加成功，可回复“查看提醒”进行查看！"
+            content = ("单次提醒任务添加成功，可回复“提醒查询”进行查看！\n"
+                       "如果需要删除提醒，请回复“删除提醒 ID”！")
             self.send_at_msg(roomid, wxid, content)
             return True
         except Exception as e:
@@ -354,7 +355,7 @@ class TimingMsg:
                 remind_datatime = datetime.strptime(date_str, "%Y-%m-%d")
                 if datetime.now().date() != remind_datatime.date():
                     return
-            timing_content = "这是您的定时提醒：\n {content}"
+            timing_content = f"这是您的定时提醒：\n {content}"
             self.send_at_msg(roomid, wxid, timing_content)
         except Exception as e:
             OutPut.outPut(f'[-]: 定时提醒发送失败, 错误信息: {e}')

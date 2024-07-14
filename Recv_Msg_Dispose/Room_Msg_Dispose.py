@@ -496,6 +496,8 @@ class Room_Msg_Dispose:
                        args=(days, times, content, msg.roomid, msg.sender)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 定时提醒设置失败 {e}')
+                reply = "任务示例：\n“定时提醒 周一/星期一/每天 十点/一点十分/一时十分/1:10 摸鱼”"
+                self.send_at_msg(reply, msg.roomid, msg.sender)
         elif self.judge_keyword(keyword=["单次提醒", "一次提醒"], msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
             try:
@@ -506,6 +508,8 @@ class Room_Msg_Dispose:
                        args=(days, times, content, msg.roomid, msg.sender)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 单次提醒设置失败 {e}')
+                reply = "任务示例：\n“单次提醒 明天/12.7/12月7日 十点/一点十分/一时十分/1:10 摸鱼”"
+                self.send_at_msg(reply, msg.roomid, msg.sender)
         elif self.judge_keyword(keyword=["取消提醒", "关闭提醒", "删除提醒"], msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
             try:
@@ -515,7 +519,8 @@ class Room_Msg_Dispose:
                        args=(id_, msg.roomid, msg.sender)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 取消提醒设置失败 {e}')
-        elif self.judge_keyword(keyword=["提醒查询", "查询任务", "查询提醒"], msg=msg.content.strip(), list_bool=True,
+        elif self.judge_keyword(keyword=["提醒查询", "查询任务", "查询提醒", "查看提醒"], msg=msg.content.strip(),
+                                list_bool=True,
                                 equal_bool=True):
             try:
                 Thread(target=self.main_server.Tms.show_jobs,
@@ -1001,6 +1006,10 @@ class Room_Msg_Dispose:
                         msg=f'@{self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)} {send_msg}',
                         receiver=msg.roomid, aters=msg.sender)
                     return
+
+    def send_at_msg(self, roomid, wxid, content):
+        at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"
+        self.wcf.send_text(msg=at_msg, receiver=roomid, aters=wxid)
 
     # 帮助菜单
     def get_help(self, msg):
