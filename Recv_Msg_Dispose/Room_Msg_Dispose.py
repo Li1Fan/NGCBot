@@ -497,7 +497,7 @@ class Room_Msg_Dispose:
             except Exception as e:
                 OutPut.outPut(f'[-]: 定时提醒设置失败 {e}')
                 reply = "任务示例：\n“定时提醒 周一/星期一/每天 十点/一点十分/一时十分/1:10 摸鱼”"
-                self.send_at_msg(reply, msg.roomid, msg.sender)
+                self.send_at_msg(msg.roomid, msg.sender, reply)
         elif self.judge_keyword(keyword=["单次提醒", "一次提醒"], msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
             try:
@@ -509,7 +509,7 @@ class Room_Msg_Dispose:
             except Exception as e:
                 OutPut.outPut(f'[-]: 单次提醒设置失败 {e}')
                 reply = "任务示例：\n“单次提醒 明天/12.7/12月7日 十点/一点十分/一时十分/1:10 摸鱼”"
-                self.send_at_msg(reply, msg.roomid, msg.sender)
+                self.send_at_msg(msg.roomid, msg.sender, reply)
         elif self.judge_keyword(keyword=["取消提醒", "关闭提醒", "删除提醒"], msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
             try:
