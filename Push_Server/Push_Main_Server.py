@@ -49,6 +49,19 @@ def check_workday(func):
     return wrapper
 
 
+def check_weekend(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        # 获取当前日期
+        current_date = datetime.now().date()
+        # 如果是工作日，直接返回
+        if chinese_calendar.is_workday(current_date):
+            return
+        return func(self, *args, **kwargs)
+
+    return wrapper
+
+
 def global_lock(func):
     lock = threading.Lock()
 
@@ -223,14 +236,24 @@ class TimingMsg:
                     schedule_obj = self.parse_task(days)
                     if not schedule_obj:
                         continue
-                    job_obj = schedule_obj.at(times).do(self.send_msg, roomid, wxid, content)
+                    if days in ["周内", "工作日", "上班"]:
+                        job_obj = schedule_obj.at(times).do(self.send_msg_workday, roomid, wxid, content)
+                    elif days in ["周末", "非工作日"]:
+                        job_obj = schedule_obj.at(times).do(self.send_msg_weekend, roomid, wxid, content)
+                    else:
+                        job_obj = schedule_obj.at(times).do(self.send_msg, roomid, wxid, content)
                     job_dict = {"id": id_, "job_obj": job_obj}
                     self.jobs.append(job_dict)
                 elif type_ == "normal_task":
                     schedule_obj = self.parse_task(days)
                     if not schedule_obj:
                         continue
-                    job_obj = schedule_obj.at(times).do(self.send_cmd_msg, roomid, wxid, content)
+                    if days in ["周内", "工作日", "上班"]:
+                        job_obj = schedule_obj.at(times).do(self.send_cmd_msg_workday, roomid, wxid, content)
+                    elif days in ["周末", "非工作日", "放假"]:
+                        job_obj = schedule_obj.at(times).do(self.send_cmd_msg_weekend, roomid, wxid, content)
+                    else:
+                        job_obj = schedule_obj.at(times).do(self.send_cmd_msg, roomid, wxid, content)
                     job_dict = {"id": id_, "job_obj": job_obj}
                     self.jobs.append(job_dict)
                 elif type_ == "onetime_remind":
@@ -249,9 +272,9 @@ class TimingMsg:
     def add_remind_task(self, days, times, content, roomid, wxid, is_task=False):
         try:
             times = parse_chinese_time(times)
-            if not parse_chinese_time(times):
+            if not times:
                 content = ('时间格式错误，示例：\n'
-                           '“定时提醒/任务 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
+                           '“定时提醒/任务 周一/星期一/每天/工作日 一点十分/1.10/1:10 摸鱼”\n'
                            '或者：\n'
                            '“定时提醒/任务 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
                 self.send_at_msg(roomid, wxid, content)
@@ -261,7 +284,7 @@ class TimingMsg:
                 date_str = parse_chinese_date(days)
                 if not date_str:
                     content = ('时间格式错误，示例：\n'
-                               '“定时提醒/任务 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
+                               '“定时提醒/任务 周一/星期一/每天/工作日 一点十分/1.10/1:10 摸鱼”\n'
                                '或者：\n'
                                '“定时提醒/任务 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
                     self.send_at_msg(roomid, wxid, content)
@@ -349,7 +372,7 @@ class TimingMsg:
             ("周五", "星期五"): schedule.every().friday,
             ("周六", "星期六"): schedule.every().saturday,
             ("周日", "星期日"): schedule.every().sunday,
-            ("每天",): schedule.every().day
+            ("每天", "工作日", "非工作日", "周末", "周内", "放假", "上班"): schedule.every().day
         }
 
         for key in days_mapping:
@@ -372,10 +395,35 @@ class TimingMsg:
             OutPut.outPut(f'[-]: 定时提醒发送失败, 错误信息: {e}')
             OutPut.outPut(f'[-]: {traceback.format_exc()}')
 
-    def send_cmd_msg(self, roomid, wxid, content):
-        Msg = namedtuple("Msg", ["roomid", "sender", "content"])
-        msg = Msg(roomid, wxid, content)
-        self.rms.Happy_Function(msg)
+    @check_workday
+    def send_msg_workday(self, roomid, wxid, content):
+        return self.send_msg(roomid, wxid, content)
+
+    @check_weekend
+    def send_msg_weekend(self, roomid, wxid, content):
+        return self.send_msg(roomid, wxid, content)
+
+    def send_cmd_msg(self, roomid, wxid, content, date_str=None):
+        try:
+            # 用于控制单次提醒
+            if date_str:
+                remind_datatime = datetime.strptime(date_str, "%Y-%m-%d")
+                if datetime.now().date() != remind_datatime.date():
+                    return
+            Msg = namedtuple("Msg", ["roomid", "sender", "content"])
+            msg = Msg(roomid, wxid, content)
+            self.rms.Happy_Function(msg)
+        except Exception as e:
+            OutPut.outPut(f'[-]: 定时提醒发送失败, 错误信息: {e}')
+            OutPut.outPut(f'[-]: {traceback.format_exc()}')
+
+    @check_workday
+    def send_cmd_msg_workday(self, roomid, wxid, content):
+        return self.send_cmd_msg(roomid, wxid, content)
+
+    @check_weekend
+    def send_cmd_msg_weekend(self, roomid, wxid, content):
+        return self.send_cmd_msg(roomid, wxid, content)
 
     def send_at_msg(self, roomid, wxid, content):
         at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"

@@ -488,7 +488,7 @@ class Room_Msg_Dispose:
         # # 自定义回复
         # Thread(target=self.custom_get, name="自定义回复", args=(msg,)).start()
         elif self.judge_keyword(keyword=["定时提醒", "定时任务"], msg=msg.content.strip(), list_bool=True,
-                                split_bool=True):
+                                split_bool=True, equal_bool=True):
             try:
                 key_, days, times, content = msg.content.strip().split(' ', 3)
                 if not days or not times or not content:
@@ -502,7 +502,7 @@ class Room_Msg_Dispose:
             except Exception as e:
                 OutPut.outPut(f'[-]: 定时事件设置失败 {e}')
                 reply = ('示例：\n'
-                         '“定时提醒/任务 周一/星期一/每天 一点十分/1.10/1:10 摸鱼”\n'
+                         '“定时提醒/任务 周一/星期一/每天/工作日 一点十分/1.10/1:10 摸鱼”\n'
                          '或者：\n'
                          '“定时提醒/任务 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
                 self.send_at_msg(msg.roomid, msg.sender, reply)
