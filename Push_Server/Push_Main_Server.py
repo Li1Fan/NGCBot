@@ -221,6 +221,11 @@ class TimingMsg:
         db_path = f"{PRJ_PATH}/Config/job.db"
         self.db_timing = TimingMsgDB(db_path=db_path)
 
+        # 清理过期任务
+        self.clear_expired_jobs(type_='onetime_remind')
+        self.clear_expired_jobs(type_='onetime_remind')
+        # schedule.every().day.at('01:00').do(self.clear_expired_jobs)
+
     def init_timing_msg(self):
         jobs = self.db_timing.get_all_jobs()
         for job in jobs:
@@ -347,8 +352,9 @@ class TimingMsg:
             OutPut.outPut(f'[-]: {traceback.format_exc()}')
             return False
 
+    @global_lock
     def show_jobs(self, roomid, wxid):
-        jobs = self.db_timing.get_jobs_by_roomid_and_wx_id(roomid, wxid)
+        jobs = self.db_timing.get_all_jobs(roomid=roomid, wxid=wxid)
         if not jobs:
             show_msg = '您还没有设置定时事件！'
             self.send_at_msg(roomid, wxid, show_msg)
@@ -382,12 +388,18 @@ class TimingMsg:
 
         return None
 
+    @global_lock
     def send_msg(self, roomid, wxid, content, date_str=None):
         try:
             # 用于控制单次提醒
             if date_str:
                 remind_datatime = datetime.strptime(date_str, "%Y-%m-%d")
                 if datetime.now().date() != remind_datatime.date():
+                    return
+                else:
+                    content = f"这是您的提醒：\n {content}"
+                    self.send_at_msg(roomid, wxid, content)
+                    self.clear_expired_jobs(type_="onetime_remind", roomid=roomid, wxid=wxid)
                     return
             timing_content = f"这是您的定时提醒：\n {content}"
             self.send_at_msg(roomid, wxid, timing_content)
@@ -403,12 +415,19 @@ class TimingMsg:
     def send_msg_weekend(self, roomid, wxid, content):
         return self.send_msg(roomid, wxid, content)
 
+    @global_lock
     def send_cmd_msg(self, roomid, wxid, content, date_str=None):
         try:
             # 用于控制单次提醒
             if date_str:
                 remind_datatime = datetime.strptime(date_str, "%Y-%m-%d")
                 if datetime.now().date() != remind_datatime.date():
+                    return
+                else:
+                    Msg = namedtuple("Msg", ["roomid", "sender", "content"])
+                    msg = Msg(roomid, wxid, content)
+                    self.rms.Happy_Function(msg)
+                    self.clear_expired_jobs(type_="onetime_task", roomid=roomid, wxid=wxid)
                     return
             Msg = namedtuple("Msg", ["roomid", "sender", "content"])
             msg = Msg(roomid, wxid, content)
@@ -428,6 +447,18 @@ class TimingMsg:
     def send_at_msg(self, roomid, wxid, content):
         at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"
         self.wcf.send_text(msg=at_msg, receiver=roomid, aters=wxid)
+
+    def clear_expired_jobs(self, type_=None, roomid=None, wxid=None):
+        jobs = self.db_timing.get_all_jobs(type_=type_, roomid=roomid, wxid=wxid)
+        for job in jobs:
+            expect_time = job.get('days') + ' ' + job.get('times')
+            if datetime.now() > datetime.strptime(expect_time, "%Y-%m-%d %H:%M:%S"):
+                self.db_timing.delete_job_by_id(job.get('id'))
+                for job_dict in self.jobs:
+                    if job_dict.get('id') == job.get('id'):
+                        schedule.cancel_job(job_dict.get('job_obj'))
+                        self.jobs.remove(job_dict)
+                        break
 
 
 if __name__ == '__main__':

@@ -178,8 +178,32 @@ class TimingMsgDB:
         ret = self.db.delete('job', where='roomid = "{}" and wxid = "{}"'.format(roomid, wxid))
         return ret
 
-    def get_all_jobs(self) -> list:
-        dev = self.db.select('job')
+    def get_all_jobs(self, type_=None, roomid=None, wxid=None) -> list:
+        """
+        根据不同的条件查询job表中的数据
+
+        Args:
+            type_ (str, optional): 工作类型
+            roomid (str, optional): 房间ID
+            wxid (str, optional): 微信ID
+
+        Returns:
+            list: 查询结果列表
+        """
+        where_clause = []
+        if type_:
+            where_clause.append('type = "{}"'.format(type_))
+        if roomid:
+            where_clause.append('roomid = "{}"'.format(roomid))
+        if wxid:
+            where_clause.append('wxid = "{}"'.format(wxid))
+
+        if where_clause:
+            where_str = ' and '.join(where_clause)
+            dev = self.db.select('job', where=where_str)
+        else:
+            dev = self.db.select('job')
+
         if dev:
             dev_list = []
             for d in dev:
@@ -211,24 +235,6 @@ class TimingMsgDB:
             return dev_dict
         return {}
 
-    def get_jobs_by_roomid_and_wx_id(self, roomid: str, wxid: str) -> list:
-        dev = self.db.select('job', where='roomid = "{}" and wxid = "{}"'.format(roomid, wxid))
-        if dev:
-            dev_list = []
-            for d in dev:
-                dev_dict = {
-                    "id": d[0],
-                    "days": d[1],
-                    "times": d[2],
-                    "content": d[3],
-                    "roomid": d[4],
-                    "wxid": d[5],
-                    "type": d[6]
-                }
-                dev_list.append(dev_dict)
-            return dev_list
-        return []
-
     def get_last_id(self) -> int:
         dev = self.db.select('job', columns='id', order='id desc', limit=1)
         if dev:
@@ -240,12 +246,11 @@ if __name__ == "__main__":
     job_db = TimingMsgDB('job.db')
     job_db.insert_job('周一', '13:00', '早安！打工人', '123456', '654321')
     print(job_db.get_job_by_id(1))
-    print(job_db.get_jobs_by_roomid_and_wx_id('123456', '654321'))
     # print(job_db.delete_job_by_id(1))
     print(job_db.get_last_id())
-
+    print(job_db.get_all_jobs())
+    print(job_db.get_all_jobs(roomid='123456'))
     job_db.delete_job_by_roomid_and_wx_id('123456', '654321')
-    print(job_db.get_jobs_by_roomid_and_wx_id('123456', '654321'))
     # db = IdiomDB('/home/frz/github/NGCBot/Config/idiom.db')
     # print(db.get_info_by_word('沧海横流'))
     # print(db.get_last_by_word('沧海横流'))
