@@ -223,7 +223,7 @@ class TimingMsg:
 
         # 清理过期任务
         self.clear_expired_jobs(type_='onetime_remind')
-        self.clear_expired_jobs(type_='onetime_remind')
+        self.clear_expired_jobs(type_='onetime_task')
         # schedule.every().day.at('01:00').do(self.clear_expired_jobs)
 
     def init_timing_msg(self):
@@ -367,10 +367,14 @@ class TimingMsg:
             return
         job_list = []
         for job in jobs:
-            job_str = f'ID: {job.get("id")}, 时间: {job.get("days")} {job.get("times")}, 内容: {job.get("content")}，类型: {job.get("type")}'
+            type_ = job.get("type")
+            type_ = {"onetime_remind": "单次提醒", "normal_remind": "重复提醒",
+                     "onetime_task": "单次任务", "normal_task": "重复任务"}.get(type_, "未知类型")
+            job_str = f'ID: {job.get("id")}，类型:{type_}\n' \
+                      f'{job.get("days")} {job.get("times")} {job.get("content")}'
             job_list.append(job_str)
 
-        show_msg = '您的定时事件如下：\n' + '\n'.join(job_list)
+        show_msg = '定时事件如下：\n' + '\n'.join(job_list)
         self.send_at_msg(roomid, wxid, show_msg)
         return
 
@@ -458,7 +462,7 @@ class TimingMsg:
         jobs = self.db_timing.get_all_jobs(type_=type_, roomid=roomid, wxid=wxid)
         for job in jobs:
             expect_time = job.get('days') + ' ' + job.get('times')
-            if datetime.now() > datetime.strptime(expect_time, "%Y-%m-%d %H:%M:%S"):
+            if datetime.now() > datetime.strptime(expect_time, "%Y-%m-%d %H:%M"):
                 self.db_timing.delete_job_by_id(job.get('id'))
                 for job_dict in self.jobs:
                     if job_dict.get('id') == job.get('id'):
