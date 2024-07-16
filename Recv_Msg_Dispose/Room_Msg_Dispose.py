@@ -485,6 +485,10 @@ class Room_Msg_Dispose:
         # help帮助菜单
         elif self.judge_keyword(keyword=self.HelpMenu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             Thread(target=self.get_help, name="Help帮助菜单", args=(msg,)).start()
+        # 功能
+        elif self.judge_keyword(keyword=["功能", "萝卜功能", "萝卜菜单"], msg=msg.content.strip(), list_bool=True,
+                                equal_bool=True):
+            Thread(target=self.get_help, name="Help帮助菜单", args=(msg,)).start()
         # # 自定义回复
         # Thread(target=self.custom_get, name="自定义回复", args=(msg,)).start()
         elif self.judge_keyword(keyword=["定时提醒", "定时任务"], msg=msg.content.strip(), list_bool=True,
@@ -1107,6 +1111,10 @@ class Room_Msg_Dispose:
                 question = self.handle_atMsg(msg, at_user_lists=at_user_lists)
             else:
                 question = msg.content.strip().split(' ', 1)[1]
+
+            if question and question.startswith("画"):
+                model = 'image'
+
             if model != 'image':
                 use_msg = f'@{wx_name}\n' + self.Ams.get_ai(
                     question=question, model=model)
@@ -1153,6 +1161,10 @@ class Room_Msg_Dispose:
                     question = self.handle_atMsg(msg, at_user_lists=at_user_lists)
                 else:
                     question = msg.content.strip().split(' ', 1)[1]
+
+                if question and question.startswith("画"):
+                    model = 'image'
+
                 if model != 'image':
                     use_msg = f'@{wx_name}\n' + self.Ams.get_ai(
                         question=question, model=model)
