@@ -325,17 +325,20 @@ class TimingMsg:
             return False
 
     @global_lock
-    def delete_job(self, id_, roomid, wxid):
+    def delete_job(self, id_, roomid, wxid, is_admin=False):
         try:
             job = self.db_timing.get_job_by_id(id_)
             if not job:
                 content = '定时事件删除失败！不存在该事件'
                 self.send_at_msg(roomid, wxid, content)
                 return False
-            if job.get('roomid') != roomid or job.get('wxid') != wxid:
-                content = '定时事件删除失败！非您或者本群的事件'
-                self.send_at_msg(roomid, wxid, content)
-                return False
+            if wxid in self.rms.administrators and is_admin:
+                pass
+            else:
+                if job.get('roomid') != roomid or job.get('wxid') != wxid:
+                    content = '定时事件删除失败！非您或者本群的事件'
+                    self.send_at_msg(roomid, wxid, content)
+                    return False
             self.db_timing.delete_job_by_id(id_)
             for job_dict in self.jobs:
                 if job_dict.get('id') == id_:
@@ -353,8 +356,11 @@ class TimingMsg:
             return False
 
     @global_lock
-    def show_jobs(self, roomid, wxid):
-        jobs = self.db_timing.get_all_jobs(roomid=roomid, wxid=wxid)
+    def show_jobs(self, roomid, wxid, is_admin=False):
+        if wxid in self.rms.administrators and is_admin:
+            jobs = self.db_timing.get_all_jobs()
+        else:
+            jobs = self.db_timing.get_all_jobs(roomid=roomid, wxid=wxid)
         if not jobs:
             show_msg = '您还没有设置定时事件！'
             self.send_at_msg(roomid, wxid, show_msg)

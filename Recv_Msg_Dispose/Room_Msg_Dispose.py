@@ -522,6 +522,16 @@ class Room_Msg_Dispose:
                        args=(id_, msg.roomid, msg.sender)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 取消提醒设置失败 {e}')
+        elif self.judge_keyword(keyword=["管理员删除提醒", "管理员删除任务", "管理员删除定时事件"],
+                                msg=msg.content.strip(), list_bool=True,
+                                split_bool=True):
+            try:
+                id_ = msg.content.strip().split(' ', 1)[1]
+                id_ = int(id_)
+                Thread(target=self.main_server.Tms.delete_job,
+                       args=(id_, msg.roomid, msg.sender, True)).start()
+            except Exception as e:
+                OutPut.outPut(f'[-]: 取消提醒设置失败 {e}')
         elif self.judge_keyword(keyword=["提醒查询", "提醒查看", "查询提醒", "查看提醒",
                                          "任务查询", "任务查看", "查询任务", "查看任务",
                                          "定时事件查询", "定时事件查看", "查询定时事件", "查看定时事件"],
@@ -532,7 +542,16 @@ class Room_Msg_Dispose:
                 Thread(target=self.main_server.Tms.show_jobs,
                        args=(msg.roomid, msg.sender)).start()
             except Exception as e:
-                OutPut.outPut(f'[-]: 取消提醒设置失败 {e}')
+                OutPut.outPut(f'[-]: 提醒查询失败 {e}')
+        elif self.judge_keyword(keyword=["管理员提醒查询", "管理员任务查询", "管理员定时事件查询"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                equal_bool=True):
+            try:
+                Thread(target=self.main_server.Tms.show_jobs,
+                       args=(msg.roomid, msg.sender, True)).start()
+            except Exception as e:
+                OutPut.outPut(f'[-]: 提醒查询失败 {e}')
 
     # 积分功能
     def Point_Function(self, msg, at_user_lists):
