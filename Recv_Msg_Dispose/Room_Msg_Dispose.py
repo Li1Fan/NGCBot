@@ -557,7 +557,7 @@ class Room_Msg_Dispose:
     def Point_Function(self, msg, at_user_lists):
         # 签到功能
         if msg.content.strip() == '签到':
-            sign_word = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + f'签到口令已改为：{self.Sign_Words}'
+            sign_word = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + f' 签到口令已改为：\n{self.Sign_Words}'
             self.wcf.send_text(msg=sign_word, receiver=msg.roomid, aters=msg.sender)
             return
         elif msg.content.strip() == self.Sign_Words:
