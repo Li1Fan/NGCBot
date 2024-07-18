@@ -747,6 +747,7 @@ class Api_Main_Server:
                 return None
             msg = json_data['result']
             OutPut.outPut(f'[+]: 谷歌翻译API接口调用成功！！！')
+            OutPut.outPut(f'[+]: 翻译结果：{msg}')
             return msg
         except Exception as e:
             msg = f'[-]: 谷歌翻译接口出现错误, 错误信息：{e}'

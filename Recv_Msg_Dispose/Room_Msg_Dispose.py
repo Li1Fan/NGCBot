@@ -558,6 +558,25 @@ class Room_Msg_Dispose:
                        args=(msg.roomid, msg.sender, True)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 提醒查询失败 {e}')
+        elif self.judge_keyword(keyword=["放烟花", "放礼花"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                split_bool=True,
+                                equal_bool=True):
+            try:
+                if " " in msg.content.strip():
+                    num = int(msg.content.strip().split(' ', 1)[1])
+                    if num > 10:
+                        num = 10
+                else:
+                    num = 5
+            except Exception as e:
+                OutPut.outPut(f'[-]: 放烟花、放礼花解析失败 {e}')
+                num = 3
+            if "放礼花" in msg.content.strip():
+                Thread(target=self.play_fireworks, name="放礼花", args=(msg, num, "庆祝")).start()
+            else:
+                Thread(target=self.play_fireworks, name="放烟花", args=(msg, num)).start()
 
     # 积分功能
     def Point_Function(self, msg, at_user_lists):
@@ -1041,6 +1060,11 @@ class Room_Msg_Dispose:
     def send_at_msg(self, roomid, wxid, content):
         at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"
         self.wcf.send_text(msg=at_msg, receiver=roomid, aters=wxid)
+
+    def play_fireworks(self, msg, num, type_="烟花"):
+        for i in range(num):
+            self.wcf.send_image(msg=f'[{type_}]', receiver=msg.roomid)
+            time.sleep(0.7)
 
     # 帮助菜单
     def get_help(self, msg):

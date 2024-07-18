@@ -91,7 +91,7 @@ class Main_Server:
                 # 群消息处理
                 if msg.type == 10000:
                     OutPut.outPut(f'10000: {msg.content}')
-                    if msg.roomid in push_rooms.keys() and msg.roomid:
+                    if msg.roomid in push_rooms.keys() and msg.roomid and '加入了群聊' in msg.content:
                         # 进群欢迎
                         Thread(target=self.Join_Room, name="进群欢迎", args=(msg,)).start()
                     # 添加好友后回复
