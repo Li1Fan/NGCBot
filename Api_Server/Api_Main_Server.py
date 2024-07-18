@@ -110,6 +110,9 @@ class Api_Main_Server:
         # emoji数据库
         self.db_emoji = EmojiDB(PRJ_PATH + '/Config/emoji.db')
 
+        # 是否为高级画画模式
+        self.is_advanced_drawing = False
+
     # Ai功能
     def get_ai(self, question, model=None):
         OutPut.outPut("[*]: 正在调用Ai对话接口... ...")
@@ -216,16 +219,24 @@ class Api_Main_Server:
                 else:
                     return '秘塔搜索接口出现错误，请查看日志！'
         elif model == 'image':
-            spark_free_msg = self.get_spark_free_image(content=question)
-            if spark_free_msg:
-                OutPut.outPut('[+]: Spark文生图接口调用成功！！！')
-                return spark_free_msg
+            if not self.is_advanced_drawing:
+                spark_free_msg = self.get_spark_free_image(content=question)
+                if spark_free_msg:
+                    OutPut.outPut('[+]: Spark文生图接口调用成功！！！')
+                    return spark_free_msg
+                else:
+                    qwen_free_msg = self.get_qwen_free_image(content=question)
+                    if qwen_free_msg:
+                        OutPut.outPut('[+]: Qwen文生图接口调用成功！！！')
+                        return qwen_free_msg
+                    return None
             else:
-                qwen_free_msg = self.get_qwen_free_image(content=question)
-                if qwen_free_msg:
-                    OutPut.outPut('[+]: Qwen文生图接口调用成功！！！')
-                    return qwen_free_msg
-                return None
+                silicon_msg = self.get_silicon_flow_image(content=question)
+                if silicon_msg:
+                    OutPut.outPut('[+]: Silicon接口调用成功！！！')
+                    return silicon_msg
+                else:
+                    return None
 
     # Gpt模型
     def getGpt(self, content):
@@ -311,6 +322,34 @@ class Api_Main_Server:
             return assistant_content if assistant_content else None
         except Exception as e:
             OutPut.outPut(f'[-]: qwen_free_api接口出现错误，错误信息： {e}')
+            return None
+
+    def get_silicon_flow_image(self, content):
+        content = self.get_translate_by_api(content)
+        if not content:
+            return None
+        url = ""
+
+        payload = {
+            "prompt": content,
+            "image_size": "1536x1024",
+            "batch_size": 1,
+            "num_inference_steps": 25,
+            "guidance_scale": 5
+        }
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "Authorization": "Bearer sk-"
+        }
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=30)
+
+            json_data = response.json()
+            image_url = json_data.get("images")[0].get("url")
+            return image_url
+        except Exception as e:
+            print(e)
             return None
 
     # 美女图片
