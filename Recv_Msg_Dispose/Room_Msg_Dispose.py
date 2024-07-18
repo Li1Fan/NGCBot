@@ -1063,7 +1063,7 @@ class Room_Msg_Dispose:
 
     def play_fireworks(self, msg, num, type_="烟花"):
         for i in range(num):
-            self.wcf.send_image(msg=f'[{type_}]', receiver=msg.roomid)
+            self.wcf.send_text(msg=f'[{type_}]', receiver=msg.roomid)
             time.sleep(0.7)
 
     # 帮助菜单
