@@ -569,7 +569,7 @@ class Room_Msg_Dispose:
                     if num > 10:
                         num = 10
                 else:
-                    num = 5
+                    num = 3
             except Exception as e:
                 OutPut.outPut(f'[-]: 放烟花、放礼花解析失败 {e}')
                 num = 3
@@ -1064,7 +1064,7 @@ class Room_Msg_Dispose:
     def play_fireworks(self, msg, num, type_="烟花"):
         for i in range(num):
             self.wcf.send_text(msg=f'[{type_}]', receiver=msg.roomid)
-            time.sleep(0.7)
+            time.sleep(1.8)
 
     # 帮助菜单
     def get_help(self, msg):
