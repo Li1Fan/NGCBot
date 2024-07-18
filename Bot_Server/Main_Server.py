@@ -1,12 +1,14 @@
+import datetime
 import os
 import random
 import re
 import traceback
 import xml.etree.ElementTree as ET
-import yaml
-from cprint import cprint
 from queue import Empty
 from threading import Thread
+
+import yaml
+from cprint import cprint
 from wcferry import Wcf
 
 from Cache.Cache_Main_Server import Cache_Main_Server
@@ -98,6 +100,8 @@ class Main_Server:
                         Thread(target=self.Accept_Friend_Msg, name="加好友后自动回复", args=(msg,)).start()
                     elif '收到红包，请在手机上查看' in msg.content and not msg.roomid:
                         Thread(target=self.Fms.Msg_Dispose, name="好友消息处理", args=(msg,)).start()
+                    elif '拍了拍我' in msg.content and msg.roomid:
+                        Thread(target=self.slap, name="拍一拍", args=(msg,)).start()
                 # 好友申请消息处理
                 elif msg.type == 37:
                     # 自动同意好友申请
@@ -178,6 +182,29 @@ class Main_Server:
                 self.wcf.send_text(msg=JoinRoom_msg, receiver=msg.roomid)
         except Exception as e:
             pass
+
+    # 拍一拍
+    def slap(self, msg):
+        try:
+            if self.is_night_time():
+                self.wcf.send_text(msg='[烟花]', receiver=msg.roomid)
+            else:
+                self.wcf.send_text(msg='[庆祝]', receiver=msg.roomid)
+        except Exception as e:
+            pass
+
+    @staticmethod
+    def is_night_time():
+        now = datetime.datetime.now()
+
+        # 获取当前小时数
+        current_hour = now.hour
+
+        # 判断是否在晚上8点到早上7点之间
+        if 20 <= current_hour or current_hour < 7:
+            return True
+        else:
+            return False
 
 
 if __name__ == '__main__':
