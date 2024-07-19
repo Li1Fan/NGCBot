@@ -565,7 +565,7 @@ class Room_Msg_Dispose:
                                 equal_bool=True):
             try:
                 content_list = msg.content.strip().split()
-                name = content_list[0]
+                name = content_list[0] if content_list else msg.content.strip()
 
                 if len(content_list) == 2:
                     num = min(int(content_list[1]), 10)
@@ -580,9 +580,28 @@ class Room_Msg_Dispose:
                 OutPut.outPut(f'[-]: 放烟花、放礼花解析失败 {e}')
                 return
 
-            emoji_name = {"放烟花": "烟花", "放礼花": "庆祝", "放炸弹": "炸弹", "放鞭炮": "爆竹"}.\
+            emoji_name = {"放烟花": "烟花", "放礼花": "庆祝", "放炸弹": "炸弹", "放鞭炮": "爆竹"}. \
                 get(name, "烟花")
             Thread(target=self.play_fireworks, name="放烟花", args=(msg, num, emoji_name, time_interval)).start()
+        elif self.judge_keyword(keyword=["放烟花帮助", "放礼花帮助", "放炸弹帮助", "放鞭炮帮助"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                split_bool=True,
+                                equal_bool=True):
+            reply = ('示例：\n'
+                     '“放烟花”\n'
+                     '“放礼花”\n'
+                     '“放炸弹 3”\n'
+                     '“放鞭炮 3 1.5”')
+            self.send_at_msg(msg.roomid, msg.sender, reply)
+        elif self.judge_keyword(keyword=["测试"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                equal_bool=True):
+            db_list = self.wcf.get_dbs()
+            print(db_list)
+            for db in db_list:
+                print(self.wcf.get_tables(db))
 
     # 积分功能
     def Point_Function(self, msg, at_user_lists):
