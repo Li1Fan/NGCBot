@@ -1719,15 +1719,19 @@ class Room_Msg_Dispose:
             return
         try:
             self.wcf.send_image(path=path, receiver=receiver)
-            time.sleep(0.1)
+            # 需要等待几秒后，数据才会更新
+            time.sleep(2)
             sql_query = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
-                        f'WHERE IsSender = 1 AND Type = 3 AND StrTalker = "{1}" ORDER BY localId DESC LIMIT 1;'
+                        f'WHERE IsSender = 1 AND Type = 3 AND StrTalker = "{receiver}" ORDER BY localId DESC LIMIT 1;'
+            print(sql_query)
             res = self.wcf.query_sql("MSG0.db", sql_query)
-            strContent = res[0].get('StrContent')
-            if "<msg>< img length=" in strContent:
-                OutPut.outPut(f'[-]: 图片发送失败，重新发送，回调中...')
-                return self.send_image_ensure_success(path, receiver)
-            return
+            print(res)
+            # 撤回消息ID
+            # MsgSvrID = res[0].get('MsgSvrID')
+            # if MsgSvrID == 0:
+            #     OutPut.outPut(f'[-]: 图片发送失败，重新发送，回调中...')
+            #     return self.send_image_ensure_success(path, receiver)
+            # return
         except Exception as e:
             OutPut.outPut(f'[-]: 图片发送失败，错误信息: {e}')
             return
