@@ -314,7 +314,7 @@ class Room_Msg_Dispose:
         if self.judge_keyword(keyword=self.Pic_Words, msg=msg.content, list_bool=True, equal_bool=True):
             save_path = self.Ams.get_girl_pic()
             if ('Pic_Cache' in save_path) and check_file(save_path):
-                self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='美女图片接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
         # 美女视频
@@ -366,7 +366,7 @@ class Room_Msg_Dispose:
                                 equal_bool=True):
             save_path = self.Ams.get_60s_pic()
             if save_path:
-                self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='60s图片接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
         # 虎扑热搜
@@ -396,8 +396,8 @@ class Room_Msg_Dispose:
             ret = f'[*]: 摸鱼日记API接口返回值：{save_path}'
             OutPut.outPut(ret)
             if 'Fish_Cache' in save_path:
-                # TODO: send_image() 图片有概率会发送不成功，怀疑是微信客户端安装在虚拟机中导致
-                self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                # TODO: send_image() 图片有概率会发送不成功，怀疑是微信客户端安装在虚拟机中导致，增加重试机制
+                self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
         # 内涵段子
@@ -407,7 +407,7 @@ class Room_Msg_Dispose:
             ret = f'[*]: 内涵段子API接口返回值：{save_path}'
             OutPut.outPut(ret)
             if check_file(save_path):
-                self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             else:
                 text = self.Ams.get_duanzi_text()
                 self.wcf.send_text(msg=text, receiver=msg.roomid) if text else None
@@ -572,7 +572,7 @@ class Room_Msg_Dispose:
                     time_interval = 1.8
                 elif len(content_list) == 3:
                     num = min(int(content_list[1]), 10)
-                    time_interval = min(float(content_list[2]), 3)
+                    time_interval = min(float(content_list[2]), 5)
                 else:
                     num = 3
                     time_interval = 1.8
@@ -619,7 +619,7 @@ class Room_Msg_Dispose:
             return
         elif msg.content.strip() in ['重新发送图片', '重新发送', '重发图片']:
             if self.save_path:
-                self.wcf.send_image(path=self.save_path, receiver=msg.roomid)
+                self.send_image_ensure_success(path=self.save_path, receiver=msg.roomid)
         # 赠送积分功能
         elif self.judge_keyword(keyword=self.Send_Point_Words, msg=self.handle_atMsg(msg, at_user_lists),
                                 list_bool=True, split_bool=True):
@@ -701,7 +701,7 @@ class Room_Msg_Dispose:
             return
         elif self.judge_keyword(keyword=["重发"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             if self.idiom_pic[msg.roomid]:
-                self.wcf.send_image(path=self.idiom_pic[msg.roomid], receiver=msg.roomid)
+                self.send_image_ensure_success(path=self.idiom_pic[msg.roomid], receiver=msg.roomid)
             return
         # 成语解析功能
         elif self.judge_keyword(keyword=["成语解析", "成语解释", "成语查询"], msg=msg.content.strip(), list_bool=True,
@@ -822,7 +822,7 @@ class Room_Msg_Dispose:
                 save_path, idiom_data = self.Ams.get_idiom()
                 self.idiom_pic[msg.roomid] = save_path
                 self.game_answer[msg.roomid] = idiom_data
-                self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
                 self.wcf.send_text(msg=f'第{i + 1}轮题目：', receiver=msg.roomid)
                 self.wcf.send_text(msg='请在六十秒内回答，否则将跳过此题', receiver=msg.roomid)
                 cur_time = time.time()
@@ -1082,10 +1082,7 @@ class Room_Msg_Dispose:
                         receiver=msg.roomid, aters=msg.sender)
                     return
 
-    def send_at_msg(self, roomid, wxid, content):
-        at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"
-        self.wcf.send_text(msg=at_msg, receiver=roomid, aters=wxid)
-
+    # 烟花
     def play_fireworks(self, msg, num, type_="烟花", time_interval=1.8):
         for i in range(num):
             self.wcf.send_text(msg=f'[{type_}]', receiver=msg.roomid)
@@ -1095,7 +1092,7 @@ class Room_Msg_Dispose:
     def get_help(self, msg):
         OutPut.outPut(f'[*]: 正在调用Help功能菜单... ...')
         help_pic_path = PRJ_PATH + '/help.jpg'
-        self.wcf.send_image(path=help_pic_path, receiver=msg.roomid)
+        self.send_image_ensure_success(path=help_pic_path, receiver=msg.roomid)
         # send_msg = f"【一、积分功能】\n" \
         #            f"【1.1】、@机器人开启Ai对话\n" \
         #            f"【1.2】、GPT3.5\n" \
@@ -1211,7 +1208,7 @@ class Room_Msg_Dispose:
                         msg = f'[-]: 文生图接口出现错误，错误信息：{e}\n'
                         OutPut.outPut(msg)
                     if os.path.exists(save_path):
-                        self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                        self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
                         self.save_path = save_path
                     # usr_msg = f'@{wx_name}\n [{question}]：\n{url}'
                     usr_msg = f'@{wx_name}\n [{question}]：\n图片已发送，请查收！'
@@ -1261,7 +1258,7 @@ class Room_Msg_Dispose:
                             msg = f'[-]: Spark文生图接口出现错误，错误信息：{e}\n'
                             OutPut.outPut(msg)
                         if os.path.exists(save_path):
-                            self.wcf.send_image(path=save_path, receiver=msg.roomid)
+                            self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
                             self.save_path = save_path
                         # usr_msg = f'@{wx_name}\n [{question}]：\n{url}'
                         usr_msg = f'@{wx_name}\n [{question}]：\n图片已发送，请查收！'
@@ -1363,7 +1360,7 @@ class Room_Msg_Dispose:
             admin_msg = f'@{wx_name} 您是尊贵的管理员/超级管理员，本次操作不扣除积分'
             self.wcf.send_text(msg=admin_msg, receiver=msg.roomid, aters=msg.sender)
             pic_path = self.get_xiuren_pic_path()
-            self.wcf.send_image(path=pic_path, receiver=msg.roomid)
+            self.send_image_ensure_success(path=pic_path, receiver=msg.roomid)
         # 不是管理员
         else:
             if self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name) >= int(
@@ -1375,7 +1372,7 @@ class Room_Msg_Dispose:
                 scan_msg = f'@{wx_name} 您使用了隐藏功能-拒绝者，扣除您 {self.Port_Scan_Point} 点积分,\n当前剩余积分: {now_point}'
                 self.wcf.send_text(msg=scan_msg, receiver=msg.roomid, aters=msg.sender)
                 pic_path = self.get_xiuren_pic_path()
-                self.wcf.send_image(path=pic_path, receiver=msg.roomid)
+                self.send_image_ensure_success(path=pic_path, receiver=msg.roomid)
             else:
                 send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
                 self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)
@@ -1712,6 +1709,28 @@ class Room_Msg_Dispose:
             else:
                 print(f"文件 {random_path}")
                 return random_path
+
+    def send_at_msg(self, roomid, wxid, content):
+        at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"
+        self.wcf.send_text(msg=at_msg, receiver=roomid, aters=wxid)
+
+    def send_image_ensure_success(self, path, receiver):
+        if not os.path.exists(path):
+            return
+        try:
+            self.wcf.send_image(path=path, receiver=receiver)
+            time.sleep(0.1)
+            sql_query = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
+                        f'WHERE IsSender = 1 AND Type = 3 AND StrTalker = "{1}" ORDER BY localId DESC LIMIT 1;'
+            res = self.wcf.query_sql("MSG0.db", sql_query)
+            strContent = res[0].get('StrContent')
+            if "<msg>< img length=" in strContent:
+                OutPut.outPut(f'[-]: 图片发送失败，重新发送，回调中...')
+                return self.send_image_ensure_success(path, receiver)
+            return
+        except Exception as e:
+            OutPut.outPut(f'[-]: 图片发送失败，错误信息: {e}')
+            return
 
 
 def check_file(path):
