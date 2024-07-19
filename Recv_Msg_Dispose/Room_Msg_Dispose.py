@@ -594,6 +594,11 @@ class Room_Msg_Dispose:
                      '“放炸弹 3”\n'
                      '“放鞭炮 3 1.5”')
             self.send_at_msg(msg.roomid, msg.sender, reply)
+        elif self.judge_keyword(keyword=["撤回最新消息", "撤回消息"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                equal_bool=True):
+            Thread(target=self.recall_msg, name="撤回", args=(msg,)).start()
         elif self.judge_keyword(keyword=["测试"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -1710,6 +1715,21 @@ class Room_Msg_Dispose:
                 print(f"文件 {random_path}")
                 return random_path
 
+    def recall_msg(self, msg):
+        try:
+            sql_query = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
+                        f'WHERE IsSender = 1 AND StrTalker = "{msg.roomid}" ORDER BY localId DESC LIMIT 1;'
+            res = self.wcf.query_sql("MSG0.db", sql_query)
+            print(f"recall msg res = {res}")
+            # 撤回消息ID
+            msg_svr_id = res[0].get('MsgSvrID')
+            if msg_svr_id == 0:
+                OutPut.outPut(f'[-]: 撤回消息失败，消息ID为0')
+                return
+            self.wcf.revoke_msg(msg_svr_id)
+        except Exception as e:
+            OutPut.outPut(f'[-]: 撤回消息出现错误，错误信息: {e}')
+
     def send_at_msg(self, roomid, wxid, content):
         at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"
         self.wcf.send_text(msg=at_msg, receiver=roomid, aters=wxid)
@@ -1719,19 +1739,23 @@ class Room_Msg_Dispose:
             return
         try:
             self.wcf.send_image(path=path, receiver=receiver)
-            # 需要等待几秒后，数据才会更新
-            time.sleep(2)
+            time.sleep(0.2)
             sql_query = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
                         f'WHERE IsSender = 1 AND Type = 3 AND StrTalker = "{receiver}" ORDER BY localId DESC LIMIT 1;'
-            print(sql_query)
             res = self.wcf.query_sql("MSG0.db", sql_query)
-            print(res)
+            print(f"res = {res}")
+            local_id = res[0].get('localId')
+            time.sleep(5)
+            sql_query_again = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
+                              f'WHERE localId = {local_id};'
+            res_again = self.wcf.query_sql("MSG0.db", sql_query_again)
+            print(f"res_again = {res_again}")
             # 撤回消息ID
-            # MsgSvrID = res[0].get('MsgSvrID')
-            # if MsgSvrID == 0:
-            #     OutPut.outPut(f'[-]: 图片发送失败，重新发送，回调中...')
-            #     return self.send_image_ensure_success(path, receiver)
-            # return
+            msg_svr_id = res_again[0].get('MsgSvrID')
+            if msg_svr_id == 0:
+                OutPut.outPut(f'[-]: 图片发送失败，重新发送，回调中...')
+                return self.send_image_ensure_success(path, receiver)
+            return
         except Exception as e:
             OutPut.outPut(f'[-]: 图片发送失败，错误信息: {e}')
             return
