@@ -558,25 +558,31 @@ class Room_Msg_Dispose:
                        args=(msg.roomid, msg.sender, True)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 提醒查询失败 {e}')
-        elif self.judge_keyword(keyword=["放烟花", "放礼花"],
+        elif self.judge_keyword(keyword=["放烟花", "放礼花", "放炸弹", "放鞭炮"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
                                 split_bool=True,
                                 equal_bool=True):
             try:
-                if " " in msg.content.strip():
-                    num = int(msg.content.strip().split(' ', 1)[1])
-                    if num > 10:
-                        num = 10
+                content_list = msg.content.strip().split()
+                name = content_list[0]
+
+                if len(content_list) == 2:
+                    num = min(int(content_list[1]), 10)
+                    time_interval = 1.8
+                elif len(content_list) == 3:
+                    num = min(int(content_list[1]), 10)
+                    time_interval = min(float(content_list[2]), 3)
                 else:
                     num = 3
+                    time_interval = 1.8
             except Exception as e:
                 OutPut.outPut(f'[-]: 放烟花、放礼花解析失败 {e}')
-                num = 3
-            if "放礼花" in msg.content.strip():
-                Thread(target=self.play_fireworks, name="放礼花", args=(msg, num, "庆祝")).start()
-            else:
-                Thread(target=self.play_fireworks, name="放烟花", args=(msg, num)).start()
+                return
+
+            emoji_name = {"放烟花": "烟花", "放礼花": "庆祝", "放炸弹": "炸弹", "放鞭炮": "爆竹"}.\
+                get(name, "烟花")
+            Thread(target=self.play_fireworks, name="放烟花", args=(msg, num, emoji_name, time_interval)).start()
 
     # 积分功能
     def Point_Function(self, msg, at_user_lists):
@@ -1061,10 +1067,10 @@ class Room_Msg_Dispose:
         at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"
         self.wcf.send_text(msg=at_msg, receiver=roomid, aters=wxid)
 
-    def play_fireworks(self, msg, num, type_="烟花"):
+    def play_fireworks(self, msg, num, type_="烟花", time_interval=1.8):
         for i in range(num):
             self.wcf.send_text(msg=f'[{type_}]', receiver=msg.roomid)
-            time.sleep(1.8)
+            time.sleep(time_interval)
 
     # 帮助菜单
     def get_help(self, msg):
