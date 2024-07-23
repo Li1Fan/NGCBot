@@ -1745,17 +1745,23 @@ class Room_Msg_Dispose:
             res = self.wcf.query_sql("MSG0.db", sql_query)
             print(f"res = {res}")
             local_id = res[0].get('localId')
-            time.sleep(5)
-            sql_query_again = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
-                              f'WHERE localId = {local_id};'
-            res_again = self.wcf.query_sql("MSG0.db", sql_query_again)
-            print(f"res_again = {res_again}")
-            # 撤回消息ID
-            msg_svr_id = res_again[0].get('MsgSvrID')
-            if msg_svr_id == 0:
-                OutPut.outPut(f'[-]: 图片发送失败，重新发送，回调中...')
-                return self.send_image_ensure_success(path, receiver)
-            return
+
+            def ensure(local_id, path, receiver):
+                time.sleep(5)
+                sql_query_again = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
+                                  f'WHERE localId = {local_id};'
+                res_again = self.wcf.query_sql("MSG0.db", sql_query_again)
+                print(f"res_again = {res_again}")
+                # 撤回消息ID
+                msg_svr_id = res_again[0].get('MsgSvrID')
+                if msg_svr_id == 0:
+                    OutPut.outPut(f'[-]: 图片发送失败，重新发送，回调中...')
+                    return self.send_image_ensure_success(path, receiver)
+                return
+
+            thread_ensure = threading.Thread(target=ensure, args=(local_id, path, receiver))
+            thread_ensure.start()
+
         except Exception as e:
             OutPut.outPut(f'[-]: 图片发送失败，错误信息: {e}')
             return
