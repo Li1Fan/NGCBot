@@ -246,16 +246,16 @@ class Room_Msg_Dispose:
                                 split_bool=True):
             Thread(target=self.Del_Point, name="减少积分",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
-        # 早报
-        elif self.judge_keyword(keyword=self.Morning_Page_Words, msg=msg.content.strip(), list_bool=True,
-                                equal_bool=True):
-            send_msg = self.Ams.get_freebuf_news()
-            self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
-        # 晚报
-        elif self.judge_keyword(keyword=self.Evening_Page_Words, msg=msg.content.strip(), list_bool=True,
-                                equal_bool=True):
-            send_msg = self.Ams.get_safety_news()
-            self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
+        # # 早报
+        # elif self.judge_keyword(keyword=self.Morning_Page_Words, msg=msg.content.strip(), list_bool=True,
+        #                         equal_bool=True):
+        #     send_msg = self.Ams.get_freebuf_news()
+        #     self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
+        # # 晚报
+        # elif self.judge_keyword(keyword=self.Evening_Page_Words, msg=msg.content.strip(), list_bool=True,
+        #                         equal_bool=True):
+        #     send_msg = self.Ams.get_safety_news()
+        #     self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
         # 添加白名单公众号
         elif msg.type == 49:
             Thread(target=self.add_white_gh, name="添加白名单公众号", args=(msg,)).start()
@@ -284,6 +284,11 @@ class Room_Msg_Dispose:
         elif msg.content.strip() in ['普通画画', '普通画画模型', '普通画画模式']:
             self.Ams.is_advanced_drawing = False
             self.wcf.send_text(msg=f'已经切换为普通画画模型', receiver=msg.roomid, aters=msg.sender)
+        elif self.judge_keyword(keyword=["撤回最新消息", "撤回消息"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                equal_bool=True):
+            Thread(target=self.recall_msg, name="撤回", args=(msg,)).start()
         Thread(target=self.OrdinaryRoom_Function, name="普通群聊功能", args=(msg, at_user_lists)).start()
 
     # 白名单群聊功能
