@@ -871,6 +871,77 @@ class Api_Main_Server:
             OutPut.outPut(f'[-] 搜图API接口调用失败，错误信息：{e}')
             return None
 
+    @staticmethod
+    def search_song(msg):
+        OutPut.outPut(f'[*] 正在调用搜歌API接口...')
+        try:
+            url = f"http://www.hhlqilongzhu.cn/api/dg_kugouSQ.php?msg={msg}&n="
+            res = requests.get(url, timeout=30)
+            content = res.text
+            print(content)
+
+            if content:
+                OutPut.outPut('[+] 搜歌API接口调用成功！！！')
+                return content, url
+            else:
+                OutPut.outPut(f'[-] 搜歌API接口返回错误')
+                return None, None
+
+        except Exception as e:
+            OutPut.outPut(f'[-] 搜歌API接口调用失败，错误信息：{e}')
+            return None, None
+
+    @staticmethod
+    def parse_song_url(url):
+        OutPut.outPut(f'[*] 正在调用解析歌曲链接API接口...')
+        try:
+            res = requests.get(url, timeout=30)
+            content = res.text
+            print(content)
+
+            # 使用正则表达式进行解析
+            pattern = r'±img=(?P<img>.*?)±\s*歌名：(?P<歌名>.*?)\s*歌手：(?P<歌手>.*?)\s*歌曲详情页：(?P<歌曲详情页>.*?)\s*播放链接：(?P<播放链接>.*)'
+
+            match = re.match(pattern, content)
+            if match:
+                data_dict = match.groupdict()
+                # 打印字典
+                print(data_dict)
+            else:
+                print("无法解析字符串为字典格式")
+                data_dict = None
+
+            if data_dict:
+                OutPut.outPut('[+] 解析歌曲链接API接口调用成功！！！')
+                return data_dict
+            else:
+                OutPut.outPut(f'[-] 解析歌曲链接API接口返回错误')
+                return None
+
+        except Exception as e:
+            OutPut.outPut(f'[-] 解析歌曲链接API接口调用失败，错误信息：{e}')
+            return None
+
+    @staticmethod
+    def download_song(song_info):
+        OutPut.outPut(f'[*] 正在调用下载歌曲API接口...')
+        try:
+            song_url = song_info['播放链接']
+            res = requests.get(song_url, timeout=30)
+            content = res.content
+
+            save_path = os.path.join('./', 'Pic_Cache', f"{song_info['歌手']}-{song_info['歌名']}.flac")
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)  # 确保保存路径存在
+            with open(save_path, 'wb') as song_file:
+                song_file.write(content)
+
+            OutPut.outPut('[+] 下载歌曲API接口调用成功！！！')
+            return save_path
+
+        except Exception as e:
+            OutPut.outPut(f'[-] 下载歌曲API接口调用失败，错误信息：{e}')
+            return None
+
     # 内涵段子
     def get_duanzi(self):
         OutPut.outPut(f'[*]: 正在调用内涵段子接口... ...')
@@ -1226,4 +1297,6 @@ if __name__ == '__main__':
     # print(Ams.get_attribution('归属查询 121264'))
     # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
     # print(Ams.get_metaso('The Falconeer: Standard Edition', "detail"))
-    print(Ams.search_image('大象'))
+    # print(Ams.search_song('大象'))
+    info = Ams.parse_song_url('https://www.hhlqilongzhu.cn/api/dg_kugouSQ.php?msg=%E5%91%A8%E6%9D%B0%E4%BC%A6&n=1')
+    print(Ams.download_song(info))
