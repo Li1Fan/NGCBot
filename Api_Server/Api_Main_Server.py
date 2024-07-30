@@ -875,7 +875,8 @@ class Api_Main_Server:
     def search_song(msg):
         OutPut.outPut(f'[*] 正在调用搜歌API接口...')
         try:
-            url = f"http://www.hhlqilongzhu.cn/api/dg_kugouSQ.php?msg={msg}&n="
+            # url = f"http://www.hhlqilongzhu.cn/api/dg_kugouSQ.php?msg={msg}&n="
+            url = f"https://www.hhlqilongzhu.cn/api/dg_kgmusic.php?gm={msg}&n="
             res = requests.get(url, timeout=30)
             content = res.text
             print(content)
@@ -922,15 +923,15 @@ class Api_Main_Server:
             OutPut.outPut(f'[-] 解析歌曲链接API接口调用失败，错误信息：{e}')
             return None
 
-    @staticmethod
-    def download_song(song_info):
+    def download_song(self, song_info):
         OutPut.outPut(f'[*] 正在调用下载歌曲API接口...')
         try:
             song_url = song_info['播放链接']
             res = requests.get(song_url, timeout=30)
             content = res.content
 
-            save_path = os.path.join('./', 'Pic_Cache', f"{song_info['歌手']}-{song_info['歌名']}.flac")
+            # save_path = os.path.join(self.Cache_path, 'Music_Cache', f"{song_info['歌手']}-{song_info['歌名']}.flac")
+            save_path = os.path.join(self.Cache_path, 'Music_Cache', f"{song_info['歌手']}-{song_info['歌名']}.mp3")
             os.makedirs(os.path.dirname(save_path), exist_ok=True)  # 确保保存路径存在
             with open(save_path, 'wb') as song_file:
                 song_file.write(content)
@@ -940,6 +941,14 @@ class Api_Main_Server:
 
         except Exception as e:
             OutPut.outPut(f'[-] 下载歌曲API接口调用失败，错误信息：{e}')
+            return None
+
+    def down_song_by_url(self, url):
+        song_info = self.parse_song_url(url)
+        if song_info:
+            song_path = self.download_song(song_info)
+            return song_path
+        else:
             return None
 
     # 内涵段子

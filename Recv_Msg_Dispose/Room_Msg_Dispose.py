@@ -113,6 +113,8 @@ class Room_Msg_Dispose:
         # 启动撤回消息删除线程
         self.thread_del_recall_msg_dict = threading.Thread(target=self.del_recall_msg_dict)
         self.thread_del_recall_msg_dict.start()
+        # 搜歌链接
+        self.search_link_dict = {}
 
     def save_state(self):
         self.state['manager_mode_rooms'] = self.manager_mode_rooms
@@ -144,7 +146,8 @@ class Room_Msg_Dispose:
                     if not wx_name:
                         wx_name = self.wcf.get_info_by_wxid(wxid=msg.sender).get("name")
                     if recall_type == 1:
-                        self.wcf.send_text(msg=f'【{wx_name}】 撤回了\n{recall_msg.get("content", "")}', receiver=msg.roomid)
+                        self.wcf.send_text(msg=f'【{wx_name}】 撤回了\n{recall_msg.get("content", "")}',
+                                           receiver=msg.roomid)
                     else:
                         self.wcf.send_text(msg=f'【{wx_name}】 撤回了一条消息', receiver=msg.roomid)
                         self.send_image_ensure_success(path=recall_msg.get("content", ""), receiver=msg.roomid)
@@ -669,6 +672,29 @@ class Room_Msg_Dispose:
                 ret = f'[*]: 搜图API接口返回值：{save_path}'
                 OutPut.outPut(ret)
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
+        elif self.judge_keyword(keyword=["搜歌", "搜歌曲"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                split_bool=True):
+            search_msg = msg.content.strip().split(' ', 1)[1].strip()
+            music_msg, music_link = self.Ams.search_song(search_msg)
+            if music_msg:
+                introduce_msg = "请回复“选歌 歌曲序号”进行播放，将以文件形式发送"
+                self.send_at_msg(msg.roomid, msg.sender, introduce_msg + '\n\n' + music_msg)
+                self.search_link_dict[msg.roomid] = music_link
+        elif self.judge_keyword(keyword=["选歌", "选歌曲"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                split_bool=True):
+            chose_msg = msg.content.strip().split(' ', 1)[1].strip()
+            if chose_msg.isdigit() and 0 < int(chose_msg) <= 20:
+                music_link = self.search_link_dict.get(msg.roomid, "")
+                if music_link:
+                    music_link = music_link + chose_msg
+                    music_file_path = self.Ams.down_song_by_url(music_link)
+                    if music_file_path:
+                        self.wcf.send_file(path=music_file_path, receiver=msg.roomid)
+
         elif self.judge_keyword(keyword=["测试"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
