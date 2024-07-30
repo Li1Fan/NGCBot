@@ -1,3 +1,4 @@
+import json
 import os
 import random
 import re
@@ -83,8 +84,12 @@ class Room_Msg_Dispose:
         self.Ai_Point = config['Point_Config']['Function_Point']['Ai_point']
         self.Port_Scan_Point = config['Point_Config']['Function_Point']['Port_Scan']
 
-        # 管理员模式
-        self.manager_mode_rooms = {}
+        # 读取状态配置文件
+        self.state_json_file = PRJ_PATH + '/Config/state.json'
+        self.state = load_state_file(self.state_json_file)
+
+        # 管理员模式 {"room_id": True}
+        self.manager_mode_rooms = self.state.get('manager_mode_rooms', {})
         # 游戏模式
         self.game_mode_rooms = {}
         self.game_point = {}
@@ -102,12 +107,17 @@ class Room_Msg_Dispose:
         self.counter_lock = threading.Lock()
         # 屏蔽
         self.block_wx_ids = ['wxid_5neoavqeubzm22']
-        # 防撤回功能
+        # 防撤回功能 {"room_id": True}
         self.recall_msg_dict = {}
-        self.recall_mode_rooms = {}
+        self.recall_mode_rooms = self.state.get('recall_mode_rooms', {})
         # 启动撤回消息删除线程
         self.thread_del_recall_msg_dict = threading.Thread(target=self.del_recall_msg_dict)
         self.thread_del_recall_msg_dict.start()
+
+    def save_state(self):
+        self.state['manager_mode_rooms'] = self.manager_mode_rooms
+        self.state['recall_mode_rooms'] = self.recall_mode_rooms
+        save_state_file(self.state_json_file, self.state)
 
     def del_recall_msg_dict(self):
         while True:
@@ -292,15 +302,19 @@ class Room_Msg_Dispose:
         elif msg.content.strip() in ['开启管理员模式', '管理员模式']:
             self.manager_mode_rooms[msg.roomid] = True
             self.wcf.send_text(msg=f'管理员模式开启成功，仅响应管理员消息', receiver=msg.roomid, aters=msg.sender)
+            self.save_state()
         elif msg.content.strip() in ['关闭管理员模式', '取消管理员模式', '退出管理员模式', '普通模式']:
             self.manager_mode_rooms[msg.roomid] = False
             self.wcf.send_text(msg=f'管理员模式关闭成功，恢复正常消息响应', receiver=msg.roomid, aters=msg.sender)
+            self.save_state()
         elif msg.content.strip() in ['开启防撤回', '开启防撤回功能']:
             self.recall_mode_rooms[msg.roomid] = True
             self.wcf.send_text(msg=f'已开启防撤回', receiver=msg.roomid, aters=msg.sender)
+            self.save_state()
         elif msg.content.strip() in ['关闭防撤回', '关闭防撤回功能']:
             self.recall_mode_rooms[msg.roomid] = False
             self.wcf.send_text(msg=f'已关闭防撤回', receiver=msg.roomid, aters=msg.sender)
+            self.save_state()
         elif msg.content.strip() in ['高级画画', '高级画画模型', '高级画画模式']:
             self.Ams.is_advanced_drawing = True
             self.wcf.send_text(msg=f'已经切换为高级画画模型', receiver=msg.roomid, aters=msg.sender)
@@ -622,11 +636,6 @@ class Room_Msg_Dispose:
                      '“放炸弹 3”\n'
                      '“放鞭炮 3 1.5”')
             self.send_at_msg(msg.roomid, msg.sender, reply)
-        elif self.judge_keyword(keyword=["撤回最新消息", "撤回消息"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                equal_bool=True):
-            Thread(target=self.recall_msg, name="撤回", args=(msg,)).start()
         elif self.judge_keyword(keyword=["测试"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -1801,3 +1810,18 @@ def check_file(path):
         if file_size > 5120:  # 5KB
             return True
     return False
+
+
+# 保存状态到文件
+def save_state_file(filename, data):
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+
+
+# 加载状态从文件
+def load_state_file(filename):
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
