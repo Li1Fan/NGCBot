@@ -383,7 +383,11 @@ Api_Server:
   Port_Scan_Api: 'https://amap.fofa.info/host/{}'
 
   # 摸鱼日记API
-  Fish_Api: 'https://api.vvhan.com/api/moyu'
+  Fish_Api:
+#  'https://api.vvhan.com/api/moyu'
+    - 'https://api.j4u.ink/v1/store/redirect/moyu/calendar/today.png'
+    - 'https://api.52vmy.cn/api/wl/moyu'
+    - 'https://dayu.qqsuu.cn/moyuribao/apis.php'
   # 疯狂星期四文案Api
   Kfc_Api: 'https://api.pearktrue.cn/api/kfc'
   # Whois查询API

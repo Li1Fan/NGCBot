@@ -830,7 +830,8 @@ class Api_Main_Server:
         OutPut.outPut(f'[*]: 正在调用摸鱼日记接口... ...')
         save_path = self.Cache_path + '/Fish_Cache/' + str(int(time.time() * 1000)) + '.jpg'
         try:
-            pic_data = requests.get(url=self.Fish_Api, headers=self.headers, timeout=30, verify=False).content
+            url = random.choice(self.Fish_Api)
+            pic_data = requests.get(url=url, timeout=30, verify=True).content
             with open(file=save_path, mode='wb') as pd:
                 pd.write(pic_data)
         except Exception as e:
@@ -844,7 +845,16 @@ class Api_Main_Server:
         OutPut.outPut(f'[*] 正在调用搜图API接口...')
         try:
             if self.search_pic_mode == "baidu":
-                url = f"https://api.52vmy.cn/api/img/baidu?msg={msg}"
+                # url = f"https://api.52vmy.cn/api/img/baidu?msg={msg}"
+                url = f"https://api.suyanw.cn/api/baidu_image_search.php?msg={msg}"
+                save_path = os.path.join(self.Cache_path, 'Pic_Cache', f"{msg}-{int(time.time() * 1000)}.jpg")
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)  # 确保保存路径存在
+                pic_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).content
+                with open(file=save_path, mode='wb') as pd:
+                    pd.write(pic_data)
+                OutPut.outPut('[+] 搜图API接口调用成功！！！')
+                return save_path
+
             elif self.search_pic_mode == "360":
                 url = f"https://api.52vmy.cn/api/img/360?msg={msg}"
             else:
