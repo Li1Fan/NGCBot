@@ -112,6 +112,8 @@ class Api_Main_Server:
 
         # 是否为高级画画模式
         self.is_advanced_drawing = False
+        # 搜图模式
+        self.search_pic_mode = 'baidu'
 
     # Ai功能
     def get_ai(self, question, model=None):
@@ -838,6 +840,37 @@ class Api_Main_Server:
         OutPut.outPut(f'[+]: 摸鱼日记API接口调用成功！！！')
         return save_path
 
+    def search_image(self, msg):
+        OutPut.outPut(f'[*] 正在调用搜图API接口...')
+        try:
+            if self.search_pic_mode == "baidu":
+                url = f"https://api.52vmy.cn/api/img/baidu?msg={msg}"
+            elif self.search_pic_mode == "360":
+                url = f"https://api.52vmy.cn/api/img/360?msg={msg}"
+            else:
+                url = f"https://api.52vmy.cn/api/img/sogo?msg={msg}"
+            res = requests.get(url, timeout=30)
+            json_data = res.json()
+            print(json_data)
+
+            if json_data['code'] == 200:
+                image_url = json_data['data']['url']
+                image_data = requests.get(image_url, headers=self.headers, timeout=30).content
+                save_path = os.path.join(self.Cache_path, 'Pic_Cache', f"{msg}-{int(time.time() * 1000)}.jpg")
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)  # 确保保存路径存在
+                with open(save_path, 'wb') as img_file:
+                    img_file.write(image_data)
+
+                OutPut.outPut('[+] 搜图API接口调用成功！！！')
+                return save_path
+            else:
+                OutPut.outPut(f'[-] 搜图API接口返回错误：{json_data["msg"]}')
+                return None
+
+        except Exception as e:
+            OutPut.outPut(f'[-] 搜图API接口调用失败，错误信息：{e}')
+            return None
+
     # 内涵段子
     def get_duanzi(self):
         OutPut.outPut(f'[*]: 正在调用内涵段子接口... ...')
@@ -1193,4 +1226,4 @@ if __name__ == '__main__':
     # print(Ams.get_attribution('归属查询 121264'))
     # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
     # print(Ams.get_metaso('The Falconeer: Standard Edition', "detail"))
-    print(Ams.get_60s_by_request())
+    print(Ams.search_image('大象'))

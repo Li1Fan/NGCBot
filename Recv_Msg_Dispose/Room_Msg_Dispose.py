@@ -321,6 +321,15 @@ class Room_Msg_Dispose:
         elif msg.content.strip() in ['普通画画', '普通画画模型', '普通画画模式']:
             self.Ams.is_advanced_drawing = False
             self.wcf.send_text(msg=f'已经切换为普通画画模型', receiver=msg.roomid, aters=msg.sender)
+        elif msg.content.strip() in ['360', '360搜图', '360搜图模式']:
+            self.Ams.search_pic_mode = "360"
+            self.wcf.send_text(msg=f'已经切换为360搜图模式', receiver=msg.roomid, aters=msg.sender)
+        elif msg.content.strip() in ['百度', '百度搜图', '百度搜图模式', "baidu"]:
+            self.Ams.search_pic_mode = "baidu"
+            self.wcf.send_text(msg=f'已经切换为百度搜图模式', receiver=msg.roomid, aters=msg.sender)
+        elif msg.content.strip() in ['搜狗', '搜狗搜图', '搜狗搜图模式', "sogou"]:
+            self.Ams.search_pic_mode = "sogou"
+            self.wcf.send_text(msg=f'已经切换为搜狗搜图模式', receiver=msg.roomid, aters=msg.sender)
         elif self.judge_keyword(keyword=["撤回最新消息", "撤回消息"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -650,6 +659,16 @@ class Room_Msg_Dispose:
                      '“放炸弹 3”\n'
                      '“放鞭炮 3 1.5”')
             self.send_at_msg(msg.roomid, msg.sender, reply)
+        elif self.judge_keyword(keyword=["搜图", "搜图片"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                split_bool=True):
+            search_msg = msg.content.strip().split(' ', 1)[1].strip()
+            save_path = self.Ams.search_image(search_msg)
+            if save_path:
+                ret = f'[*]: 搜图API接口返回值：{save_path}'
+                OutPut.outPut(ret)
+                self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
         elif self.judge_keyword(keyword=["测试"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -1291,6 +1310,7 @@ class Room_Msg_Dispose:
 
                 if question and question.startswith("画"):
                     model = 'image'
+                    question = question[1:]
 
                 if model != 'image':
                     use_msg = f'@{wx_name}\n' + self.Ams.get_ai(
