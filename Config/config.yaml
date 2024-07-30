@@ -385,6 +385,7 @@ Api_Server:
   # 摸鱼日记API
   Fish_Api:
 #  'https://api.vvhan.com/api/moyu'
+#  'https://dayu.qqsuu.cn/moyuribaoshipin/apis.php'
     - 'https://api.j4u.ink/v1/store/redirect/moyu/calendar/today.png'
     - 'https://api.52vmy.cn/api/wl/moyu'
     - 'https://dayu.qqsuu.cn/moyuribao/apis.php'
