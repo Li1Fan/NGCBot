@@ -1749,14 +1749,19 @@ class Room_Msg_Dispose:
                                 thumburl='https://tool.liumingye.cn/music/img/pwa-192x192.png',
                                 receiver=receiver)
 
-    def get_xiuren_pic_path(self):
-        root_dir = self.current_path + '/../XiuRen_downloads'
+    @staticmethod
+    def get_xiuren_pic_path():
+        # root_dir = self.current_path + '/../XiuRen_downloads'
+        # root_dir = r'E:/system/XiuRen_downloads'
+        root_dir = r'E:/system/XiuRen_jpgs2'
 
         def generate_path():
-            page_number = random.randint(1, 59)
-            second_number = random.randint(1, 24)
-            image_number = random.randint(0, 4)
-            return f"{root_dir}/page_{page_number}/{second_number}/image_{image_number}.jpg"
+            # page_number = random.randint(1, 59)
+            # second_number = random.randint(1, 24)
+            # image_number = random.randint(0, 4)
+            # return f"{root_dir}/page_{page_number}/{second_number}/image_{image_number}.jpg"
+            image_number = random.randint(1, 5984)
+            return f"{root_dir}/{image_number}.jpg"
 
         while True:
             random_path = generate_path()
