@@ -128,18 +128,41 @@ class Room_Msg_Dispose:
                 msg_id = str(msg_id)
                 if msg_id in self.recall_msg_dict.keys():
                     recall_msg = self.recall_msg_dict[msg_id]
+                    recall_type = recall_msg.get("type")
                     wx_name = self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)
                     # 如果获取不到群昵称，则获取微信昵称
                     if not wx_name:
                         wx_name = self.wcf.get_info_by_wxid(wxid=msg.sender).get("name")
-                    self.wcf.send_text(msg=f'【{wx_name}】 撤回了\n{recall_msg.get("content", "")}', receiver=msg.roomid)
+                    if recall_type == 1:
+                        self.wcf.send_text(msg=f'【{wx_name}】 撤回了\n{recall_msg.get("content", "")}', receiver=msg.roomid)
+                    else:
+                        self.wcf.send_text(msg=f'【{wx_name}】 撤回了一条消息', receiver=msg.roomid)
+                        self.send_image_ensure_success(path=recall_msg.get("content", ""), receiver=msg.roomid)
                     self.recall_msg_dict.pop(msg_id)
             # 普通文本消息
             elif msg.type == 1:
                 with self.counter_lock:
                     self.recall_msg_dict.update(
                         {str(msg.id): {'sender': msg.sender, 'roomid': msg.roomid, 'ts': msg.ts,
-                                       'content': msg.content}})
+                                       'content': msg.content, 'type': msg.type}})
+            # 图片消息
+            elif msg.type == 3:
+                with self.counter_lock:
+                    img_dir = PRJ_PATH + '/Pic/recall_image'
+
+                    time.sleep(1)
+                    img_path = self.wcf.download_image(msg.id, msg.extra, img_dir)
+                    # 如果下载失败，再次下载一次
+                    if not img_path:
+                        time.sleep(1)
+                        img_path = self.wcf.download_image(msg.id, msg.extra, img_dir)
+
+                    if img_path:
+                        self.recall_msg_dict.update(
+                            {str(msg.id): {'sender': msg.sender, 'roomid': msg.roomid, 'ts': msg.ts,
+                                           'content': img_path, 'type': msg.type}})
+                    else:
+                        OutPut.outPut(f"[-]: 图片下载失败 {msg.id}")
         except Exception as e:
             print(traceback.format_exc())
             OutPut.outPut(f"[-]: 撤回消息处理失败 {e}")
