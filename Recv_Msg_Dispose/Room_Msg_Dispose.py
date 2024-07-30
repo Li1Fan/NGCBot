@@ -326,6 +326,20 @@ class Room_Msg_Dispose:
                                 list_bool=True,
                                 equal_bool=True):
             Thread(target=self.recall_msg, name="撤回", args=(msg,)).start()
+        elif self.judge_keyword(keyword=["查询数据库", 'sql'],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                split_bool=True):
+            try:
+                _, db, query = msg.content.strip().split(' ', 2)
+                print(db, query)
+                # "MSG0.db"
+                result = self.wcf.query_sql(db, query)
+                result = str(result)
+                self.wcf.send_text(msg=result, receiver=msg.roomid, aters=msg.sender)
+            except Exception as e:
+                OutPut.outPut(f'[-]: 查询数据库失败 {e}')
+
         Thread(target=self.OrdinaryRoom_Function, name="普通群聊功能", args=(msg, at_user_lists)).start()
 
     # 白名单群聊功能
