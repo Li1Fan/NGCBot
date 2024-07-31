@@ -161,7 +161,7 @@ class Room_Msg_Dispose:
             # 图片消息
             elif msg.type == 3:
                 with self.counter_lock:
-                    img_dir = PRJ_PATH + '/Pic/recall_image'
+                    img_dir = PRJ_PATH + '/Cache/Recall_Pic_Cache'
 
                     time.sleep(1)
                     img_path = self.wcf.download_image(msg.id, msg.extra, img_dir)

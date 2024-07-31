@@ -10,6 +10,8 @@ class Cache_Main_Server:
         self.video_cache = current_path + '/Video_Cache'
         self.fish_cache = current_path + '/Fish_Cache'
         self.pic_cache = current_path + '/Pic_Cache'
+        self.music_cache = current_path + '/Music_Cache'
+        self.recall_pic_cache = current_path + '/Recall_Pic_Cache'
 
     # 初始化缓存文件夹
     def init_cache(self):
@@ -36,6 +38,8 @@ class Cache_Main_Server:
                 file_lists += [self.video_cache + '/' + file for file in os.listdir(self.video_cache)]
                 file_lists += [self.fish_cache + '/' + file for file in os.listdir(self.fish_cache)]
                 file_lists += [self.pic_cache + '/' + file for file in os.listdir(self.pic_cache)]
+                file_lists += [self.music_cache + '/' + file for file in os.listdir(self.music_cache)]
+                file_lists += [self.recall_pic_cache + '/' + file for file in os.listdir(self.recall_pic_cache)]
                 for rm_file in file_lists:
                     os.remove(rm_file)
             except Exception as e:
