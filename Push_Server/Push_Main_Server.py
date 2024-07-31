@@ -110,10 +110,15 @@ class Push_Main_Server:
     @check_workday
     def push_60s(self):
         OutPut.outPut('[*]: 定时60s推送中... ...')
-        msg = self.Ams.get_60s()
-        room_dicts = self.Dms.show_push_rooms()
-        for room_id in room_dicts.keys():
-            self.wcf.send_text(msg=msg, receiver=room_id)
+        # msg = self.Ams.get_60s()
+        # room_dicts = self.Dms.show_push_rooms()
+        # for room_id in room_dicts.keys():
+        #     self.wcf.send_text(msg=msg, receiver=room_id)
+        save_path = self.Ams.get_60s_pic()
+        if save_path:
+            room_dicts = self.Dms.show_push_rooms()
+            for room_id in room_dicts.keys():
+                self.wcf.send_image(path=save_path, receiver=room_id)
         OutPut.outPut('[+]: 定时60s推送成功！！！')
 
     # 早报推送

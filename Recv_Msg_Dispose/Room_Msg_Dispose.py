@@ -426,9 +426,12 @@ class Room_Msg_Dispose:
             self.wcf.send_text(msg=joke_msg, receiver=msg.roomid, aters=msg.sender)
         # 60s
         elif self.judge_keyword(keyword=self.s60_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            s60_msg = self.Ams.get_60s()
-            if s60_msg:
-                self.wcf.send_text(msg=s60_msg, receiver=msg.roomid, aters=msg.sender)
+            # s60_msg = self.Ams.get_60s()
+            # if s60_msg:
+            #     self.wcf.send_text(msg=s60_msg, receiver=msg.roomid, aters=msg.sender)
+            save_path = self.Ams.get_60s_pic()
+            if save_path:
+                self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
         elif self.judge_keyword(keyword=["60s图片", "60图片", "60pic", "60spic"], msg=msg.content.strip(),
                                 list_bool=True,
                                 equal_bool=True):
