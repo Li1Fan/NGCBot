@@ -91,6 +91,14 @@ def generate_meme_png(filename):
     return meme_file
 
 
+def generate_meme_all(filename):
+    emoji = random.choice(all_emojis)
+    meme_file = generate_meme(filename, emoji)
+    if not meme_file:
+        return generate_meme_png(filename)
+    return meme_file
+
+
 if __name__ == "__main__":
     filename = "../head.jpg"
     print(generate_meme_png(filename))

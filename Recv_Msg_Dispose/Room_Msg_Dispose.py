@@ -711,7 +711,10 @@ class Room_Msg_Dispose:
             if head_img:
                 save_path = self.Ams.magic_emoji_by_head(head_img)
                 if save_path:
-                    self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
+                    if save_path.endswith('.gif'):
+                        self.wcf.send_emotion(path=save_path, receiver=msg.roomid)
+                    else:
+                        self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
         elif self.judge_keyword(keyword=["测试"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
