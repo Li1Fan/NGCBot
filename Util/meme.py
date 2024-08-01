@@ -211,6 +211,16 @@ def generate_meme(filename, emoji, texts=None):
         args = {"circle": True}
         data = {"texts": texts, "args": json.dumps(args)}
 
+        wxid = os.path.basename(filename).split(".")[0]
+
+        img_dir = PRJ_PATH + '/Cache/Meme_Cache'
+        os.makedirs(img_dir, exist_ok=True)
+
+        if os.path.exists(f"{img_dir}/{wxid}_{emoji}.gif"):
+            return f"{img_dir}/{wxid}_{emoji}.gif"
+        if os.path.exists(f"{img_dir}/{wxid}_{emoji}.jpg"):
+            return f"{img_dir}/{wxid}_{emoji}.jpg"
+
         url = f"http://192.168.222.108:2233/memes/{emoji}/"
         resp = requests.post(url, files=files, data=data)
         if resp.status_code != 200:
