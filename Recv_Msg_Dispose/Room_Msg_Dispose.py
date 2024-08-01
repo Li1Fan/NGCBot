@@ -762,7 +762,7 @@ class Room_Msg_Dispose:
                                 list_bool=True,
                                 split_bool=True):
             return
-        elif self.judge_keyword(keyword=["随机表情", "个性表情", "头像表情", "魔法表情"],
+        elif self.judge_keyword(keyword=["随机表情", "个性表情", "头像表情", "魔法表情", "个性头像"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
                                 equal_bool=True):
