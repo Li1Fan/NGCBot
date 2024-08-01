@@ -857,6 +857,9 @@ class Api_Main_Server:
                 save_path = os.path.join(self.Cache_path, 'Pic_Cache', f"{int(time.time() * 1000)}.jpg")
                 os.makedirs(os.path.dirname(save_path), exist_ok=True)  # 确保保存路径存在
                 pic_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).content
+                if not pic_data:
+                    OutPut.outPut('[~] 搜图API接口调用失败！！！')
+                    return None
                 with open(file=save_path, mode='wb') as pd:
                     pd.write(pic_data)
                 OutPut.outPut('[+] 搜图API接口调用成功！！！')
@@ -1328,6 +1331,7 @@ if __name__ == '__main__':
     # # Ams.get_constellation('运势查询 白羊')
     print(Ams.get_morning())
     print(Ams.get_soup())
+    print(Ams.search_image("taylor"))
     # # print(Ams.get_whois('whois查询 qq.com'))
     # # print(Ams.get_attribution('归属查询 121264'))
     # # print(Ams.get_icp('备案查询 qzzz2131231q.com'))
