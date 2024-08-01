@@ -1863,6 +1863,7 @@ class Room_Msg_Dispose:
                 at_user_lists = at_user_lists.split(',')
             else:
                 at_user_lists = [at_user_lists]
+            at_user_lists = [i.strip() for i in at_user_lists]
         except AttributeError:
             OutPut.outPut(f'[~]: 获取被@的微信id出了点小问题, 不用管 ~~~')
             at_user_lists = []
