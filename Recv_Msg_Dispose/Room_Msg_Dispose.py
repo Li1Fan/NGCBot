@@ -1871,11 +1871,13 @@ class Room_Msg_Dispose:
             if os.path.exists(file_path):
                 return file_path
 
+            time.sleep(0.5)
             sql_query = f'SELECT usrName,smallHeadBuf FROM ContactHeadImg1 WHERE usrName="{msg.sender}";'
             res = self.wcf.query_sql("Misc.db", sql_query)
             # print(f"head img res = {res}")
 
             if not res:
+                OutPut.outPut(f'[-]: 获取头像失败，未找到头像信息')
                 return
             head_img_buf = res[0].get('smallHeadBuf')
 
