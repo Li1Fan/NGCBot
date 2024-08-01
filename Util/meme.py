@@ -204,4 +204,4 @@ if __name__ == "__main__":
     # filename = "../head.jpg"
     # print(generate_random_jpg_by_jpg(filename))
     # test()
-    print(' '.join(all_emojis_dict_with_jpg_keys))
+    print(all_emojis_dict_with_jpg_keys)

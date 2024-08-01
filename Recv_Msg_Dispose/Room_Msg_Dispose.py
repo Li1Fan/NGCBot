@@ -779,12 +779,12 @@ class Room_Msg_Dispose:
                                 msg=msg.content.strip(),
                                 list_bool=True,
                                 equal_bool=True):
-            reply = '表情选项：\n' + ' '.join(all_emojis_dict_with_jpg_keys)
+            reply = '表情选项：\n' + '、'.join(all_emojis_dict_with_jpg_keys)
             self.send_at_msg(msg.roomid, msg.sender, reply)
             return
         # 个性表情功能
         elif self.judge_keyword(keyword=all_emojis_dict_with_jpg_keys, msg=self.handle_atMsg(msg, at_user_lists),
-                                list_bool=True, split_bool=True):
+                                list_bool=True, equal_bool=True):
             Thread(target=self.gen_emoji, name="个性表情",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
             return

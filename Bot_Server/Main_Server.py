@@ -29,7 +29,7 @@ class Main_Server:
         self.JoinRoom_Msg = config['Function_Key_Word']['JoinRoom_Msg']
         self.AcceptFriend_Msg = config['Custom_Msg']['AcceptFriend_Msg']
 
-        self.wcf = Wcf(port=random.randint(20000, 40000))
+        self.wcf = Wcf(port=17777)
         # 判断登录
         self.is_login()
 
