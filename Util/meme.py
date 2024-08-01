@@ -199,6 +199,7 @@ all_emojis_dict_with_jpg = {'膜拜': 'worship', '膜': 'worship', '木鱼': 'wo
                             '给社会添乱': 'add_chaos', '二次元入口': 'acg_entrance'}
 
 all_emojis_dict_with_jpg_keys = list(all_emojis_dict_with_jpg.keys())
+all_emojis_dict_with_jpg_keys.reverse()
 
 
 def generate_meme(filename, emoji, texts=None):
