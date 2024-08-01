@@ -6,6 +6,7 @@ import requests
 
 from advanced_path import PRJ_PATH
 
+# 所有表情选项
 all_emojis = ["play_together", "bluearchive", "5000choyen", "play_game", "hold_tight", "my_opinion", "jump",
               "not_call_me", "shock", "windmill_turn", "hutao_bite", "always", "capoo_rip", "daynight", "tease",
               "flash_blind", "printing", "follow", "rip_angrily", "little_angel", "scratch_head", "thump_wildly",
@@ -35,19 +36,37 @@ all_emojis = ["play_together", "bluearchive", "5000choyen", "play_game", "hold_t
               "telescope", "play", "jiji_king", "wakeup", "swirl_turn", "jiujiu", "hug_leg", "step_on", "back_to_work",
               "china_flag", "fight_with_sunuo", "lim_x_0", "google", "no_response", "support", "crawl", "gun", "loop"]
 
-all_emojis_jpg = ['hold_tight', 'addiction', 'you_should_call', 'dont_go_near', 'mourning', 'pinch', 'dinosaur',
-                  'paint', 'walnut_pad', 'lim_x_0', 'rip', 'jiji_king', 'acg_entrance', 'potato', 'distracted',
-                  'together', 'kaleidoscope', 'look_flat', 'anya_suki', 'perfect', 'father_work', 'cover_face',
-                  'look_this_icon', 'oshi_no_ko', 'support', 'decent_kiss', 'painter', 'always', 'dont_touch',
-                  'fill_head', 'loading', 'clown', 'tomb_yeah', 'name_generator', 'lost_dog', 'dog_of_vtb',
-                  'frieren_take', 'read_book', 'throw', 'little_angel', 'maimai_awaken', 'trance', 'why_at_me',
-                  'sit_still', 'what_I_want_to_do', 'raise_image', 'mihoyo', 'rip_angrily', 'china_flag', 'my_friend',
-                  'teach', 'stew', 'anti_kidnap', 'divorce', 'this_chicken', 'think_what', 'follow', 'out', 'keep_away',
-                  'prpr', 'gun', 'marriage', 'interview', 'bubble_tea', 'incivilization', 'fight_with_sunuo',
-                  'what_he_wants', 'let_me_in', 'universal', 'alike', 'coupon', 'police', 'smash', 'dianzhongdian',
-                  'cyan', 'genshin_start', 'blood_pressure', 'crawl', 'karyl_point', 'charpic', 'back_to_work',
-                  'add_chaos', 'taunt', 'note_for_leave', 'play_game', 'symmetric', 'my_wife', 'maimai_join', 'need',
-                  'overtime', 'safe_sense', 'no_response', 'learn', 'police1']
+# 所有支持图片参数的图片表情选项
+all_jpg_emojis_with_jpg = ['hold_tight', 'addiction', 'you_should_call', 'dont_go_near', 'mourning', 'pinch',
+                           'dinosaur',
+                           'paint', 'walnut_pad', 'lim_x_0', 'rip', 'jiji_king', 'acg_entrance', 'potato', 'distracted',
+                           'together', 'kaleidoscope', 'look_flat', 'anya_suki', 'perfect', 'father_work', 'cover_face',
+                           'look_this_icon', 'oshi_no_ko', 'support', 'decent_kiss', 'painter', 'always', 'dont_touch',
+                           'fill_head', 'loading', 'clown', 'tomb_yeah', 'name_generator', 'lost_dog', 'dog_of_vtb',
+                           'frieren_take', 'read_book', 'throw', 'little_angel', 'maimai_awaken', 'trance', 'why_at_me',
+                           'sit_still', 'what_I_want_to_do', 'raise_image', 'mihoyo', 'rip_angrily', 'china_flag',
+                           'my_friend',
+                           'teach', 'stew', 'anti_kidnap', 'divorce', 'this_chicken', 'think_what', 'follow', 'out',
+                           'keep_away',
+                           'prpr', 'gun', 'marriage', 'interview', 'bubble_tea', 'incivilization', 'fight_with_sunuo',
+                           'what_he_wants', 'let_me_in', 'universal', 'alike', 'coupon', 'police', 'smash',
+                           'dianzhongdian',
+                           'cyan', 'genshin_start', 'blood_pressure', 'crawl', 'karyl_point', 'charpic', 'back_to_work',
+                           'add_chaos', 'taunt', 'note_for_leave', 'play_game', 'symmetric', 'my_wife', 'maimai_join',
+                           'need',
+                           'overtime', 'safe_sense', 'no_response', 'learn', 'police1']
+
+# 所有不支持图片参数的表情选项
+all_emojis_without_jpg = ['nihaosaoa', 'osu', 'fanatic', 'bronya_holdsign', 'certificate', 'slogan', 'nijika_holdsign',
+                          'shutup', 'qiegewala', 'scroll', 'wakeup', 'high_EQ', 'scratchcard', 'shuifandui',
+                          'luoyonghao_say', 'nekoha_holdsign', 'chanshenzi', 'ace_attorney_dialog', 'youtube', 'douyin',
+                          '5000choyen', 'wish_fail', 'yalidaye', 'maikease', 'rub', 'bluearchive', 'imprison',
+                          'always_like', 'meteor', 'zengxiaoxian', 'wujing', 'bad_news', 'fencing', 'call_110',
+                          'psyduck', 'shishilani', 'good_news', 'ask', 'why_have_hands', 'my_opinion',
+                          'firefly_holdsign', 'luxun_say', 'ascension', 'kiss', 'wunian', 'nokia', 'capoo_say',
+                          'captain', 'slap', 'beat_up', 'find_chips', 'daynight', 'not_call_me', 'wangjingze',
+                          'hold_grudge', 'google', 'make_friend', 'weisuoyuwei', 'run', 'pornhub', 'raise_sign',
+                          'murmur']
 
 
 def generate_meme(filename, emoji, texts=None):
@@ -83,22 +102,37 @@ def generate_meme(filename, emoji, texts=None):
         print(e)
 
 
-def generate_meme_png(filename):
-    emoji = random.choice(all_emojis_jpg)
+def generate_random_jpg_by_jpg(filename):
+    emoji = random.choice(all_jpg_emojis_with_jpg)
     meme_file = generate_meme(filename, emoji)
     if not meme_file:
-        return generate_meme_png(filename)
+        return generate_random_jpg_by_jpg(filename)
     return meme_file
 
 
-def generate_meme_all(filename):
-    emoji = random.choice(all_emojis)
+def generate_random_meme_by_jpg(filename):
+    available_emojis = list(set(all_emojis) - set(all_emojis_without_jpg))
+    emoji = random.choice(available_emojis)
     meme_file = generate_meme(filename, emoji)
     if not meme_file:
-        return generate_meme_png(filename)
+        return generate_random_meme_by_jpg(filename)
     return meme_file
+
+
+def test(filename):
+    lst = []
+    while all_emojis:
+        emoji = random.choice(all_emojis)
+        all_emojis.remove(emoji)
+
+        meme_file = generate_meme(filename, emoji)
+        print(meme_file)
+        if not meme_file:
+            lst.append(emoji)
+    print(lst)
 
 
 if __name__ == "__main__":
     filename = "../head.jpg"
-    print(generate_meme_png(filename))
+    print(generate_random_jpg_by_jpg(filename))
+    # print(list(set(all_emojis_jpg) - set(all_emojis_without_jpg)))
