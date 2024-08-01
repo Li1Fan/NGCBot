@@ -1892,7 +1892,7 @@ class Room_Msg_Dispose:
         at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"
         self.wcf.send_text(msg=at_msg, receiver=roomid, aters=wxid)
 
-    def send_image_ensure_success(self, path, receiver):
+    def send_image_ensure_success(self, path, receiver, retry_count=0):
         if not os.path.exists(path):
             return
         try:
@@ -1913,8 +1913,11 @@ class Room_Msg_Dispose:
                 # 撤回消息ID
                 msg_svr_id = res_again[0].get('MsgSvrID')
                 if msg_svr_id == 0:
-                    OutPut.outPut(f'[-]: 图片发送失败，重新发送，回调中...')
-                    return self.send_image_ensure_success(path, receiver)
+                    OutPut.outPut('[-]: 图片发送失败，重新发送，回调中...')
+                    if retry_count < 5:
+                        return self.send_image_ensure_success(path, receiver, retry_count + 1)
+                    else:
+                        OutPut.outPut('[-]: 已达到最大重试次数，放弃重新发送。')
                 return
 
             thread_ensure = threading.Thread(target=ensure, args=(local_id, path, receiver))
@@ -1924,7 +1927,7 @@ class Room_Msg_Dispose:
             OutPut.outPut(f'[-]: 图片发送失败，错误信息: {e}')
             return
 
-    def send_emotion_ensure_success(self, path, receiver):
+    def send_emotion_ensure_success(self, path, receiver, retry_count=0):
         if not os.path.exists(path):
             return
         try:
@@ -1945,8 +1948,11 @@ class Room_Msg_Dispose:
                 # 撤回消息ID
                 msg_svr_id = res_again[0].get('MsgSvrID')
                 if msg_svr_id == 0:
-                    OutPut.outPut(f'[-]: 表情发送失败，重新发送，回调中...')
-                    return self.send_emotion_ensure_success(path, receiver)
+                    OutPut.outPut('[-]: 表情发送失败，重新发送，回调中...')
+                    if retry_count < 5:
+                        return self.send_emotion_ensure_success(path, receiver, retry_count + 1)
+                    else:
+                        OutPut.outPut('[-]: 已达到最大重试次数，放弃重新发送。')
                 return
 
             thread_ensure = threading.Thread(target=ensure, args=(local_id, path, receiver))
