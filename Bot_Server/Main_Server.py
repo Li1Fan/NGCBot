@@ -1,6 +1,4 @@
 import datetime
-import os
-import random
 import re
 import traceback
 import xml.etree.ElementTree as ET
@@ -18,13 +16,13 @@ from OutPut import OutPut
 from Push_Server.Push_Main_Server import Push_Main_Server, TimingMsg
 from Recv_Msg_Dispose.Friend_Msg_Dispose import Friend_Msg_Dispose
 from Recv_Msg_Dispose.Room_Msg_Dispose import Room_Msg_Dispose
+from advanced_path import PRJ_PATH
 
 
 class Main_Server:
     def __init__(self):
         # 读取配置文件
-        current_path = os.path.dirname(__file__)
-        config = yaml.load(open(current_path + '/../config/config.yaml', encoding='UTF-8'), yaml.Loader)
+        config = yaml.load(open(PRJ_PATH + '/Config/config.yaml', encoding='UTF-8'), yaml.Loader)
 
         self.JoinRoom_Msg = config['Function_Key_Word']['JoinRoom_Msg']
         self.AcceptFriend_Msg = config['Custom_Msg']['AcceptFriend_Msg']

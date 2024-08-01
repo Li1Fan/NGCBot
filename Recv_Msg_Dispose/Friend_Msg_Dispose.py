@@ -1,19 +1,19 @@
-import os
 import xml.etree.ElementTree as ET
-import yaml
 from threading import Thread
+
+import yaml
 
 from Api_Server.Api_Main_Server import Api_Main_Server
 from Db_Server.Db_Main_Server import Db_Main_Server
 from OutPut import OutPut
+from advanced_path import PRJ_PATH
 
 
 class Friend_Msg_Dispose:
     def __init__(self, wcf):
         self.wcf = wcf
         # 读取配置文件
-        current_path = os.path.dirname(__file__)
-        config = yaml.load(open(current_path + '/../config/config.yaml', encoding='UTF-8'), yaml.Loader)
+        config = yaml.load(open(PRJ_PATH + '/Config/config.yaml', encoding='UTF-8'), yaml.Loader)
         self.Room_Key_Word = config['Room_Key_Word']
         self.Administrators = config['Administrators']
         self.Ai_Lock = config['System_Config']['Ai_Lock']

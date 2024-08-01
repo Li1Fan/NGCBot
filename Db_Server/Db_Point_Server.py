@@ -3,14 +3,14 @@ import sqlite3
 import yaml
 
 from OutPut import OutPut
+from advanced_path import PRJ_PATH
 
 
 class Db_Point_Server:
     def __init__(self):
-        current_path = os.path.dirname(__file__)
         # 数据库存放地址
-        self.db_file = current_path + '/../Config/Point_db.db'
-        config = yaml.load(open(current_path + '/../Config/config.yaml', encoding='UTF-8'), yaml.Loader)
+        self.db_file = PRJ_PATH + '/Config/Point_db.db'
+        config = yaml.load(open(PRJ_PATH + '/Config/config.yaml', encoding='UTF-8'), yaml.Loader)
 
         # 读取积分配置
         self.sign_point = config['Point_Config']['Sign']['Point']

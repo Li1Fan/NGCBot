@@ -1,12 +1,13 @@
 import os
 
 from OutPut import OutPut
+from advanced_path import PRJ_PATH
 
 
 class Cache_Main_Server:
     def __init__(self, wcf):
         self.wcf = wcf
-        current_path = os.path.dirname(__file__)
+        current_path = PRJ_PATH + '/Cache'
         self.video_cache = current_path + '/Video_Cache'
         self.fish_cache = current_path + '/Fish_Cache'
         self.pic_cache = current_path + '/Pic_Cache'
@@ -23,6 +24,10 @@ class Cache_Main_Server:
                 os.mkdir(self.video_cache)
                 os.mkdir(self.pic_cache)
                 os.mkdir(self.fish_cache)
+                os.mkdir(self.music_cache)
+                os.mkdir(self.recall_pic_cache)
+                os.mkdir(self.head_img_cache)
+                os.mkdir(self.meme_cache)
                 OutPut.outPut(f'[+]: 缓存文件夹初始化成功！！！')
             except Exception as e:
                 msg = '[-]: 创建文件夹出错，错误信息：{}'.format(e)
