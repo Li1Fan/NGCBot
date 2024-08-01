@@ -162,6 +162,7 @@ class Room_Msg_Dispose:
             elif msg.type == 3:
                 with self.counter_lock:
                     img_dir = PRJ_PATH + '/Cache/Recall_Pic_Cache'
+                    os.makedirs(img_dir, exist_ok=True)
 
                     time.sleep(1)
                     img_path = self.wcf.download_image(msg.id, msg.extra, img_dir)
@@ -697,7 +698,20 @@ class Room_Msg_Dispose:
                     music_file_path = self.Ams.down_song_by_url(music_link)
                     if music_file_path:
                         self.wcf.send_file(path=music_file_path, receiver=msg.roomid)
-
+        elif self.judge_keyword(keyword=["搜番", "搜动漫"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                split_bool=True):
+            pass
+        elif self.judge_keyword(keyword=["随机表情", "个性表情", "头像表情", "魔法表情"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                equal_bool=True):
+            head_img = self.get_head_img(msg)
+            if head_img:
+                save_path = self.Ams.magic_emoji_by_head(head_img)
+                if save_path:
+                    self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
         elif self.judge_keyword(keyword=["测试"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -1834,6 +1848,31 @@ class Room_Msg_Dispose:
             self.wcf.revoke_msg(msg_svr_id)
         except Exception as e:
             OutPut.outPut(f'[-]: 撤回消息出现错误，错误信息: {e}')
+
+    def get_head_img(self, msg):
+        try:
+            img_dir = PRJ_PATH + '/Cache/Head_Img_Cache'
+            os.makedirs(img_dir, exist_ok=True)
+            file_path = f'{img_dir}/{msg.sender}.jpg'
+            if os.path.exists(file_path):
+                return file_path
+
+            sql_query = f'SELECT usrName,smallHeadBuf FROM ContactHeadImg1 WHERE usrName="{msg.sender}";'
+            res = self.wcf.query_sql("Misc.db", sql_query)
+            print(f"head img res = {res}")
+
+            if not res:
+                return
+            head_img_buf = res[0].get('smallHeadBuf')
+
+            # 写入文件
+            with open(file_path, 'wb') as f:
+                f.write(head_img_buf)
+            OutPut.outPut(f'[+]: 获取头像成功，头像路径: {file_path}')
+
+            return file_path
+        except Exception as e:
+            OutPut.outPut(f'[-]: 获取头像出现错误，错误信息: {e}')
 
     def send_at_msg(self, roomid, wxid, content):
         at_msg = f"@{self.wcf.get_alias_in_chatroom(roomid=roomid, wxid=wxid)}\n{content}"

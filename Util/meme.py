@@ -1,7 +1,10 @@
 import json
+import os
 import random
 
 import requests
+
+from advanced_path import PRJ_PATH
 
 all_emojis = ["play_together", "bluearchive", "5000choyen", "play_game", "hold_tight", "my_opinion", "jump",
               "not_call_me", "shock", "windmill_turn", "hutao_bite", "always", "capoo_rip", "daynight", "tease",
@@ -61,12 +64,15 @@ def generate_meme(filename, emoji, texts=None):
         if resp.status_code != 200:
             return
 
+        img_dir = PRJ_PATH + '/Cache/Meme_Cache'
+        os.makedirs(img_dir, exist_ok=True)
+
         # 根据 Content-Type 确定文件扩展名
         content_type = resp.headers.get('Content-Type', '')
         if 'image/gif' in content_type:
-            result_filename = f"{emoji}.gif"
+            result_filename = f"{img_dir}/{emoji}.gif"
         else:
-            result_filename = f"{emoji}.jpg"
+            result_filename = f"{img_dir}/{emoji}.jpg"
 
         with open(result_filename, "wb") as f:
             f.write(resp.content)

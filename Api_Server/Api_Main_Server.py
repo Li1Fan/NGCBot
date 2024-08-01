@@ -15,6 +15,7 @@ from lxml import etree
 
 import Api_Server.SparkApi as SparkApi
 from OutPut import OutPut
+from Util.meme import generate_meme_png
 from Util.my_db import IdiomDB, EmojiDB
 from advanced_path import PRJ_PATH
 
@@ -1304,6 +1305,12 @@ class Api_Main_Server:
         OutPut.outPut("[+]:获取各平台安全文章成功！！！")
         news_list += f"\n{self.system_copyright + '整理分享，更多内容请戳 #' + self.system_copyright if self.system_copyright else ''}\n{time.strftime('%Y-%m-%d %X')}"
         return news_list.strip()
+
+    # 生成表情
+    @staticmethod
+    def magic_emoji_by_head(self, head):
+        emoji_path = generate_meme_png(head)
+        return emoji_path
 
 
 if __name__ == '__main__':
