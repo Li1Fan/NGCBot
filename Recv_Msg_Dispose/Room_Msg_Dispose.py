@@ -32,8 +32,7 @@ class Room_Msg_Dispose:
         self.Ams = Api_Main_Server(wcf=self.wcf)
 
         # 读取配置文件
-        self.current_path = os.path.dirname(__file__)
-        config = yaml.load(open(self.current_path + '/../config/config.yaml', encoding='UTF-8'), yaml.Loader)
+        config = yaml.load(open(PRJ_PATH + '/Config/config.yaml', encoding='UTF-8'), yaml.Loader)
         self.system_copyright = config['System_Config']['System_Copyright']
 
         self.administrators = config['Administrators']
@@ -184,7 +183,9 @@ class Room_Msg_Dispose:
 
     # 主消息处理
     def Msg_Dispose(self, msg):
+        # 处理撤回消息
         self.handle_recall(msg)
+
         at_user_lists = []
         # 获取所在群所有管理员
         admin_dicts = self.Dms.show_admins(wx_id=msg.sender, room_id=msg.roomid)
@@ -298,16 +299,6 @@ class Room_Msg_Dispose:
             Thread(target=self.Del_Point, name="减少积分",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
             return
-        # # 早报
-        # elif self.judge_keyword(keyword=self.Morning_Page_Words, msg=msg.content.strip(), list_bool=True,
-        #                         equal_bool=True):
-        #     send_msg = self.Ams.get_freebuf_news()
-        #     self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
-        # # 晚报
-        # elif self.judge_keyword(keyword=self.Evening_Page_Words, msg=msg.content.strip(), list_bool=True,
-        #                         equal_bool=True):
-        #     send_msg = self.Ams.get_safety_news()
-        #     self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
         # 添加白名单公众号
         elif msg.type == 49:
             Thread(target=self.add_white_gh, name="添加白名单公众号", args=(msg,)).start()
@@ -410,115 +401,83 @@ class Room_Msg_Dispose:
         # 美女图片
         if self.judge_keyword(keyword=self.Pic_Words, msg=msg.content, list_bool=True, equal_bool=True):
             save_path = self.Ams.get_girl_pic()
-            if ('Pic_Cache' in save_path) and check_file(save_path):
+            if save_path:
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
-            else:
-                self.wcf.send_text(msg='美女图片接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
             return
         # 美女视频
         elif self.judge_keyword(keyword=self.Video_Words, msg=msg.content, list_bool=True, equal_bool=True):
             save_path = self.Ams.get_girl_video()
-            if 'Video_Cache' in save_path:
+            if save_path:
                 self.wcf.send_file(path=save_path, receiver=msg.roomid)
-            else:
-                self.wcf.send_text(msg='美女视频接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
             return
         # 天气查询
         elif self.judge_keyword(keyword=self.Weather_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-            weather_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.query_weather(
-                msg.content.strip())
-            self.wcf.send_text(msg=weather_msg, receiver=msg.roomid, aters=msg.sender)
+            weather_msg = self.Ams.query_weather(msg.content.strip())
+            if weather_msg:
+                self.send_at_msg(msg.roomid, msg.sender, weather_msg)
             return
         # 舔狗日记
         elif self.judge_keyword(keyword=self.Dog_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            dog_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_dog()
-            self.wcf.send_text(msg=dog_msg, receiver=msg.roomid, aters=msg.sender)
+            dog_msg = self.Ams.get_dog()
+            if dog_msg:
+                self.send_at_msg(msg.roomid, msg.sender, dog_msg)
             return
-        # # 星座查询
-        # elif self.judge_keyword(keyword=self.Constellation_Words, msg=msg.content.strip(), list_bool=True,
-        #                         split_bool=True):
-        #     constellation_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}' + self.Ams.get_constellation(
-        #         msg.content)
-        #     self.wcf.send_text(msg=constellation_msg, receiver=msg.roomid, aters=msg.sender)
         # 早安寄语
         elif self.judge_keyword(keyword=self.Morning_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            morning_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_morning()
-            self.wcf.send_text(msg=morning_msg, receiver=msg.roomid, aters=msg.sender)
-            # try:
-            #     self.wcf.send_image(path=self.Ams.Pic_path+'/daily.gif', receiver=msg.roomid)
-            # except Exception as e:
-            #     print(f'早安寄语图片发送失败, 错误信息: {e}')
+            morning_msg = self.Ams.get_morning()
+            if morning_msg:
+                self.send_at_msg(msg.roomid, msg.sender, morning_msg)
             return
         # 毒鸡汤
         elif self.judge_keyword(keyword=self.Poison_Chicken_Soup_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
-            poison_chicken_soup_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_soup()
-            self.wcf.send_text(msg=poison_chicken_soup_msg, receiver=msg.roomid, aters=msg.sender)
+            poison_chicken_soup_msg = self.Ams.get_soup()
+            if poison_chicken_soup_msg:
+                self.send_at_msg(msg.roomid, msg.sender, poison_chicken_soup_msg)
             return
         # 讲笑话
         elif self.judge_keyword(keyword=self.Joke_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            joke_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_joke()
-            self.wcf.send_text(msg=joke_msg, receiver=msg.roomid, aters=msg.sender)
+            joke_msg = self.Ams.get_joke()
+            if joke_msg:
+                self.send_at_msg(msg.roomid, msg.sender, joke_msg)
             return
         # 60s
-        elif self.judge_keyword(keyword=self.s60_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            # s60_msg = self.Ams.get_60s()
-            # if s60_msg:
-            #     self.wcf.send_text(msg=s60_msg, receiver=msg.roomid, aters=msg.sender)
+        elif self.judge_keyword(keyword=self.s60_Words + ["60s图片", "60图片", "60pic", "60spic"],
+                                msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_60s_pic()
             if save_path:
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
-            return
-        elif self.judge_keyword(keyword=["60s图片", "60图片", "60pic", "60spic"], msg=msg.content.strip(),
-                                list_bool=True,
-                                equal_bool=True):
-            save_path = self.Ams.get_60s_pic()
-            if save_path:
-                self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
-            else:
-                self.wcf.send_text(msg='60s图片接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
             return
         # 虎扑热搜
         elif self.judge_keyword(keyword=self.Hupu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             hupu_msg = self.Ams.get_hupu()
-            if hupu_msg is None:
-                self.wcf.send_text(msg='未获取到虎扑热搜数据', receiver=msg.roomid)
-                return
-            self.wcf.send_text(msg=hupu_msg[0], receiver=msg.roomid, aters=msg.sender)
-            self.wcf.send_text(msg=hupu_msg[1], receiver=msg.roomid, aters=msg.sender)
+            if hupu_msg:
+                self.wcf.send_text(msg=hupu_msg[0], receiver=msg.roomid, aters=msg.sender)
+                self.wcf.send_text(msg=hupu_msg[1], receiver=msg.roomid, aters=msg.sender)
             return
         # 神回复
         elif self.judge_keyword(keyword=["神回复"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             god_msg = self.Ams.get_god_reply()
-            if god_msg is None:
-                return
-            self.wcf.send_text(msg=god_msg, receiver=msg.roomid, aters=msg.sender)
+            if god_msg:
+                self.send_at_msg(msg.roomid, msg.sender, god_msg)
             return
         # 每日英语
         elif self.judge_keyword(keyword=["每日英语", "来一句英语"], msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             english_msg = self.Ams.get_daily_english()
-            if english_msg is None:
-                return
-            self.wcf.send_text(msg=english_msg, receiver=msg.roomid, aters=msg.sender)
+            if english_msg:
+                self.send_at_msg(msg.roomid, msg.sender, english_msg)
             return
         # 摸鱼日记
         elif self.judge_keyword(keyword=self.Fish_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_fish()
-            ret = f'[*]: 摸鱼日记API接口返回值：{save_path}'
-            OutPut.outPut(ret)
-            if 'Fish_Cache' in save_path:
+            if save_path:
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
-            else:
-                self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
-            return
         # 内涵段子
         elif self.judge_keyword(keyword=["内涵段子", "段子", "讲段子"], msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             save_path = self.Ams.get_duanzi()
-            ret = f'[*]: 内涵段子API接口返回值：{save_path}'
-            OutPut.outPut(ret)
-            if check_file(save_path):
+            if save_path:
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             else:
                 text = self.Ams.get_duanzi_text()
@@ -530,10 +489,8 @@ class Room_Msg_Dispose:
                                 list_bool=True,
                                 equal_bool=True):
             content_list = self.Ams.get_steam_plus_one()
-            ret = f'[*]: 喜加一API接口返回值：{content_list}'
-            OutPut.outPut(ret)
-            for content in content_list:
-                if content:
+            if content_list:
+                for content in content_list:
                     self.wcf.send_text(msg=content, receiver=msg.roomid)
             return
         # 点歌功能
@@ -552,9 +509,9 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=["成语解析", "成语解释", "成语查询"], msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
             idiom_name = msg.content.strip().split(' ', 1)[1].strip()
-            idiom_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
-                        + self.Ams.get_idiom_explain(idiom_name)
-            self.wcf.send_text(msg=idiom_msg, receiver=msg.roomid, aters=msg.sender)
+            idiom_explain = self.Ams.get_idiom_explain(idiom_name)
+            if idiom_explain:
+                self.send_at_msg(msg.roomid, msg.sender, idiom_explain)
             return
         # 谷歌翻译
         elif self.judge_keyword(keyword=["谷歌翻译", "翻译", "翻译翻译", "给我翻译翻译"], msg=msg.content.strip(),
@@ -562,62 +519,28 @@ class Room_Msg_Dispose:
                                 split_bool=True):
             chinese_content = msg.content.strip().split(' ', 1)[1].strip()
             english_content = self.Ams.get_translate_by_api(chinese_content) or self.Ams.get_translate(chinese_content)
-
             if not english_content:
-                OutPut.outPut('[-]: 翻译接口出错')
+                OutPut.outPut(f'[-]: 翻译接口出错')
                 return
-
-            trans_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
-                        + f'原文：{chinese_content}\n' \
+            trans_msg = f'原文：{chinese_content}\n' \
                         + f'译文：{english_content}'
-            self.wcf.send_text(msg=trans_msg, receiver=msg.roomid, aters=msg.sender)
+            self.send_at_msg(msg.roomid, msg.sender, trans_msg)
             return
-        # 接口不稳定，暂时关闭
-        # elif msg.content.strip().upper() in ["COS", "COSPLAY"]:
-        #     save_path = self.Ams.get_cosplay_video()
-        #     if save_path:
-        #         self.wcf.send_file(path=save_path, receiver=msg.roomid)
-        #     else:
-        #         self.wcf.send_text(msg='COSPLAY接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
-
-        # # Whois查询
-        # elif self.judge_keyword(keyword=self.Whois_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-        #     whois_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_whois(
-        #         msg.content.strip())
-        #     self.wcf.send_text(msg=whois_msg, receiver=msg.roomid, aters=msg.sender)
-        # # 归属地查询
-        # elif self.judge_keyword(keyword=self.Attribution_Words, msg=msg.content.strip(), list_bool=True,
-        #                         split_bool=True):
-        #     attribution_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_attribution(
-        #         msg.content.strip())
-        #     self.wcf.send_text(msg=attribution_msg, receiver=msg.roomid, aters=msg.sender)
-        # # 备案查询
-        # elif self.judge_keyword(keyword=self.Icp_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-        #     attribution_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_icp(
-        #         msg.content.strip())
-        #     self.wcf.send_text(msg=attribution_msg, receiver=msg.roomid, aters=msg.sender)
         # 疯狂星期四文案
         elif self.judge_keyword(keyword=self.Kfc_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            kfc_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_kfc().replace(
-                '\\n', '\n')
-            self.wcf.send_text(msg=kfc_msg, receiver=msg.roomid, aters=msg.sender)
+            kfc_msg = self.Ams.get_kfc()
+            if kfc_msg:
+                self.send_at_msg(msg.roomid, msg.sender, kfc_msg.replace('\\n', '\n'))
             return
-        # # 周公解梦
-        # elif self.judge_keyword(keyword=self.Dream_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-        #     dream_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_dream(
-        #         msg.content.strip())
-        #     self.wcf.send_text(msg=dream_msg, receiver=msg.roomid, aters=msg.sender)
         # help帮助菜单
-        elif self.judge_keyword(keyword=self.HelpMenu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            Thread(target=self.get_help, name="Help帮助菜单", args=(msg,)).start()
-            return
-        # 功能
-        elif self.judge_keyword(keyword=["功能", "萝卜功能", "萝卜菜单"], msg=msg.content.strip(), list_bool=True,
-                                equal_bool=True):
+        elif self.judge_keyword(keyword=self.HelpMenu_Words + ["功能", "萝卜功能", "萝卜菜单"], msg=msg.content.strip(),
+                                list_bool=True, equal_bool=True):
             Thread(target=self.get_help, name="Help帮助菜单", args=(msg,)).start()
             return
         # # 自定义回复
         # Thread(target=self.custom_get, name="自定义回复", args=(msg,)).start()
+
+        # 定时提醒功能
         elif self.judge_keyword(keyword=["定时提醒", "定时任务"], msg=msg.content.strip(), list_bool=True,
                                 split_bool=True, equal_bool=True):
             try:
@@ -641,8 +564,7 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=["取消提醒", "关闭提醒", "删除提醒",
                                          "取消任务", "关闭任务", "删除任务",
                                          "取消定时事件", "关闭定时事件", "删除定时事件"],
-                                msg=msg.content.strip(), list_bool=True,
-                                split_bool=True):
+                                msg=msg.content.strip(), list_bool=True, split_bool=True):
             try:
                 id_ = msg.content.strip().split(' ', 1)[1]
                 id_ = int(id_)
@@ -652,8 +574,7 @@ class Room_Msg_Dispose:
                 OutPut.outPut(f'[-]: 取消提醒设置失败 {e}')
             return
         elif self.judge_keyword(keyword=["管理员删除提醒", "管理员删除任务", "管理员删除定时事件"],
-                                msg=msg.content.strip(), list_bool=True,
-                                split_bool=True):
+                                msg=msg.content.strip(), list_bool=True, split_bool=True):
             try:
                 id_ = msg.content.strip().split(' ', 1)[1]
                 id_ = int(id_)
@@ -665,9 +586,7 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=["提醒查询", "提醒查看", "查询提醒", "查看提醒",
                                          "任务查询", "任务查看", "查询任务", "查看任务",
                                          "定时事件查询", "定时事件查看", "查询定时事件", "查看定时事件"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                equal_bool=True):
+                                msg=msg.content.strip(), list_bool=True, equal_bool=True):
             try:
                 Thread(target=self.main_server.Tms.show_jobs,
                        args=(msg.roomid, msg.sender)).start()
@@ -675,9 +594,7 @@ class Room_Msg_Dispose:
                 OutPut.outPut(f'[-]: 提醒查询失败 {e}')
             return
         elif self.judge_keyword(keyword=["管理员提醒查询", "管理员任务查询", "管理员定时事件查询"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                equal_bool=True):
+                                msg=msg.content.strip(), list_bool=True, equal_bool=True):
             try:
                 Thread(target=self.main_server.Tms.show_jobs,
                        args=(msg.roomid, msg.sender, True)).start()
@@ -685,10 +602,7 @@ class Room_Msg_Dispose:
                 OutPut.outPut(f'[-]: 提醒查询失败 {e}')
             return
         elif self.judge_keyword(keyword=["放烟花", "放礼花", "放炸弹", "放鞭炮"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                split_bool=True,
-                                equal_bool=True):
+                                msg=msg.content.strip(), list_bool=True, split_bool=True, equal_bool=True):
             try:
                 content_list = msg.content.strip().split()
                 name = content_list[0] if content_list else msg.content.strip()
@@ -711,10 +625,7 @@ class Room_Msg_Dispose:
             Thread(target=self.play_fireworks, name="放烟花", args=(msg, num, emoji_name, time_interval)).start()
             return
         elif self.judge_keyword(keyword=["放烟花帮助", "放礼花帮助", "放炸弹帮助", "放鞭炮帮助"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                split_bool=True,
-                                equal_bool=True):
+                                msg=msg.content.strip(), list_bool=True, split_bool=True, equal_bool=True):
             reply = ('示例：\n'
                      '“放烟花”\n'
                      '“放礼花”\n'
@@ -722,10 +633,8 @@ class Room_Msg_Dispose:
                      '“放鞭炮 3 1.5”')
             self.send_at_msg(msg.roomid, msg.sender, reply)
             return
-        elif self.judge_keyword(keyword=["搜图", "搜图片"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                split_bool=True):
+        # 搜图功能
+        elif self.judge_keyword(keyword=["搜图", "搜图片"], msg=msg.content.strip(), list_bool=True, split_bool=True):
             search_msg = msg.content.strip().split(' ', 1)[1].strip()
             save_path = self.Ams.search_image(search_msg)
             if save_path:
@@ -733,10 +642,8 @@ class Room_Msg_Dispose:
                 OutPut.outPut(ret)
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             return
-        elif self.judge_keyword(keyword=["搜歌", "搜歌曲"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                split_bool=True):
+        # 搜歌功能
+        elif self.judge_keyword(keyword=["搜歌", "搜歌曲"], msg=msg.content.strip(), list_bool=True, split_bool=True):
             search_msg = msg.content.strip().split(' ', 1)[1].strip()
             music_msg, music_link = self.Ams.search_song(search_msg)
             if music_msg:
@@ -744,10 +651,7 @@ class Room_Msg_Dispose:
                 self.send_at_msg(msg.roomid, msg.sender, introduce_msg + '\n\n' + music_msg)
                 self.search_link_dict[msg.roomid] = music_link
             return
-        elif self.judge_keyword(keyword=["选歌", "选歌曲"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                split_bool=True):
+        elif self.judge_keyword(keyword=["选歌", "选歌曲"], msg=msg.content.strip(), list_bool=True, split_bool=True):
             chose_msg = msg.content.strip().split(' ', 1)[1].strip()
             if chose_msg.isdigit() and 0 < int(chose_msg) <= 20:
                 music_link = self.search_link_dict.get(msg.roomid, "")
@@ -757,15 +661,11 @@ class Room_Msg_Dispose:
                     if music_file_path:
                         self.wcf.send_file(path=music_file_path, receiver=msg.roomid)
             return
-        elif self.judge_keyword(keyword=["搜番", "搜动漫"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                split_bool=True):
+        elif self.judge_keyword(keyword=["搜番", "搜动漫"], msg=msg.content.strip(), list_bool=True, split_bool=True):
             return
+        # 个性表情功能
         elif self.judge_keyword(keyword=["随机表情", "个性表情", "头像表情", "魔法表情", "个性头像"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                equal_bool=True):
+                                msg=msg.content.strip(), list_bool=True, equal_bool=True):
             head_img = self.get_head_img(msg.sender)
             if head_img:
                 save_path = self.Ams.magic_emoji_by_head(head_img)
@@ -776,31 +676,22 @@ class Room_Msg_Dispose:
                         self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             return
         elif self.judge_keyword(keyword=["表情选项", "表情菜单", "表情功能"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                equal_bool=True):
+                                msg=msg.content.strip(), list_bool=True, equal_bool=True):
             reply = '表情选项：\n' + '、'.join(all_emojis_dict_with_jpg_keys)
             self.send_at_msg(msg.roomid, msg.sender, reply)
             return
-        # 个性表情功能
         elif self.judge_keyword(keyword=all_emojis_dict_with_jpg_keys, msg=self.handle_atMsg(msg, at_user_lists),
                                 list_bool=True, equal_bool=True):
             Thread(target=self.gen_emoji, name="个性表情",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
             return
-        elif self.judge_keyword(keyword=["测试"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                equal_bool=True):
+        elif self.judge_keyword(keyword=["测试"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             db_list = self.wcf.get_dbs()
             print(db_list)
             for db in db_list:
                 print(self.wcf.get_tables(db))
             return
-        elif self.judge_keyword(keyword=["测试图片"],
-                                msg=msg.content.strip(),
-                                list_bool=True,
-                                equal_bool=True):
+        elif self.judge_keyword(keyword=["测试图片"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             file_path = f"{PRJ_PATH}/Pic/work.gif"
             if os.path.exists(file_path):
                 self.wcf.send_image(path=file_path, receiver=msg.roomid)
@@ -824,6 +715,7 @@ class Room_Msg_Dispose:
             sign_msg += self.Dps.sign(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name)
             self.wcf.send_text(msg=sign_msg, receiver=msg.roomid, aters=msg.sender)
             return
+        # AI生图的图片重发
         elif msg.content.strip() in ['重新发送图片', '重新发送', '重发图片']:
             if self.save_path:
                 self.send_image_ensure_success(path=self.save_path, receiver=msg.roomid)
@@ -833,16 +725,6 @@ class Room_Msg_Dispose:
             Thread(target=self.send_point, name="赠送积分",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
             return
-        # # Md5查询
-        # elif self.judge_keyword(keyword=self.Md5_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-        #     Thread(target=self.get_md5, name="Md5查询", args=(msg,)).start()
-        # # 微步IP查询
-        # elif self.judge_keyword(keyword=self.ThreatBook_Words, msg=msg.content.strip(), list_bool=True,
-        #                         split_bool=True):
-        #     Thread(target=self.get_ip, name="IP查询", args=(msg,)).start()
-        # # 端口查询
-        # elif self.judge_keyword(keyword=self.Port_Scan_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
-        #     Thread(target=self.get_port, name="端口查询", args=(msg,)).start()
         # 拒绝者
         elif self.judge_keyword(keyword=['拒绝者'], msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
@@ -1300,82 +1182,6 @@ class Room_Msg_Dispose:
         OutPut.outPut(f'[*]: 正在调用Help功能菜单... ...')
         help_pic_path = PRJ_PATH + '/help.jpg'
         self.send_image_ensure_success(path=help_pic_path, receiver=msg.roomid)
-        # send_msg = f"【一、积分功能】\n" \
-        #            f"【1.1】、@机器人开启Ai对话\n" \
-        #            f"【1.2】、GPT3.5\n" \
-        #            f"【1.3】、星火大模型（联网）\n" \
-        #            f"【1.4】、秘塔搜索\n" \
-        #            f"【1.5】、Ai画画\n" \
-        #            f"【二、娱乐功能】\n" \
-        #            f"【2.1】、舔狗日记\n" \
-        #            f"【2.2】、毒鸡汤\n" \
-        #            f"【2.3】、讲笑话\n" \
-        #            f"【2.4】、讲段子\n" \
-        #            f"【2.5】、神回复\n" \
-        #            f"【2.6】、每日英语\n" \
-        #            f"【2.7】、秒懂世界\n" \
-        #            f"【2.8】、虎扑热搜\n" \
-        #            f"【2.9】、点歌\n" \
-        #            f"【2.10】、翻译\n" \
-        #            f"【2.11】、天气查询\n" \
-        #            f"【三、游戏功能】\n" \
-        #            f"【3.1】、看图猜成语\n" \
-        #            f"【3.2】、表情猜成语\n" \
-        #            f"【3.3】、成语接龙\n" \
-        #            f"{'By #' + self.system_copyright if self.system_copyright else ''}"
-        # self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
-
-        # f"[烟花]【2.1】、舔狗日记\n" \
-        # f"[烟花]【2.2】、摸鱼日历\n" \
-        # f"[烟花]【2.3】、疯狂星期四\n" \
-        # f"[烟花]【2.4】、早安寄语\n" \
-        # f"[烟花]【2.5】、毒鸡汤\n" \
-        # f"[烟花]【2.6】、讲笑话\n" \
-        # f"[烟花]【2.7】、虎扑热搜\n" \
-        # f"[烟花]【2.8】、每天60秒读懂世界\n" \
-        # f"[烟花]【2.9】、天气查询\n" \
-        # f"[烟花]【2.10】、点歌\n" \
-
-        # num = ''
-        # content = msg.content.strip()
-        # if ' ' in content:
-        #     num = content.split(' ')[-1]
-        # if not num:
-        #     send_msg = f"[爱心] ———— NGCBot功能菜单 ———— [爱心]\n[庆祝]【一、积分功能】\n[庆祝]【1.1】、微步威胁IP查询\n[庆祝]【1.2】、端口查询\n[庆祝]【1.3】、MD5查询[烟花]\n[庆祝]【1.4】、Ai对话(Gpt&星火模型&千帆模型)\n\n可在群内发送信息【WHOIS查询 qq.com】不需要@本Bot哦\n\n[烟花]【二、娱乐功能】\n" \
-        #                f"[烟花]【2.1】、美女图片\n[烟花]【2.2】、美女视频\n[烟花]【2.3】、舔狗日记\n[烟花]【2.4】、摸鱼日历\n[烟花]【2.5】、星座查询\n[庆祝]【2.6】、KFC伤感文案\n[庆祝]【2.7】、手机号归属地查询\n[庆祝]【2.8】、WHOIS信息查询\n" \
-        #                f"[烟花]【2.9】、备案查询\n\n您可以在群内发送消息【查询运势 白羊座】进行查询【其它功能类似】，或@本Bot进行AI对话哦\n\n需要调出帮助菜单，回复【帮助菜单】即可\n" \
-        #                f"回复【help 2.1】可获取相应功能帮助[跳跳]，其它功能帮助以此类推[爱心]\n" \
-        #                f"{'By #' + self.system_copyright if self.system_copyright else ''}"
-        # elif num == '1.1':
-        #     send_msg = '[庆祝]【1.1】、微步威胁IP查询功能帮助\n\n[爱心]命令：【ip查询 x.x.x.x】'
-        # elif num == '1.2':
-        #     send_msg = '[庆祝]【1.2】、端口查询功能帮助\n\n[爱心]命令：【端口查询 x.x.x.x】'
-        # elif num == '1.3':
-        #     send_msg = '[庆祝]【1.3】、MD5查询功能帮助\n\n[爱心]命令：【MD5查询 MD5密文】'
-        # elif num == '1.4':
-        #     send_msg = '[庆祝]【1.4】、Ai对话功能帮助\n\n[爱心]命令：【@机器人进行Ai对话】'
-        # elif num == '2.1':
-        #     send_msg = '[烟花]【2.1】、美女图片功能帮助\n\n[爱心]命令：【图片】【美女图片】'
-        # elif num == '2.2':
-        #     send_msg = '[烟花]【2.2】、美女视频功能帮助\n\n[爱心]命令：【视频】【美女视频】'
-        # elif num == '2.3':
-        #     send_msg = '[烟花]【2.3】、舔狗日记功能帮助\n\n[爱心]命令：【舔狗日记】'
-        # elif num == '2.4':
-        #     send_msg = '[烟花]【2.4】、摸鱼日历功能帮助\n\n[爱心]命令：【摸鱼日历】\n\n[爱心]联系主人可开启定时发送哦[跳跳]'
-        # elif num == '2.5':
-        #     send_msg = '[烟花]【2.5】、星座查询功能帮助\n\n[爱心]命令：【星座查询 白羊】'
-        # elif num == '2.6':
-        #     send_msg = '[烟花]【2.6】、KFC伤感文案功能帮助\n\n[爱心]命令：【Kfc】'
-        # elif num == '2.7':
-        #     send_msg = '[烟花]【2.7】、手机号归属地查询功能帮助\n\n[爱心]命令：【归属查询 110】'
-        # elif num == '2.8':
-        #     send_msg = '[烟花]【2.8】、WHOIS信息查询功能帮助\n\n[爱心]命令：【whois查询 qq.com】'
-        # elif num == '2.9':
-        #     send_msg = '[烟花]【2.9】、备案查询功能帮助\n\n[爱心]命令：【icp查询 qq.com】'
-        # else:
-        #     send_msg = f'@{self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)}\n' \
-        #                f'帮助菜单编号错误，请重新输入编号！！！'
-        # self.wcf.send_text(msg=send_msg, receiver=msg.roomid)
 
     # Ai对话
     def get_ai(self, msg, at_user_lists, model=None):
@@ -1477,87 +1283,6 @@ class Room_Msg_Dispose:
             else:
                 send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
                 self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)
-
-    # Md5查询
-    def get_md5(self, msg):
-        admin_dicts = self.Dms.show_admins(wx_id=msg.sender, room_id=msg.roomid)
-        room_name = self.Dms.query_room_name(room_id=msg.roomid)
-        wx_name = self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)
-        # 是管理员
-        if msg.sender in admin_dicts.keys() or msg.sender in self.administrators:
-            admin_msg = f'@{wx_name} 您是尊贵的管理员/超级管理员，本次查询不扣除积分'
-            self.wcf.send_text(msg=admin_msg, receiver=msg.roomid, aters=msg.sender)
-            use_msg = self.Ams.get_md5(content=msg.content.strip())
-            self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
-        # 不是管理员
-        else:
-            if self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name) >= int(
-                    self.Md5_Point):
-                self.Dps.del_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name,
-                                   point=int(self.Md5_Point))
-                now_point = self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid,
-                                                 room_name=room_name, )
-                md5_msg = f'@{wx_name} 您使用了MD5解密功能，扣除您 {self.Md5_Point} 点积分,\n当前剩余积分: {now_point}'
-                self.wcf.send_text(msg=md5_msg, receiver=msg.roomid, aters=msg.sender)
-                use_msg = self.Ams.get_md5(content=msg.content.strip())
-                self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
-            else:
-                send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
-                self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)
-
-    # IP查询
-    def get_ip(self, msg):
-        admin_dicts = self.Dms.show_admins(wx_id=msg.sender, room_id=msg.roomid)
-        room_name = self.Dms.query_room_name(room_id=msg.roomid)
-        wx_name = self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)
-        # 是管理员
-        if msg.sender in admin_dicts.keys() or msg.sender in self.administrators:
-            admin_msg = f'@{wx_name} 您是尊贵的管理员/超级管理员，本次查询不扣除积分'
-            self.wcf.send_text(msg=admin_msg, receiver=msg.roomid, aters=msg.sender)
-            use_msg = f'@{wx_name} ' + self.Ams.get_threatbook_ip(content=msg.content.strip())
-            self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
-        # 不是管理员
-        else:
-            if self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name) >= int(
-                    self.Ip_Point):
-                self.Dps.del_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name,
-                                   point=int(self.Ip_Point))
-                now_point = self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid,
-                                                 room_name=room_name, )
-                md5_msg = f'@{wx_name} 您使用了威胁IP查询功能，扣除您 {self.Ip_Point} 点积分,\n当前剩余积分: {now_point}'
-                self.wcf.send_text(msg=md5_msg, receiver=msg.roomid, aters=msg.sender)
-                use_msg = self.Ams.get_threatbook_ip(content=msg.content.strip())
-                self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
-            else:
-                send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
-                self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)
-
-    # 端口查询
-    def get_port(self, msg):
-        admin_dicts = self.Dms.show_admins(wx_id=msg.sender, room_id=msg.roomid)
-        room_name = self.Dms.query_room_name(room_id=msg.roomid)
-        wx_name = self.wcf.get_alias_in_chatroom(wxid=msg.sender, roomid=msg.roomid)
-        # 是管理员
-        if msg.sender in admin_dicts.keys() or msg.sender in self.administrators:
-            admin_msg = f'@{wx_name} 您是尊贵的管理员/超级管理员，本次查询不扣除积分'
-            self.wcf.send_text(msg=admin_msg, receiver=msg.roomid, aters=msg.sender)
-            use_msg = f'@{wx_name} ' + self.Ams.get_portScan(content=msg.content.strip())
-            self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
-        # 不是管理员
-        else:
-            if self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name) >= int(
-                    self.Port_Scan_Point):
-                self.Dps.del_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid, room_name=room_name,
-                                   point=int(self.Port_Scan_Point))
-                now_point = self.Dps.query_point(wx_id=msg.sender, wx_name=wx_name, room_id=msg.roomid,
-                                                 room_name=room_name, )
-                scan_msg = f'@{wx_name} 您使用了端口查询功能，扣除您 {self.Port_Scan_Point} 点积分,\n当前剩余积分: {now_point}'
-                self.wcf.send_text(msg=scan_msg, receiver=msg.roomid, aters=msg.sender)
-                use_msg = self.Ams.get_portScan(content=msg.content.strip())
-                self.wcf.send_text(msg=use_msg, receiver=msg.roomid, aters=msg.sender)
-            else:
-                send_msg = f'@{wx_name} 积分不足, 请求管理员或其它群友给你施舍点'
-                self.wcf.send_text(msg=send_msg, receiver=msg.roomid, aters=msg.sender)  # 端口查询
 
     def get_xiuren_pic(self, msg):
         admin_dicts = self.Dms.show_admins(wx_id=msg.sender, room_id=msg.roomid)
@@ -1881,8 +1606,6 @@ class Room_Msg_Dispose:
     def judge_keyword(keyword, msg, list_bool=False, equal_bool=False, in_bool=False,
                       split_bool=False):
         try:
-            # if msg and '加' in msg:
-            #     print(f'msg:{msg}')
             # 如果触发词是列表 并且只需要包含则执行
             if list_bool and in_bool:
                 for word in keyword:
@@ -1920,22 +1643,16 @@ class Room_Msg_Dispose:
 
     @staticmethod
     def get_xiuren_pic_path():
-        # root_dir = self.current_path + '/../XiuRen_downloads'
-        # root_dir = r'E:/system/XiuRen_downloads'
         root_dir = r'E:/system/XiuRen_jpgs2'
 
         def generate_path():
-            # page_number = random.randint(1, 59)
-            # second_number = random.randint(1, 24)
-            # image_number = random.randint(0, 4)
-            # return f"{root_dir}/page_{page_number}/{second_number}/image_{image_number}.jpg"
             image_number = random.randint(1, 5984)
             return f"{root_dir}/{image_number}.jpg"
 
         while True:
             random_path = generate_path()
             if not check_file(random_path):
-                print(f"文件 {random_path} 不存在或大小大于10KB，重新生成...")
+                print(f"文件 {random_path} 不存在或大小大于5KB，重新生成...")
             else:
                 print(f"文件 {random_path}")
                 return random_path

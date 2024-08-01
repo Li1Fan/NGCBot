@@ -1,16 +1,14 @@
-import os
 import sqlite3
-import time
 
 from OutPut import OutPut
+from advanced_path import PRJ_PATH
 
 
 class Db_Main_Server:
     def __init__(self, wcf):
         self.wcf = wcf
-        current_path = os.path.dirname(__file__)
         # 数据库存放地址
-        self.All_Db_file = current_path + '/../Config/All_Db_File.db'
+        self.All_Db_file = PRJ_PATH + '/Config/All_Db_File.db'
 
     # 查询所有联系人(公众号，群聊) 添加到自建数据库
     def query_all_users(self, init=False):
