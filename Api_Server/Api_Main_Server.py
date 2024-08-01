@@ -1308,7 +1308,7 @@ class Api_Main_Server:
 
     # 生成表情
     @staticmethod
-    def magic_emoji_by_head(self, head):
+    def magic_emoji_by_head(head):
         emoji_path = generate_meme_png(head)
         return emoji_path
 
