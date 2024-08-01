@@ -15,6 +15,7 @@ from Api_Server.Api_Main_Server import Api_Main_Server
 from Db_Server.Db_Main_Server import Db_Main_Server
 from Db_Server.Db_Point_Server import Db_Point_Server
 from OutPut import OutPut
+from Util.meme import all_emojis_dict_with_jpg_keys, all_emojis_dict_with_jpg
 from advanced_path import PRJ_PATH
 
 
@@ -369,11 +370,11 @@ class Room_Msg_Dispose:
 
     # 普通群聊功能
     def OrdinaryRoom_Function(self, msg, at_user_lists):
-        Thread(target=self.Happy_Function, name="娱乐功能", args=(msg,)).start()
+        Thread(target=self.Happy_Function, name="娱乐功能", args=(msg, at_user_lists)).start()
         Thread(target=self.Point_Function, name="积分功能", args=(msg, at_user_lists,)).start()
 
     # 娱乐功能
-    def Happy_Function(self, msg):
+    def Happy_Function(self, msg, at_user_lists):
         if self.game_mode_rooms.get(msg.roomid, False):
             self.gaming_function(msg)
             return
@@ -468,7 +469,6 @@ class Room_Msg_Dispose:
             ret = f'[*]: 摸鱼日记API接口返回值：{save_path}'
             OutPut.outPut(ret)
             if 'Fish_Cache' in save_path:
-                # TODO: send_image() 图片有概率会发送不成功，怀疑是微信客户端安装在虚拟机中导致，增加重试机制
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
@@ -707,7 +707,7 @@ class Room_Msg_Dispose:
                                 msg=msg.content.strip(),
                                 list_bool=True,
                                 equal_bool=True):
-            head_img = self.get_head_img(msg)
+            head_img = self.get_head_img(msg.sender)
             if head_img:
                 save_path = self.Ams.magic_emoji_by_head(head_img)
                 if save_path:
@@ -715,6 +715,19 @@ class Room_Msg_Dispose:
                         self.send_emotion_ensure_success(path=save_path, receiver=msg.roomid)
                     else:
                         self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
+        elif self.judge_keyword(keyword=["表情选项", "表情菜单", "表情功能"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                equal_bool=True):
+            reply = '表情选项：\n' + ' '.join(all_emojis_dict_with_jpg_keys)
+            self.send_at_msg(msg.roomid, msg.sender, reply)
+        # 个性表情功能
+        elif self.judge_keyword(keyword=all_emojis_dict_with_jpg_keys, msg=self.handle_atMsg(msg, at_user_lists),
+                                list_bool=True, split_bool=True):
+            Thread(target=self.gen_emoji, name="个性表情",
+                   args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
+            return
+
         elif self.judge_keyword(keyword=["测试"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -1527,6 +1540,23 @@ class Room_Msg_Dispose:
         except Exception as e:
             OutPut.outPut(f'[~]: 赠送积分出了点小问题 :{e}')
 
+    # 赠送积分
+    def gen_emoji(self, msg, content, at_user_lists):
+        try:
+            OutPut.outPut(f'[*]: 个性表情接口接收到的消息: {content}')
+            for give_sender in at_user_lists:
+                head_img = self.get_head_img(give_sender)
+                if head_img:
+                    emoji = all_emojis_dict_with_jpg.get(content)
+                    save_path = self.Ams.magic_emoji_by_head_and_emoji(head_img, emoji)
+                    if save_path:
+                        if save_path.endswith('.gif'):
+                            self.send_emotion_ensure_success(path=save_path, receiver=msg.roomid)
+                        else:
+                            self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
+        except Exception as e:
+            OutPut.outPut(f'[~]: 个性表情出了点小问题 :{e}')
+
     # 新增管理员
     def add_admin(self, sender, wx_ids, room_id):
         if wx_ids:
@@ -1863,16 +1893,16 @@ class Room_Msg_Dispose:
         except Exception as e:
             OutPut.outPut(f'[-]: 撤回消息出现错误，错误信息: {e}')
 
-    def get_head_img(self, msg):
+    def get_head_img(self, wxid):
         try:
             img_dir = PRJ_PATH + '/Cache/Head_Img_Cache'
             os.makedirs(img_dir, exist_ok=True)
-            file_path = f'{img_dir}/{msg.sender}.jpg'
+            file_path = f'{img_dir}/{wxid}.jpg'
             if os.path.exists(file_path):
                 return file_path
 
             time.sleep(0.5)
-            sql_query = f'SELECT usrName,smallHeadBuf FROM ContactHeadImg1 WHERE usrName="{msg.sender}";'
+            sql_query = f'SELECT usrName,smallHeadBuf FROM ContactHeadImg1 WHERE usrName="{wxid}";'
             res = self.wcf.query_sql("Misc.db", sql_query)
             # print(f"head img res = {res}")
 

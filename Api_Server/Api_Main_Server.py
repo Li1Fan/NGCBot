@@ -15,7 +15,7 @@ from lxml import etree
 
 import Api_Server.SparkApi as SparkApi
 from OutPut import OutPut
-from Util.meme import generate_random_meme_by_jpg
+from Util.meme import generate_random_meme_by_jpg, generate_meme
 from Util.my_db import IdiomDB, EmojiDB
 from advanced_path import PRJ_PATH
 
@@ -1322,6 +1322,12 @@ class Api_Main_Server:
     def magic_emoji_by_head(head):
         emoji_path = generate_random_meme_by_jpg(head)
         return emoji_path
+
+    # 生成表情
+    @staticmethod
+    def magic_emoji_by_head_and_emoji(head, emoji):
+        meme_file = generate_meme(head, emoji)
+        return meme_file
 
 
 if __name__ == '__main__':
