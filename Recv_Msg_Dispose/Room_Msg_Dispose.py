@@ -720,6 +720,17 @@ class Room_Msg_Dispose:
             print(db_list)
             for db in db_list:
                 print(self.wcf.get_tables(db))
+        elif self.judge_keyword(keyword=["测试图片"],
+                                msg=msg.content.strip(),
+                                list_bool=True,
+                                equal_bool=True):
+            file_path = f"{PRJ_PATH}/Pic/work.gif"
+            if os.path.exists(file_path):
+                self.wcf.send_image(path=file_path, receiver=msg.roomid)
+                time.sleep(2)
+                self.wcf.send_emotion(path=file_path, receiver=msg.roomid)
+                time.sleep(2)
+                self.wcf.send_file(path=file_path, receiver=msg.roomid)
 
     # 积分功能
     def Point_Function(self, msg, at_user_lists):
