@@ -1896,7 +1896,7 @@ class Room_Msg_Dispose:
         if not os.path.exists(path):
             return
         try:
-            self.wcf.send_image(path=path, receiver=receiver)
+            print(self.wcf.send_image(path=path, receiver=receiver))
             time.sleep(0.2)
             sql_query = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
                         f'WHERE IsSender = 1 AND Type = 3 AND StrTalker = "{receiver}" ORDER BY localId DESC LIMIT 1;'
@@ -1931,7 +1931,7 @@ class Room_Msg_Dispose:
         if not os.path.exists(path):
             return
         try:
-            self.wcf.send_emotion(path=path, receiver=receiver)
+            print(self.wcf.send_emotion(path=path, receiver=receiver))
             time.sleep(0.2)
             sql_query = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
                         f'WHERE IsSender = 1 AND Type = 47 AND StrTalker = "{receiver}" ORDER BY localId DESC LIMIT 1;'
