@@ -465,14 +465,16 @@ class Api_Main_Server:
     # 舔狗日记
     def get_dog(self):
         OutPut.outPut('[*]: 正在调用舔狗日记API接口... ...')
-        url = self.Dog_Api.format(self.Key)
+        # url = self.Dog_Api.format(self.Key)
+        url = "https://api.52vmy.cn/api/wl/yan/tiangou"
         try:
             json_data = requests.get(url=url, headers=self.headers, timeout=20, verify=False).json()
-            if json_data['code'] == 200 and json_data['msg'] == 'success':
-                msg = json_data['result']['content'].strip()
+            print(json_data)
+            if json_data['code'] == 200:
+                msg = json_data['content'].strip()
             else:
                 OutPut.outPut(f'[~]: 舔狗日记接口出了点小问题... ...')
-                msg = self.get_dog()
+                return '舔狗日记接口出了点小问题... ...'
         except Exception as e:
             msg = f'[-]: 舔狗日记API接口出现错误，错误信息：{e}'
             OutPut.outPut(msg)
@@ -533,6 +535,7 @@ class Api_Main_Server:
         except Exception as e:
             msg = f'[-]: 毒鸡汤接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
+            return msg
 
     # 讲笑话
     def get_joke(self):
@@ -1315,10 +1318,11 @@ class Api_Main_Server:
 
 if __name__ == '__main__':
     Ams = Api_Main_Server(1)
-    # Ams.query_weather('天气查询 南昌')
-    print(Ams.get_dog())
+    print(Ams.query_weather('天气查询 南昌'))
+    # print(Ams.get_dog())
     # # Ams.get_constellation('运势查询 白羊')
-    # # print(Ams.get_morning())
+    print(Ams.get_morning())
+    print(Ams.get_soup())
     # # print(Ams.get_whois('whois查询 qq.com'))
     # # print(Ams.get_attribution('归属查询 121264'))
     # # print(Ams.get_icp('备案查询 qzzz2131231q.com'))

@@ -370,13 +370,13 @@ Api_Server:
       Key: 'Bearer '
 
   # 天气查询API
-  Weather_Api: 'https://106.14.251.28/tianqi/index?key={}&city={}&type=1'
+  Weather_Api: 'https://apis.tianapi.com/tianqi/index?key={}&city={}&type=1'
   # 舔狗日记API
-  Dog_Api: 'https://106.14.251.28/tiangou/index?key={}'
+  Dog_Api: 'https://apis.tianapi.com/tiangou/index?key={}'
   # 星座查询API
-  Constellation_Api: 'https://106.14.251.28/star/index?key={}&astro={}'
+  Constellation_Api: 'https://apis.tianapi.com/star/index?key={}&astro={}'
   # 早安寄语API
-  Morning_Api: 'https://106.14.251.28/zaoan/index?key={}'
+  Morning_Api: 'https://apis.tianapi.com/zaoan/index?key={}'
   # 微步查询API
   ThreatBook_Api: 'https://api.threatbook.cn/v3/scene/ip_reputation'
   # 端口查询API
@@ -398,7 +398,7 @@ Api_Server:
   # 备案查询API配置
   Icp_Api: 'https://v.api.aa1.cn/api/icp/index.php?url={}'
   # 周公解梦Api配置
-  Dream_Api: 'https://106.14.251.28/dream/index?key={}&num=10&word={}'
+  Dream_Api: 'https://apis.tianapi.com/dream/index?key={}&num=10&word={}'
   # SOMD5解密API配置
   Somd5_Md5_Api: 'https://www.somd5.com/ss.php?api={}&hash={}'
   # Cmd5解密Api配置
@@ -419,7 +419,7 @@ Api_Server:
     - 'http://api.yujn.cn/api/zzxjj.php'
     - 'https://api.yujn.cn/api/manzhan.php'
   # 毒鸡汤API配置
-  Chicken_Soup_Api: 'https://106.14.251.28/dujitang/index?key={}'
+  Chicken_Soup_Api: 'https://apis.tianapi.com/dujitang/index?key={}'
   # 笑话API配置
   Joke_Api: 'https://api.vvhan.com/api/text/joke?type=json'
   # 每天60秒读懂世界API配置
