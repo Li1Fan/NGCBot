@@ -100,6 +100,8 @@ class Push_Main_Server:
     def push_morning_msg(self):
         OutPut.outPut('[*]: 定时早安寄语推送中... ...')
         msg = self.Ams.get_morning()
+        if not msg:
+            return
         msg = "早安！打工人\n" + msg
         room_dicts = self.Dms.show_push_rooms()
         for room_id in room_dicts.keys():
