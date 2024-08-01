@@ -519,6 +519,7 @@ class Api_Main_Server:
         except Exception as e:
             msg = f'[-]: 早安寄语接口出现错误, 错误信息：{e}'
             OutPut.outPut(msg)
+            return msg
 
     # 毒鸡汤
     def get_soup(self):
