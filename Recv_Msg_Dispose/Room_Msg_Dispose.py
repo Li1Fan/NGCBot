@@ -712,7 +712,7 @@ class Room_Msg_Dispose:
                 save_path = self.Ams.magic_emoji_by_head(head_img)
                 if save_path:
                     if save_path.endswith('.gif'):
-                        self.wcf.send_emotion(path=save_path, receiver=msg.roomid)
+                        self.wcf.send_emotion_ensure_success(path=save_path, receiver=msg.roomid)
                     else:
                         self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
         elif self.judge_keyword(keyword=["测试"],
@@ -1873,7 +1873,7 @@ class Room_Msg_Dispose:
 
             sql_query = f'SELECT usrName,smallHeadBuf FROM ContactHeadImg1 WHERE usrName="{msg.sender}";'
             res = self.wcf.query_sql("Misc.db", sql_query)
-            print(f"head img res = {res}")
+            # print(f"head img res = {res}")
 
             if not res:
                 return
@@ -1922,6 +1922,38 @@ class Room_Msg_Dispose:
 
         except Exception as e:
             OutPut.outPut(f'[-]: 图片发送失败，错误信息: {e}')
+            return
+
+    def send_emotion_ensure_success(self, path, receiver):
+        if not os.path.exists(path):
+            return
+        try:
+            self.wcf.send_emotion(path=path, receiver=receiver)
+            time.sleep(0.2)
+            sql_query = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
+                        f'WHERE IsSender = 1 AND Type = 47 AND StrTalker = "{receiver}" ORDER BY localId DESC LIMIT 1;'
+            res = self.wcf.query_sql("MSG0.db", sql_query)
+            print(f"res = {res}")
+            local_id = res[0].get('localId')
+
+            def ensure(local_id, path, receiver):
+                time.sleep(5)
+                sql_query_again = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
+                                  f'WHERE localId = {local_id};'
+                res_again = self.wcf.query_sql("MSG0.db", sql_query_again)
+                print(f"res_again = {res_again}")
+                # 撤回消息ID
+                msg_svr_id = res_again[0].get('MsgSvrID')
+                if msg_svr_id == 0:
+                    OutPut.outPut(f'[-]: 表情发送失败，重新发送，回调中...')
+                    return self.send_emotion_ensure_success(path, receiver)
+                return
+
+            thread_ensure = threading.Thread(target=ensure, args=(local_id, path, receiver))
+            thread_ensure.start()
+
+        except Exception as e:
+            OutPut.outPut(f'[-]: 表情发送失败，错误信息: {e}')
             return
 
 
