@@ -224,9 +224,11 @@ class Room_Msg_Dispose:
         # 新增管理员流程
         if self.judge_keyword(keyword=self.Add_Admin_KeyWords, msg=msg.content, list_bool=True, in_bool=True):
             Thread(target=self.add_admin, name="新增管理员", args=(msg.sender, at_user_lists, msg.roomid,)).start()
+            return
         # 删除管理员流程
         elif self.judge_keyword(keyword=self.Del_Admin_KeyWords, msg=msg.content, list_bool=True, in_bool=True):
             Thread(target=self.del_admin, name="删除管理员", args=(msg.sender, at_user_lists, msg.roomid,)).start()
+            return
         self.Admin_Function(msg, at_user_lists)
 
     # 管理员功能
@@ -234,56 +236,68 @@ class Room_Msg_Dispose:
         # 开启推送服务
         if self.judge_keyword(keyword=self.Add_Push_KeyWords, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             Thread(target=self.add_push_room, name="添加推送群聊", args=(msg.sender, msg.roomid,)).start()
+            return
         # 关闭推送服务
         elif self.judge_keyword(keyword=self.Del_Push_KeyWords, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.del_push_room, name="移除推送群聊", args=(msg.sender, msg.roomid,)).start()
+            return
         # 添加白名单群聊
         elif self.judge_keyword(keyword=self.Add_WhiteRoom_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.add_white_room, name="添加白名单群聊", args=(msg.sender, msg.roomid,)).start()
+            return
         # 移除白名单群聊
         elif self.judge_keyword(keyword=self.Del_WhiteRoom_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.del_white_room, name="移除白名单群聊", args=(msg.sender, msg.roomid,)).start()
+            return
         # 添加黑名单群聊
         elif self.judge_keyword(keyword=self.Add_BlackRoom_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.add_black_room, name="添加黑名单群聊", args=(msg.sender, msg.roomid,)).start()
+            return
         # 移除黑名单群聊
         elif self.judge_keyword(keyword=self.Del_Black_Room_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.del_black_room, name="移除黑名单群聊", args=(msg.sender, msg.roomid,)).start()
+            return
         # 把人移出群聊
         elif self.judge_keyword(keyword=self.Del_User_Words, msg=self.handle_atMsg(msg, at_user_lists), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.del_user, name="把人移出群聊", args=(msg.sender, msg.roomid, at_user_lists,)).start()
+            return
         # 屏蔽个人消息
         elif self.judge_keyword(keyword=["屏蔽", "屏蔽消息"], msg=self.handle_atMsg(msg, at_user_lists), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.block_personal_msg, name="屏蔽个人消息",
                    args=(msg.sender, msg.roomid, at_user_lists,)).start()
+            return
         # 取消屏蔽个人消息
         elif self.judge_keyword(keyword=["取消屏蔽", "取消屏蔽消息"], msg=self.handle_atMsg(msg, at_user_lists),
                                 list_bool=True,
                                 equal_bool=True):
             Thread(target=self.unblock_personal_msg, name="取消屏蔽个人消息",
                    args=(msg.sender, msg.roomid, at_user_lists,)).start()
+            return
         # 移除白名单公众号
         elif self.judge_keyword(keyword=self.Del_WhiteGh_Words, msg=self.handle_xml_msg(msg), list_bool=True,
                                 equal_bool=True) and self.handle_xml_type(msg) == '57':
             Thread(target=self.del_white_gh, name="移除白名单公众号", args=(msg,)).start()
+            return
         # 增加用户积分
         elif self.judge_keyword(keyword=self.Add_Point_Words, msg=self.handle_atMsg(msg, at_user_lists),
                                 list_bool=True,
                                 split_bool=True):
             Thread(target=self.Add_Point, name="增加积分",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
+            return
         # 减少用户积分
         elif self.judge_keyword(keyword=self.Del_Point_Words, msg=self.handle_atMsg(msg, at_user_lists), list_bool=True,
                                 split_bool=True):
             Thread(target=self.Del_Point, name="减少积分",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
+            return
         # # 早报
         # elif self.judge_keyword(keyword=self.Morning_Page_Words, msg=msg.content.strip(), list_bool=True,
         #                         equal_bool=True):
@@ -297,49 +311,62 @@ class Room_Msg_Dispose:
         # 添加白名单公众号
         elif msg.type == 49:
             Thread(target=self.add_white_gh, name="添加白名单公众号", args=(msg,)).start()
+            return
         # 积分限制功能
         elif msg.content.strip() in ['取消积分限制', '取消积分', '取消限制', '关闭积分限制', '关闭积分', '关闭限制']:
             self.Ai_Point = 0
             self.wcf.send_text(msg='关闭积分限制成功', receiver=msg.roomid, aters=msg.sender)
+            return
         elif msg.content.strip() in ['开启积分限制', '开启积分', '开启限制']:
             self.Ai_Point = 10
             self.wcf.send_text(msg='开启积分限制成功', receiver=msg.roomid, aters=msg.sender)
+            return
         elif msg.content.strip() in ['开启管理员模式', '管理员模式']:
             self.manager_mode_rooms[msg.roomid] = True
             self.wcf.send_text(msg=f'管理员模式开启成功，仅响应管理员消息', receiver=msg.roomid, aters=msg.sender)
             self.save_state()
+            return
         elif msg.content.strip() in ['关闭管理员模式', '取消管理员模式', '退出管理员模式', '普通模式']:
             self.manager_mode_rooms[msg.roomid] = False
             self.wcf.send_text(msg=f'管理员模式关闭成功，恢复正常消息响应', receiver=msg.roomid, aters=msg.sender)
             self.save_state()
+            return
         elif msg.content.strip() in ['开启防撤回', '开启防撤回功能']:
             self.recall_mode_rooms[msg.roomid] = True
             self.wcf.send_text(msg=f'已开启防撤回', receiver=msg.roomid, aters=msg.sender)
             self.save_state()
+            return
         elif msg.content.strip() in ['关闭防撤回', '关闭防撤回功能']:
             self.recall_mode_rooms[msg.roomid] = False
             self.wcf.send_text(msg=f'已关闭防撤回', receiver=msg.roomid, aters=msg.sender)
             self.save_state()
+            return
         elif msg.content.strip() in ['高级画画', '高级画画模型', '高级画画模式']:
             self.Ams.is_advanced_drawing = True
             self.wcf.send_text(msg=f'已经切换为高级画画模型', receiver=msg.roomid, aters=msg.sender)
+            return
         elif msg.content.strip() in ['普通画画', '普通画画模型', '普通画画模式']:
             self.Ams.is_advanced_drawing = False
             self.wcf.send_text(msg=f'已经切换为普通画画模型', receiver=msg.roomid, aters=msg.sender)
+            return
         elif msg.content.strip() in ['360', '360搜图', '360搜图模式']:
             self.Ams.search_pic_mode = "360"
             self.wcf.send_text(msg=f'已经切换为360搜图模式', receiver=msg.roomid, aters=msg.sender)
+            return
         elif msg.content.strip() in ['百度', '百度搜图', '百度搜图模式', "baidu"]:
             self.Ams.search_pic_mode = "baidu"
             self.wcf.send_text(msg=f'已经切换为百度搜图模式', receiver=msg.roomid, aters=msg.sender)
+            return
         elif msg.content.strip() in ['搜狗', '搜狗搜图', '搜狗搜图模式', "sogou"]:
             self.Ams.search_pic_mode = "sogou"
             self.wcf.send_text(msg=f'已经切换为搜狗搜图模式', receiver=msg.roomid, aters=msg.sender)
+            return
         elif self.judge_keyword(keyword=["撤回最新消息", "撤回消息"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
                                 equal_bool=True):
             Thread(target=self.recall_msg, name="撤回", args=(msg,)).start()
+            return
         elif self.judge_keyword(keyword=["查询数据库", 'sql'],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -353,7 +380,7 @@ class Room_Msg_Dispose:
                 self.wcf.send_text(msg=result, receiver=msg.roomid, aters=msg.sender)
             except Exception as e:
                 OutPut.outPut(f'[-]: 查询数据库失败 {e}')
-
+            return
         Thread(target=self.OrdinaryRoom_Function, name="普通群聊功能", args=(msg, at_user_lists)).start()
 
     # 白名单群聊功能
@@ -387,6 +414,7 @@ class Room_Msg_Dispose:
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='美女图片接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
+            return
         # 美女视频
         elif self.judge_keyword(keyword=self.Video_Words, msg=msg.content, list_bool=True, equal_bool=True):
             save_path = self.Ams.get_girl_video()
@@ -394,15 +422,18 @@ class Room_Msg_Dispose:
                 self.wcf.send_file(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='美女视频接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
+            return
         # 天气查询
         elif self.judge_keyword(keyword=self.Weather_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
             weather_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.query_weather(
                 msg.content.strip())
             self.wcf.send_text(msg=weather_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         # 舔狗日记
         elif self.judge_keyword(keyword=self.Dog_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             dog_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_dog()
             self.wcf.send_text(msg=dog_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         # # 星座查询
         # elif self.judge_keyword(keyword=self.Constellation_Words, msg=msg.content.strip(), list_bool=True,
         #                         split_bool=True):
@@ -417,15 +448,18 @@ class Room_Msg_Dispose:
             #     self.wcf.send_image(path=self.Ams.Pic_path+'/daily.gif', receiver=msg.roomid)
             # except Exception as e:
             #     print(f'早安寄语图片发送失败, 错误信息: {e}')
+            return
         # 毒鸡汤
         elif self.judge_keyword(keyword=self.Poison_Chicken_Soup_Words, msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             poison_chicken_soup_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_soup()
             self.wcf.send_text(msg=poison_chicken_soup_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         # 讲笑话
         elif self.judge_keyword(keyword=self.Joke_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             joke_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_joke()
             self.wcf.send_text(msg=joke_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         # 60s
         elif self.judge_keyword(keyword=self.s60_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             # s60_msg = self.Ams.get_60s()
@@ -434,6 +468,7 @@ class Room_Msg_Dispose:
             save_path = self.Ams.get_60s_pic()
             if save_path:
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
+            return
         elif self.judge_keyword(keyword=["60s图片", "60图片", "60pic", "60spic"], msg=msg.content.strip(),
                                 list_bool=True,
                                 equal_bool=True):
@@ -442,6 +477,7 @@ class Room_Msg_Dispose:
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='60s图片接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
+            return
         # 虎扑热搜
         elif self.judge_keyword(keyword=self.Hupu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             hupu_msg = self.Ams.get_hupu()
@@ -450,12 +486,14 @@ class Room_Msg_Dispose:
                 return
             self.wcf.send_text(msg=hupu_msg[0], receiver=msg.roomid, aters=msg.sender)
             self.wcf.send_text(msg=hupu_msg[1], receiver=msg.roomid, aters=msg.sender)
+            return
         # 神回复
         elif self.judge_keyword(keyword=["神回复"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             god_msg = self.Ams.get_god_reply()
             if god_msg is None:
                 return
             self.wcf.send_text(msg=god_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         # 每日英语
         elif self.judge_keyword(keyword=["每日英语", "来一句英语"], msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
@@ -463,6 +501,7 @@ class Room_Msg_Dispose:
             if english_msg is None:
                 return
             self.wcf.send_text(msg=english_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         # 摸鱼日记
         elif self.judge_keyword(keyword=self.Fish_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             save_path = self.Ams.get_fish()
@@ -472,6 +511,7 @@ class Room_Msg_Dispose:
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
             else:
                 self.wcf.send_text(msg='摸鱼日记接口出错, 错误信息请查看日志 ~~~~~~', receiver=msg.roomid)
+            return
         # 内涵段子
         elif self.judge_keyword(keyword=["内涵段子", "段子", "讲段子"], msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
@@ -483,6 +523,7 @@ class Room_Msg_Dispose:
             else:
                 text = self.Ams.get_duanzi_text()
                 self.wcf.send_text(msg=text, receiver=msg.roomid) if text else None
+            return
         # 喜加一
         elif self.judge_keyword(keyword=["喜加一", "EPIC喜加一", "STEAM喜加一", "免费游戏"],
                                 msg=msg.content.strip().upper(),
@@ -494,16 +535,19 @@ class Room_Msg_Dispose:
             for content in content_list:
                 if content:
                     self.wcf.send_text(msg=content, receiver=msg.roomid)
+            return
         # 点歌功能
         elif self.judge_keyword(keyword=["点歌", "听歌"], msg=msg.content.strip(), list_bool=True, split_bool=True):
             music_name = msg.content.strip().split(' ', 1)[1].strip()
             digest = '搜索歌曲：{}'.format(music_name)
             url = 'https://tool.liumingye.cn/music/#/search/M/song/{}'.format(music_name)
             self.send_music_message(digest, url, msg.roomid)
+            return
         elif msg.content.strip() in ["点歌", "听歌"]:
             digest = '点击进入点歌页面'
             url = 'https://tool.liumingye.cn/music/'
             self.send_music_message(digest, url, msg.roomid)
+            return
         # 成语解析功能
         elif self.judge_keyword(keyword=["成语解析", "成语解释", "成语查询"], msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
@@ -511,6 +555,7 @@ class Room_Msg_Dispose:
             idiom_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' \
                         + self.Ams.get_idiom_explain(idiom_name)
             self.wcf.send_text(msg=idiom_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         # 谷歌翻译
         elif self.judge_keyword(keyword=["谷歌翻译", "翻译", "翻译翻译", "给我翻译翻译"], msg=msg.content.strip(),
                                 list_bool=True,
@@ -526,6 +571,7 @@ class Room_Msg_Dispose:
                         + f'原文：{chinese_content}\n' \
                         + f'译文：{english_content}'
             self.wcf.send_text(msg=trans_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         # 接口不稳定，暂时关闭
         # elif msg.content.strip().upper() in ["COS", "COSPLAY"]:
         #     save_path = self.Ams.get_cosplay_video()
@@ -555,6 +601,7 @@ class Room_Msg_Dispose:
             kfc_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_kfc().replace(
                 '\\n', '\n')
             self.wcf.send_text(msg=kfc_msg, receiver=msg.roomid, aters=msg.sender)
+            return
         # # 周公解梦
         # elif self.judge_keyword(keyword=self.Dream_Words, msg=msg.content.strip(), list_bool=True, split_bool=True):
         #     dream_msg = f'@{self.wcf.get_alias_in_chatroom(roomid=msg.roomid, wxid=msg.sender)}\n' + self.Ams.get_dream(
@@ -563,10 +610,12 @@ class Room_Msg_Dispose:
         # help帮助菜单
         elif self.judge_keyword(keyword=self.HelpMenu_Words, msg=msg.content.strip(), list_bool=True, equal_bool=True):
             Thread(target=self.get_help, name="Help帮助菜单", args=(msg,)).start()
+            return
         # 功能
         elif self.judge_keyword(keyword=["功能", "萝卜功能", "萝卜菜单"], msg=msg.content.strip(), list_bool=True,
                                 equal_bool=True):
             Thread(target=self.get_help, name="Help帮助菜单", args=(msg,)).start()
+            return
         # # 自定义回复
         # Thread(target=self.custom_get, name="自定义回复", args=(msg,)).start()
         elif self.judge_keyword(keyword=["定时提醒", "定时任务"], msg=msg.content.strip(), list_bool=True,
@@ -588,6 +637,7 @@ class Room_Msg_Dispose:
                          '或者：\n'
                          '“定时提醒/任务 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
                 self.send_at_msg(msg.roomid, msg.sender, reply)
+            return
         elif self.judge_keyword(keyword=["取消提醒", "关闭提醒", "删除提醒",
                                          "取消任务", "关闭任务", "删除任务",
                                          "取消定时事件", "关闭定时事件", "删除定时事件"],
@@ -600,6 +650,7 @@ class Room_Msg_Dispose:
                        args=(id_, msg.roomid, msg.sender)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 取消提醒设置失败 {e}')
+            return
         elif self.judge_keyword(keyword=["管理员删除提醒", "管理员删除任务", "管理员删除定时事件"],
                                 msg=msg.content.strip(), list_bool=True,
                                 split_bool=True):
@@ -610,6 +661,7 @@ class Room_Msg_Dispose:
                        args=(id_, msg.roomid, msg.sender, True)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 取消提醒设置失败 {e}')
+            return
         elif self.judge_keyword(keyword=["提醒查询", "提醒查看", "查询提醒", "查看提醒",
                                          "任务查询", "任务查看", "查询任务", "查看任务",
                                          "定时事件查询", "定时事件查看", "查询定时事件", "查看定时事件"],
@@ -621,6 +673,7 @@ class Room_Msg_Dispose:
                        args=(msg.roomid, msg.sender)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 提醒查询失败 {e}')
+            return
         elif self.judge_keyword(keyword=["管理员提醒查询", "管理员任务查询", "管理员定时事件查询"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -630,6 +683,7 @@ class Room_Msg_Dispose:
                        args=(msg.roomid, msg.sender, True)).start()
             except Exception as e:
                 OutPut.outPut(f'[-]: 提醒查询失败 {e}')
+            return
         elif self.judge_keyword(keyword=["放烟花", "放礼花", "放炸弹", "放鞭炮"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -655,6 +709,7 @@ class Room_Msg_Dispose:
             emoji_name = {"放烟花": "烟花", "放礼花": "庆祝", "放炸弹": "炸弹", "放鞭炮": "爆竹"}. \
                 get(name, "烟花")
             Thread(target=self.play_fireworks, name="放烟花", args=(msg, num, emoji_name, time_interval)).start()
+            return
         elif self.judge_keyword(keyword=["放烟花帮助", "放礼花帮助", "放炸弹帮助", "放鞭炮帮助"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -666,6 +721,7 @@ class Room_Msg_Dispose:
                      '“放炸弹 3”\n'
                      '“放鞭炮 3 1.5”')
             self.send_at_msg(msg.roomid, msg.sender, reply)
+            return
         elif self.judge_keyword(keyword=["搜图", "搜图片"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -676,6 +732,7 @@ class Room_Msg_Dispose:
                 ret = f'[*]: 搜图API接口返回值：{save_path}'
                 OutPut.outPut(ret)
                 self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
+            return
         elif self.judge_keyword(keyword=["搜歌", "搜歌曲"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -686,6 +743,7 @@ class Room_Msg_Dispose:
                 introduce_msg = "请回复“选歌 歌曲序号”进行播放，将以文件形式发送"
                 self.send_at_msg(msg.roomid, msg.sender, introduce_msg + '\n\n' + music_msg)
                 self.search_link_dict[msg.roomid] = music_link
+            return
         elif self.judge_keyword(keyword=["选歌", "选歌曲"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -698,11 +756,12 @@ class Room_Msg_Dispose:
                     music_file_path = self.Ams.down_song_by_url(music_link)
                     if music_file_path:
                         self.wcf.send_file(path=music_file_path, receiver=msg.roomid)
+            return
         elif self.judge_keyword(keyword=["搜番", "搜动漫"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
                                 split_bool=True):
-            pass
+            return
         elif self.judge_keyword(keyword=["随机表情", "个性表情", "头像表情", "魔法表情"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -715,19 +774,20 @@ class Room_Msg_Dispose:
                         self.send_emotion_ensure_success(path=save_path, receiver=msg.roomid)
                     else:
                         self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
+            return
         elif self.judge_keyword(keyword=["表情选项", "表情菜单", "表情功能"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
                                 equal_bool=True):
             reply = '表情选项：\n' + ' '.join(all_emojis_dict_with_jpg_keys)
             self.send_at_msg(msg.roomid, msg.sender, reply)
+            return
         # 个性表情功能
         elif self.judge_keyword(keyword=all_emojis_dict_with_jpg_keys, msg=self.handle_atMsg(msg, at_user_lists),
                                 list_bool=True, split_bool=True):
             Thread(target=self.gen_emoji, name="个性表情",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
             return
-
         elif self.judge_keyword(keyword=["测试"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -736,6 +796,7 @@ class Room_Msg_Dispose:
             print(db_list)
             for db in db_list:
                 print(self.wcf.get_tables(db))
+            return
         elif self.judge_keyword(keyword=["测试图片"],
                                 msg=msg.content.strip(),
                                 list_bool=True,
@@ -747,6 +808,7 @@ class Room_Msg_Dispose:
                 self.wcf.send_emotion(path=file_path, receiver=msg.roomid)
                 time.sleep(2)
                 self.wcf.send_file(path=file_path, receiver=msg.roomid)
+            return
 
     # 积分功能
     def Point_Function(self, msg, at_user_lists):
@@ -1819,8 +1881,8 @@ class Room_Msg_Dispose:
     def judge_keyword(keyword, msg, list_bool=False, equal_bool=False, in_bool=False,
                       split_bool=False):
         try:
-            if msg and '加' in msg:
-                print(f'msg:{msg}')
+            # if msg and '加' in msg:
+            #     print(f'msg:{msg}')
             # 如果触发词是列表 并且只需要包含则执行
             if list_bool and in_bool:
                 for word in keyword:
