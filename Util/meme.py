@@ -207,7 +207,8 @@ all_emojis_dict_with_jpg = {'二次元入口': 'acg_entrance', '添乱': 'add_ch
                             '你应该致电': 'you_should_call'}
 
 all_emojis_dict_with_jpg_keys = list(all_emojis_dict_with_jpg.keys())
-all_emojis_dict_with_jpg_keys.remove("波奇手稿")
+emojis_keys_over_size = ["波奇手稿", "迷惑", "草神啃", "复读"]
+all_emojis_dict_with_jpg_keys = list(set(all_emojis_dict_with_jpg_keys) - set(emojis_keys_over_size))
 
 
 def generate_meme(filename, emoji, texts=None, filename2=None):
@@ -278,6 +279,14 @@ def test():
             print(key, value)
             dit[key] = value
     print(dit)
+
+
+def check_file_over_size(path, size=10240 * 1.4):
+    if os.path.exists(path):
+        file_size = os.path.getsize(path)
+        if file_size > size:
+            return True
+    return False
 
 
 if __name__ == "__main__":
