@@ -2,6 +2,8 @@ import time
 
 from cprint import cprint
 
+from Util.log import log
+
 
 def outPut(msg: str):
     # 获取现在的时间
@@ -9,20 +11,17 @@ def outPut(msg: str):
     # 正常信息输出
     if '[*]' in msg:
         cprint.info(f'[{now_time}]: {msg}')
+        log.debug(msg)
     # 成功信息输出
     elif '[+]' in msg:
         cprint.ok(f'[{now_time}]: {msg}')
+        log.info(msg)
     elif '[-]' in msg:
         cprint.err(f'[{now_time}]: {msg}')
+        log.error(msg)
     elif '[~]' in msg:
         cprint.warn(f'[{now_time}]: {msg}')
+        log.warning(msg)
     else:
         cprint(f'[{now_time}]: {msg}')
-
-    # # 增加保存日志功能
-    # try:
-    #     with open(f"{PRJ_PATH}/Log/log.txt", 'a', encoding='utf-8') as f:
-    #         f.write(f'[{now_time}]: {msg}\n')
-    #     return
-    # except Exception as e:
-    #     cprint.err(f'[{now_time}]: {e}')
+        log.info(msg)

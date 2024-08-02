@@ -36,7 +36,7 @@ class Api_Main_Server:
 
         # 配置缓存文件夹路径
         self.Cache_path = PRJ_PATH + '/Cache'
-        self.Pic_path = self.Cache_path + '/Pic'
+        self.Pic_path = PRJ_PATH + '/Pic'
         # 初始化读取配置文件
         config = yaml.load(open(PRJ_PATH + '/Config/config.yaml', encoding='UTF-8'), yaml.Loader)
         self.system_copyright = config['System_Config']['System_Copyright']
@@ -81,13 +81,13 @@ class Api_Main_Server:
         # 千帆配置
         self.qf_ak = config['Api_Server']['Ai_Config']['QianFan']['Qf_Access_Key']
         self.qf_sk = config['Api_Server']['Ai_Config']['QianFan']['Qf_Secret_Key']
-        if self.qf_ak and self.qf_sk:
-            # self.chat_comp = qianfan.ChatCompletion(ak=self.qf_ak,
-            #                                         sk=self.qf_sk)
-            # self.chat_mess = qianfan.Messages()
-            pass
-        else:
-            OutPut.outPut(f'[-]: 千帆模型未配置，请修改配置文件已启用模型！！！')
+        # if self.qf_ak and self.qf_sk:
+        #     self.chat_comp = qianfan.ChatCompletion(ak=self.qf_ak,
+        #                                             sk=self.qf_sk)
+        #     self.chat_mess = qianfan.Messages()
+        #     pass
+        # else:
+        #     OutPut.outPut(f'[-]: 千帆模型未配置，请修改配置文件已启用模型！！！')
         # 秘塔搜索
         self.Metaso_Api = config['Api_Server']['Ai_Config']['Metaso']['Metaso_Api']
         self.Metaso_Key = config['Api_Server']['Ai_Config']['Metaso']['Metaso_Key']
