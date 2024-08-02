@@ -407,7 +407,7 @@ class Room_Msg_Dispose:
         # 美女视频
         elif self.judge_keyword(keyword=self.Video_Words, msg=msg.content, list_bool=True, equal_bool=True):
             save_path = self.Ams.get_girl_video()
-            if save_path:
+            if check_file(save_path):
                 self.wcf.send_file(path=save_path, receiver=msg.roomid)
             return
         # 天气查询
@@ -1705,7 +1705,7 @@ class Room_Msg_Dispose:
         self.wcf.send_text(msg=at_msg, receiver=roomid, aters=wxid)
 
     def send_image_ensure_success(self, path, receiver, retry_count=0):
-        if not os.path.exists(path):
+        if not check_file(path):
             return
         try:
             print(self.wcf.send_image(path=path, receiver=receiver))
@@ -1740,7 +1740,7 @@ class Room_Msg_Dispose:
             return
 
     def send_emotion_ensure_success(self, path, receiver, retry_count=0):
-        if not os.path.exists(path):
+        if not check_file(path):
             return
         try:
             print(self.wcf.send_emotion(path=path, receiver=receiver))
