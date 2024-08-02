@@ -15,7 +15,7 @@ from Api_Server.Api_Main_Server import Api_Main_Server
 from Db_Server.Db_Main_Server import Db_Main_Server
 from Db_Server.Db_Point_Server import Db_Point_Server
 from OutPut import OutPut
-from Util.meme import all_emojis_dict_with_jpg_keys, all_emojis_dict_with_jpg
+from Util.meme import all_emojis_dict_with_jpg_keys, all_emojis_dict_with_jpg, all_emojis_dict
 from advanced_path import PRJ_PATH
 
 
@@ -677,13 +677,20 @@ class Room_Msg_Dispose:
             return
         elif self.judge_keyword(keyword=["表情选项", "表情菜单", "表情功能"],
                                 msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            reply = '表情选项：\n' + '、'.join(all_emojis_dict_with_jpg_keys)
+            reply = '表情选项：\n' + '、'.join(all_emojis_dict_with_jpg_keys + ["揍", "击剑"])
             self.send_at_msg(msg.roomid, msg.sender, reply)
             return
-        elif self.judge_keyword(keyword=all_emojis_dict_with_jpg_keys, msg=self.handle_atMsg(msg, at_user_lists),
+        elif self.judge_keyword(keyword=all_emojis_dict_with_jpg_keys + ["揍", "击剑"],
+                                msg=self.handle_atMsg(msg, at_user_lists),
                                 list_bool=True, equal_bool=True):
             Thread(target=self.gen_emoji, name="个性表情",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
+            return
+        elif self.judge_keyword(keyword=["表情", "个性表情"],
+                                msg=msg.content.strip(),
+                                list_bool=True, split_bool=True):
+            Thread(target=self.gen_emoji_self, name="个性表情",
+                   args=(msg, msg.content.strip(), at_user_lists,)).start()
             return
         elif self.judge_keyword(keyword=["测试"], msg=msg.content.strip(), list_bool=True, equal_bool=True):
             db_list = self.wcf.get_dbs()
@@ -1327,10 +1334,22 @@ class Room_Msg_Dispose:
         except Exception as e:
             OutPut.outPut(f'[~]: 赠送积分出了点小问题 :{e}')
 
-    # 赠送积分
+    # 生成个性表情
     def gen_emoji(self, msg, content, at_user_lists):
         try:
             OutPut.outPut(f'[*]: 个性表情接口接收到的消息: {content}')
+            if content in ["揍", "击剑"]:
+                head_img = self.get_head_img(msg.sender)
+                head_img2 = self.get_head_img(at_user_lists[0])
+                if head_img and head_img2:
+                    emoji = all_emojis_dict.get(content)
+                    save_path = self.Ams.magic_emoji_by_head_and_emoji(head_img, emoji, head_img2)
+                    if save_path:
+                        if save_path.endswith('.gif'):
+                            self.send_emotion_ensure_success(path=save_path, receiver=msg.roomid)
+                        else:
+                            self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
+                return
             for give_sender in at_user_lists:
                 head_img = self.get_head_img(give_sender)
                 if head_img:
@@ -1341,6 +1360,26 @@ class Room_Msg_Dispose:
                             self.send_emotion_ensure_success(path=save_path, receiver=msg.roomid)
                         else:
                             self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
+        except Exception as e:
+            OutPut.outPut(f'[~]: 个性表情出了点小问题 :{e}')
+
+    def gen_emoji_self(self, msg, content, at_user_lists):
+        try:
+            OutPut.outPut(f'[*]: 个性表情接口接收到的消息: {content}')
+            content = content.split(' ', 1)[-1]
+            if content not in all_emojis_dict_with_jpg_keys:
+                return
+            head_img = self.get_head_img(msg.sender)
+            if head_img:
+                emoji = all_emojis_dict_with_jpg.get(content, None)
+                if emoji:
+                    save_path = self.Ams.magic_emoji_by_head_and_emoji(head_img, emoji)
+                    if save_path:
+                        if save_path.endswith('.gif'):
+                            self.send_emotion_ensure_success(path=save_path, receiver=msg.roomid)
+                        else:
+                            self.send_image_ensure_success(path=save_path, receiver=msg.roomid)
+            return
         except Exception as e:
             OutPut.outPut(f'[~]: 个性表情出了点小问题 :{e}')
 

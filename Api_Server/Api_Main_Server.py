@@ -970,8 +970,8 @@ class Api_Main_Server:
 
     # 生成表情
     @staticmethod
-    def magic_emoji_by_head_and_emoji(head, emoji):
-        meme_file = generate_meme(head, emoji)
+    def magic_emoji_by_head_and_emoji(head, emoji, head2=None):
+        meme_file = generate_meme(head, emoji, filename2=head2)
         return meme_file
 
 

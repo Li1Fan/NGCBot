@@ -207,18 +207,24 @@ all_emojis_dict_with_jpg = {'二次元入口': 'acg_entrance', '添乱': 'add_ch
                             '你应该致电': 'you_should_call'}
 
 all_emojis_dict_with_jpg_keys = list(all_emojis_dict_with_jpg.keys())
+all_emojis_dict_with_jpg_keys.remove("波奇手稿")
 
 
-def generate_meme(filename, emoji, texts=None):
+def generate_meme(filename, emoji, texts=None, filename2=None):
     try:
         if texts is None:
             texts = []
 
         files = [("images", open(filename, "rb"))]
+        if filename2:
+            files.append(("images", open(filename2, "rb")))
         args = {"circle": True}
         data = {"texts": texts, "args": json.dumps(args)}
 
         wxid = os.path.basename(filename).split(".")[0]
+        if filename2:
+            wxid2 = os.path.basename(filename2).split(".")[0]
+            wxid = f"{wxid}_{wxid2}"
 
         img_dir = PRJ_PATH + '/Cache/Meme_Cache'
         os.makedirs(img_dir, exist_ok=True)
