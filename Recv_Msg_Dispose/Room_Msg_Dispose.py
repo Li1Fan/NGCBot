@@ -1746,6 +1746,7 @@ class Room_Msg_Dispose:
 
     def send_image_ensure_success(self, path, receiver, retry_count=0):
         if not check_file(path):
+            print(f"文件 {path} 不存在或大小大于5KB")
             return
         try:
             print(self.wcf.send_image(path=path, receiver=receiver))
@@ -1757,7 +1758,7 @@ class Room_Msg_Dispose:
             local_id = res[0].get('localId')
 
             def ensure(local_id, path, receiver):
-                time.sleep(5)
+                time.sleep(3)
                 sql_query_again = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
                                   f'WHERE localId = {local_id};'
                 res_again = self.wcf.query_sql("MSG0.db", sql_query_again)
@@ -1766,10 +1767,11 @@ class Room_Msg_Dispose:
                 msg_svr_id = res_again[0].get('MsgSvrID')
                 if msg_svr_id == 0:
                     OutPut.outPut('[-]: 图片发送失败，重新发送，回调中...')
-                    if retry_count < 5:
+                    if retry_count < 1:
                         return self.send_image_ensure_success(path, receiver, retry_count + 1)
                     else:
                         OutPut.outPut('[-]: 已达到最大重试次数，放弃重新发送。')
+                        self.wcf.send_file(path=path, receiver=receiver)
                 return
 
             thread_ensure = threading.Thread(target=ensure, args=(local_id, path, receiver))
@@ -1792,7 +1794,7 @@ class Room_Msg_Dispose:
             local_id = res[0].get('localId')
 
             def ensure(local_id, path, receiver):
-                time.sleep(5)
+                time.sleep(3)
                 sql_query_again = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
                                   f'WHERE localId = {local_id};'
                 res_again = self.wcf.query_sql("MSG0.db", sql_query_again)
@@ -1801,10 +1803,12 @@ class Room_Msg_Dispose:
                 msg_svr_id = res_again[0].get('MsgSvrID')
                 if msg_svr_id == 0:
                     OutPut.outPut('[-]: 表情发送失败，重新发送，回调中...')
-                    if retry_count < 5:
+                    if retry_count < 1:
                         return self.send_emotion_ensure_success(path, receiver, retry_count + 1)
                     else:
                         OutPut.outPut('[-]: 已达到最大重试次数，放弃重新发送。')
+                        self.wcf.send_file(path=path, receiver=receiver)
+
                 return
 
             thread_ensure = threading.Thread(target=ensure, args=(local_id, path, receiver))
@@ -1818,7 +1822,7 @@ class Room_Msg_Dispose:
 def check_file(path):
     if os.path.exists(path):
         file_size = os.path.getsize(path)
-        if file_size > 5120:  # 5KB
+        if file_size > 256:  # 256 B
             return True
     return False
 

@@ -36,22 +36,6 @@ all_emojis = ["play_together", "bluearchive", "5000choyen", "play_game", "hold_t
               "telescope", "play", "jiji_king", "wakeup", "swirl_turn", "jiujiu", "hug_leg", "step_on", "back_to_work",
               "china_flag", "fight_with_sunuo", "lim_x_0", "google", "no_response", "support", "crawl", "gun", "loop"]
 
-# 所有支持图片参数的图片表情选项
-all_jpg_emojis_with_jpg = ['hold_tight', 'addiction', 'you_should_call', 'dont_go_near', 'mourning', 'pinch',
-                           'dinosaur', 'paint', 'walnut_pad', 'lim_x_0', 'rip', 'jiji_king', 'acg_entrance', 'potato',
-                           'distracted', 'together', 'kaleidoscope', 'look_flat', 'anya_suki', 'perfect', 'father_work',
-                           'cover_face', 'look_this_icon', 'oshi_no_ko', 'support', 'decent_kiss', 'painter', 'always',
-                           'dont_touch', 'fill_head', 'loading', 'clown', 'tomb_yeah', 'name_generator', 'lost_dog',
-                           'dog_of_vtb', 'frieren_take', 'read_book', 'throw', 'little_angel', 'maimai_awaken',
-                           'trance', 'why_at_me', 'sit_still', 'what_I_want_to_do', 'raise_image', 'mihoyo',
-                           'rip_angrily', 'china_flag', 'my_friend', 'teach', 'stew', 'anti_kidnap', 'divorce',
-                           'this_chicken', 'think_what', 'follow', 'out', 'keep_away', 'prpr', 'gun', 'marriage',
-                           'interview', 'bubble_tea', 'incivilization', 'fight_with_sunuo', 'what_he_wants',
-                           'let_me_in', 'universal', 'alike', 'coupon', 'police', 'smash', 'dianzhongdian', 'cyan',
-                           'genshin_start', 'blood_pressure', 'crawl', 'karyl_point', 'charpic', 'back_to_work',
-                           'add_chaos', 'taunt', 'note_for_leave', 'play_game', 'symmetric', 'my_wife', 'maimai_join',
-                           'need', 'overtime', 'safe_sense', 'no_response', 'learn', 'police1']
-
 # 所有支持图片参数的表情选项
 all_emojis_with_jpg = ['funny_mirror', 'maimai_awaken', 'hit_screen', 'windmill_turn', 'read_book', 'paint', 'support',
                        'capoo_rip', 'run_away', 'cover_face', 'bocchi_draft', 'sit_still', 'fill_head', 'symmetric',
@@ -207,8 +191,16 @@ all_emojis_dict_with_jpg = {'二次元入口': 'acg_entrance', '添乱': 'add_ch
                             '你应该致电': 'you_should_call'}
 
 all_emojis_dict_with_jpg_keys = list(all_emojis_dict_with_jpg.keys())
-emojis_keys_over_size = ["波奇手稿", "迷惑", "草神啃", "复读"]
-all_emojis_dict_with_jpg_keys = list(set(all_emojis_dict_with_jpg_keys) - set(emojis_keys_over_size))
+
+# 以下记录图片过大的表情，超过1.3M
+emojis_keys_over_size = ["波奇手稿", "迷惑", "草神啃", "复读", "木鱼", "科目三", "狗都不玩", "快逃", "胡桃放大",
+                         "一起玩", "唐可可举牌", "打印", "卡比重锤", ]
+emojis_values_over_size = ["bocchi_draft", "confuse", "caoshen_bite", "repeat", "wooden_fish", "subject3",
+                           "dog_dislike", "run_away", "walnut_zoom", "play_together", "tankuku_raisesign",
+                           "printing", "kirby_hammer"]
+
+
+# all_emojis_dict_with_jpg_keys = list(set(all_emojis_dict_with_jpg_keys) - set(emojis_keys_over_size))
 
 
 def generate_meme(filename, emoji, texts=None, filename2=None):
@@ -235,7 +227,7 @@ def generate_meme(filename, emoji, texts=None, filename2=None):
         if os.path.exists(f"{img_dir}/{wxid}_{emoji}.jpg"):
             return f"{img_dir}/{wxid}_{emoji}.jpg"
 
-        url = f"http://192.168.222.108:2233/memes/{emoji}/"
+        url = f"http://127.0.0.1:2233/memes/{emoji}/"
         resp = requests.post(url, files=files, data=data)
         if resp.status_code != 200:
             return
@@ -250,18 +242,11 @@ def generate_meme(filename, emoji, texts=None, filename2=None):
         with open(result_filename, "wb") as f:
             f.write(resp.content)
 
+        print(f"生成表情成功：{result_filename}")
         return result_filename
 
     except Exception as e:
         print(e)
-
-
-def generate_random_jpg_by_jpg(filename):
-    emoji = random.choice(all_jpg_emojis_with_jpg)
-    meme_file = generate_meme(filename, emoji)
-    if not meme_file:
-        return generate_random_jpg_by_jpg(filename)
-    return meme_file
 
 
 def generate_random_meme_by_jpg(filename):
@@ -281,17 +266,13 @@ def test():
     print(dit)
 
 
-def check_file_over_size(path, size=10240 * 1.4):
-    if os.path.exists(path):
-        file_size = os.path.getsize(path)
-        if file_size > size:
-            return True
-    return False
-
-
 if __name__ == "__main__":
-    # filename = "../head.jpg"
-    # print(generate_random_jpg_by_jpg(filename))
+    # filename = r"D:\PyPrj\GitHub\NGCBot\head.jpg"
+    # print(generate_random_meme_by_jpg(filename))
     # test()
-    print(all_emojis_dict_with_jpg_keys)
-    print(len(all_emojis_dict_with_jpg_keys))
+    # print(all_emojis_dict_with_jpg_keys)
+    # print(len(all_emojis_dict_with_jpg_keys))
+    print(len(all_emojis))
+    print(len(all_emojis_with_jpg))
+    print(len(all_emojis_dict))
+    print(len(all_emojis_dict_with_jpg))
