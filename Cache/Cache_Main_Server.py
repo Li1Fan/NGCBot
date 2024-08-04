@@ -19,22 +19,18 @@ class Cache_Main_Server:
     # 初始化缓存文件夹
     def init_cache(self):
         OutPut.outPut(f'[*]: 正在初始化缓存文件夹！！！')
-        if not os.path.exists(self.video_cache):
-            try:
-                os.mkdir(self.video_cache)
-                os.mkdir(self.pic_cache)
-                os.mkdir(self.fish_cache)
-                os.mkdir(self.music_cache)
-                os.mkdir(self.recall_pic_cache)
-                os.mkdir(self.head_img_cache)
-                os.mkdir(self.meme_cache)
-                OutPut.outPut(f'[+]: 缓存文件夹初始化成功！！！')
-            except Exception as e:
-                msg = '[-]: 创建文件夹出错，错误信息：{}'.format(e)
-                OutPut.outPut(msg)
-        else:
-            OutPut.outPut(f'[~]: 缓存文件夹已创建！！！')
-            return
+        try:
+            os.makedirs(self.video_cache, exist_ok=True)
+            os.makedirs(self.fish_cache, exist_ok=True)
+            os.makedirs(self.pic_cache, exist_ok=True)
+            os.makedirs(self.music_cache, exist_ok=True)
+            os.makedirs(self.recall_pic_cache, exist_ok=True)
+            os.makedirs(self.head_img_cache, exist_ok=True)
+            os.makedirs(self.meme_cache, exist_ok=True)
+            OutPut.outPut(f'[+]: 缓存文件夹初始化成功！！！')
+        except Exception as e:
+            msg = '[-]: 创建文件夹出错，错误信息：{}'.format(e)
+            OutPut.outPut(msg)
 
     # 清除缓存
     def delete_file(self):

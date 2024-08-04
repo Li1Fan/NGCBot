@@ -207,18 +207,25 @@ all_emojis_dict_with_jpg = {'二次元入口': 'acg_entrance', '添乱': 'add_ch
                             '你应该致电': 'you_should_call'}
 
 all_emojis_dict_with_jpg_keys = list(all_emojis_dict_with_jpg.keys())
+emojis_keys_over_size = ["波奇手稿", "迷惑", "草神啃", "复读"]
+all_emojis_dict_with_jpg_keys = list(set(all_emojis_dict_with_jpg_keys) - set(emojis_keys_over_size))
 
 
-def generate_meme(filename, emoji, texts=None):
+def generate_meme(filename, emoji, texts=None, filename2=None):
     try:
         if texts is None:
             texts = []
 
         files = [("images", open(filename, "rb"))]
+        if filename2:
+            files.append(("images", open(filename2, "rb")))
         args = {"circle": True}
         data = {"texts": texts, "args": json.dumps(args)}
 
         wxid = os.path.basename(filename).split(".")[0]
+        if filename2:
+            wxid2 = os.path.basename(filename2).split(".")[0]
+            wxid = f"{wxid}_{wxid2}"
 
         img_dir = PRJ_PATH + '/Cache/Meme_Cache'
         os.makedirs(img_dir, exist_ok=True)
@@ -272,6 +279,14 @@ def test():
             print(key, value)
             dit[key] = value
     print(dit)
+
+
+def check_file_over_size(path, size=10240 * 1.4):
+    if os.path.exists(path):
+        file_size = os.path.getsize(path)
+        if file_size > size:
+            return True
+    return False
 
 
 if __name__ == "__main__":

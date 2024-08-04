@@ -36,7 +36,7 @@ class Api_Main_Server:
 
         # 配置缓存文件夹路径
         self.Cache_path = PRJ_PATH + '/Cache'
-        self.Pic_path = self.Cache_path + '/Pic'
+        self.Pic_path = PRJ_PATH + '/Pic'
         # 初始化读取配置文件
         config = yaml.load(open(PRJ_PATH + '/Config/config.yaml', encoding='UTF-8'), yaml.Loader)
         self.system_copyright = config['System_Config']['System_Copyright']
@@ -81,13 +81,13 @@ class Api_Main_Server:
         # 千帆配置
         self.qf_ak = config['Api_Server']['Ai_Config']['QianFan']['Qf_Access_Key']
         self.qf_sk = config['Api_Server']['Ai_Config']['QianFan']['Qf_Secret_Key']
-        if self.qf_ak and self.qf_sk:
-            # self.chat_comp = qianfan.ChatCompletion(ak=self.qf_ak,
-            #                                         sk=self.qf_sk)
-            # self.chat_mess = qianfan.Messages()
-            pass
-        else:
-            OutPut.outPut(f'[-]: 千帆模型未配置，请修改配置文件已启用模型！！！')
+        # if self.qf_ak and self.qf_sk:
+        #     self.chat_comp = qianfan.ChatCompletion(ak=self.qf_ak,
+        #                                             sk=self.qf_sk)
+        #     self.chat_mess = qianfan.Messages()
+        #     pass
+        # else:
+        #     OutPut.outPut(f'[-]: 千帆模型未配置，请修改配置文件已启用模型！！！')
         # 秘塔搜索
         self.Metaso_Api = config['Api_Server']['Ai_Config']['Metaso']['Metaso_Api']
         self.Metaso_Key = config['Api_Server']['Ai_Config']['Metaso']['Metaso_Key']
@@ -405,13 +405,13 @@ class Api_Main_Server:
     # 舔狗日记
     def get_dog(self):
         OutPut.outPut('[*]: 正在调用舔狗日记API接口... ...')
-        # url = self.Dog_Api.format(self.Key)
-        url = "https://api.52vmy.cn/api/wl/yan/tiangou"
+        url = self.Dog_Api.format(self.Key)
+        # url = "https://api.52vmy.cn/api/wl/yan/tiangou"
         try:
             json_data = requests.get(url=url, headers=self.headers, timeout=20, verify=False).json()
             print(json_data)
             if json_data['code'] == 200:
-                msg = json_data['content'].strip()
+                msg = json_data['result']['content'].strip()
             else:
                 OutPut.outPut(f'[~]: 舔狗日记接口出了点小问题... ...')
                 return None
@@ -420,28 +420,6 @@ class Api_Main_Server:
             OutPut.outPut(msg)
             return None
         OutPut.outPut(f'[+]: 舔狗日记API接口调用成功！！！')
-        return msg
-
-    # 星座查询
-    def get_constellation(self, content):
-        OutPut.outPut('[*]: 正在调用星座查询API接口... ...')
-        constellation = content.split(' ')[-1]
-        msg = ''
-        if '座' not in constellation:
-            constellation += '座'
-        url = self.Constellation_Api.format(self.Key, constellation)
-        try:
-            json_data = requests.get(url=url, timeout=20, verify=False).json()
-            if json_data['code'] != 200 and json_data['msg'] != 'success':
-                msg = '星座查询错误, 请确保输入正确！'
-                return msg
-            for news in json_data['result']['list']:
-                msg += news['type'] + '：' + news['content'] + '\n'
-            msg = f'\n星座：{constellation}\n' + msg.strip() + f"\n{'By: #' + self.system_copyright if self.system_copyright else ''}"
-            OutPut.outPut(f'[+]: 星座查询API接口调用成功！！！')
-        except Exception as e:
-            msg = f'[-]: 星座查询接口出现错误, 错误信息：{e}'
-            OutPut.outPut(msg)
         return msg
 
     # 早安寄语
@@ -758,7 +736,12 @@ class Api_Main_Server:
         save_path = self.Cache_path + '/Fish_Cache/' + str(int(time.time() * 1000)) + '.jpg'
         try:
             url = random.choice(self.Fish_Api)
-            pic_data = requests.get(url=url, timeout=30, verify=True).content
+            res = requests.get(url=url, timeout=30, verify=True)
+            if res.status_code != 200:
+                msg = f'[-]: 摸鱼日记API接口出现错误，错误信息：{res.status_code}\n正在回调中... ...'
+                OutPut.outPut(msg)
+                return self.get_fish()
+            pic_data = res.content
             with open(file=save_path, mode='wb') as pd:
                 pd.write(pic_data)
         except Exception as e:
@@ -987,19 +970,19 @@ class Api_Main_Server:
 
     # 生成表情
     @staticmethod
-    def magic_emoji_by_head_and_emoji(head, emoji):
-        meme_file = generate_meme(head, emoji)
+    def magic_emoji_by_head_and_emoji(head, emoji, head2=None):
+        meme_file = generate_meme(head, emoji, filename2=head2)
         return meme_file
 
 
 if __name__ == '__main__':
     Ams = Api_Main_Server(1)
-    print(Ams.query_weather('天气查询 南昌'))
-    # print(Ams.get_dog())
+    # print(Ams.query_weather('天气查询 南昌'))
+    print(Ams.get_dog())
     # # Ams.get_constellation('运势查询 白羊')
-    print(Ams.get_morning())
+    # print(Ams.get_morning())
     print(Ams.get_soup())
-    print(Ams.search_image("taylor"))
+    # print(Ams.search_image("taylor"))
     # # print(Ams.get_whois('whois查询 qq.com'))
     # # print(Ams.get_attribution('归属查询 121264'))
     # # print(Ams.get_icp('备案查询 qzzz2131231q.com'))

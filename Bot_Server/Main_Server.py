@@ -1,4 +1,5 @@
 import datetime
+import os
 import re
 import traceback
 import xml.etree.ElementTree as ET
@@ -26,6 +27,9 @@ class Main_Server:
 
         self.JoinRoom_Msg = config['Function_Key_Word']['JoinRoom_Msg']
         self.AcceptFriend_Msg = config['Custom_Msg']['AcceptFriend_Msg']
+
+        # 创个目录，存放wcf日志
+        os.makedirs(PRJ_PATH + '/logs', exist_ok=True)
 
         self.wcf = Wcf(port=17777)
         # 判断登录
