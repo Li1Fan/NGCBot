@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import time
 
 import requests
 
@@ -195,18 +196,38 @@ all_emojis_dict_with_jpg_keys = list(all_emojis_dict_with_jpg.keys())
 # 以下记录图片过大的表情，超过1.3M
 emojis_keys_over_size = ["波奇手稿", "迷惑", "草神啃", "复读", "木鱼", "科目三", "狗都不玩", "快逃", "胡桃放大",
                          "一起玩", "唐可可举牌", "打印", "卡比重锤", ]
-emojis_values_over_size = ["bocchi_draft", "confuse", "caoshen_bite", "repeat", "wooden_fish", "subject3",
-                           "dog_dislike", "run_away", "walnut_zoom", "play_together", "tankuku_raisesign",
-                           "printing", "kirby_hammer"]
+emojis_values_over_size = ['bocchi_draft', 'confuse', 'caoshen_bite', 'repeat', 'wooden_fish', 'subject3',
+                           'dog_dislike', 'run_away', 'walnut_zoom', 'play_together', 'tankuku_raisesign', 'printing',
+                           'kirby_hammer']
 
+# 以下记录可以同时传入jpg和txt的表情
+all_emojis_dict_with_jpg_and_txt_keys = ['二次元入口', '上瘾', '毒瘾发作', '阿尼亚喜欢', '拍头', '兑换券', '入典', '典中典', '黑白草图', '闭嘴', '我爸爸',
+                                         '满脑子', '闪瞎', '关注', '芙莉莲拿', '原神启动', '不文明', '采访', '急急国王', '远离', '偷学', '小天使',
+                                         '看扁', '看图标', '我朋友说', '请假条', '我推的网友', '推锅', '甩锅', '玩游戏', '看书', '复读', '安全感',
+                                         '坐得住', '坐的住', '炖', '讲课', '敲黑板', '这是鸡', '🐔', '一起', '万能表情', '空白表情', '最想要的东西',
+                                         '致电', '你应该致电']
+jpg_and_txt_keys = ['阿尼亚喜欢', '拍头', '兑换券', '满脑子', '关注', '芙莉莲拿', '采访', '我朋友说', '复读', '这是鸡', '🐔']
+jpg_and_txt_values = ['anya_suki', 'beat_head', 'coupon', 'fill_head', 'follow', 'frieren_take', 'interview',
+                      'my_friend', 'repeat',
+                      'this_chicken', 'this_chicken']
 
 # all_emojis_dict_with_jpg_keys = list(set(all_emojis_dict_with_jpg_keys) - set(emojis_keys_over_size))
+all_emojis_dict_with_jpg_keys_reply = [emoji + '*' if emoji in jpg_and_txt_keys else emoji
+                                       for emoji in all_emojis_dict_with_jpg_keys]
+all_emojis_dict_with_jpg_keys_reply = [emoji + '^' if emoji in emojis_keys_over_size else emoji
+                                       for emoji in all_emojis_dict_with_jpg_keys_reply]
+all_emojis_dict_with_jpg_keys_msg = ','.join(all_emojis_dict_with_jpg_keys_reply + ['揍', '击剑'])
+all_emojis_dict_with_jpg_keys_msg = all_emojis_dict_with_jpg_keys_msg + '\n\n' + '其中，^表示原GIF过大可能会发送失败，*表示可自定义文字'
 
 
 def generate_meme(filename, emoji, texts=None, filename2=None):
     try:
         if texts is None:
             texts = []
+        # 这里对于同时传入了jpg和txt，但是不属于jpg_and_txt_values的表情，将texts置空
+        if (filename and texts) and (emoji not in jpg_and_txt_values):
+            texts = []
+        print(f"filename: {filename}, emoji: {emoji}, texts: {texts}, filename2: {filename2}")
 
         files = [("images", open(filename, "rb"))]
         if filename2:
@@ -222,10 +243,15 @@ def generate_meme(filename, emoji, texts=None, filename2=None):
         img_dir = PRJ_PATH + '/Cache/Meme_Cache'
         os.makedirs(img_dir, exist_ok=True)
 
-        if os.path.exists(f"{img_dir}/{wxid}_{emoji}.gif"):
-            return f"{img_dir}/{wxid}_{emoji}.gif"
-        if os.path.exists(f"{img_dir}/{wxid}_{emoji}.jpg"):
-            return f"{img_dir}/{wxid}_{emoji}.jpg"
+        if texts:
+            file_name_prefix = f"{img_dir}/{wxid}_{emoji}_{str(int(time.time() * 1000))}"
+        else:
+            file_name_prefix = f"{img_dir}/{wxid}_{emoji}"
+
+        if os.path.exists(f"{file_name_prefix}.gif"):
+            return f"{file_name_prefix}.gif"
+        if os.path.exists(f"{file_name_prefix}.jpg"):
+            return f"{file_name_prefix}.jpg"
 
         url = f"http://127.0.0.1:2233/memes/{emoji}/"
         resp = requests.post(url, files=files, data=data)
@@ -235,9 +261,9 @@ def generate_meme(filename, emoji, texts=None, filename2=None):
         # 根据 Content-Type 确定文件扩展名
         content_type = resp.headers.get('Content-Type', '')
         if 'image/gif' in content_type:
-            result_filename = f"{img_dir}/{wxid}_{emoji}.gif"
+            result_filename = f"{file_name_prefix}.gif"
         else:
-            result_filename = f"{img_dir}/{wxid}_{emoji}.jpg"
+            result_filename = f"{file_name_prefix}.jpg"
 
         with open(result_filename, "wb") as f:
             f.write(resp.content)
@@ -258,21 +284,21 @@ def generate_random_meme_by_jpg(filename):
 
 
 def test():
-    dit = {}
-    for key, value in all_emojis_dict.items():
-        if value in all_emojis_with_jpg:
-            print(key, value)
-            dit[key] = value
-    print(dit)
+    lst = []
+    for key in jpg_and_txt_keys:
+        lst.append(all_emojis_dict[key])
+    print(lst)
 
 
 if __name__ == "__main__":
-    # filename = r"D:\PyPrj\GitHub\NGCBot\head.jpg"
+    # filename = r"/home/frz/github/NGCBot/help.jpg"
+    # print(generate_meme(filename, "follow", ['sss']))
     # print(generate_random_meme_by_jpg(filename))
     # test()
     # print(all_emojis_dict_with_jpg_keys)
     # print(len(all_emojis_dict_with_jpg_keys))
-    print(len(all_emojis))
-    print(len(all_emojis_with_jpg))
-    print(len(all_emojis_dict))
-    print(len(all_emojis_dict_with_jpg))
+    # print(len(all_emojis))
+    # print(len(all_emojis_with_jpg))
+    # print(len(all_emojis_dict))
+    # print(len(all_emojis_dict_with_jpg))
+    print(all_emojis_dict_with_jpg_keys_msg)

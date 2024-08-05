@@ -15,7 +15,8 @@ from Api_Server.Api_Main_Server import Api_Main_Server
 from Db_Server.Db_Main_Server import Db_Main_Server
 from Db_Server.Db_Point_Server import Db_Point_Server
 from OutPut import OutPut
-from Util.meme import all_emojis_dict_with_jpg_keys, all_emojis_dict_with_jpg, all_emojis_dict
+from Util.meme import all_emojis_dict_with_jpg_keys, all_emojis_dict_with_jpg, all_emojis_dict, \
+    all_emojis_dict_with_jpg_keys_msg
 from advanced_path import PRJ_PATH
 
 
@@ -677,12 +678,12 @@ class Room_Msg_Dispose:
             return
         elif self.judge_keyword(keyword=["表情选项", "表情菜单", "表情功能"],
                                 msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            reply = '表情选项：\n' + '、'.join(all_emojis_dict_with_jpg_keys + ["揍", "击剑"])
+            reply = '表情选项：\n' + all_emojis_dict_with_jpg_keys_msg
             self.send_at_msg(msg.roomid, msg.sender, reply)
             return
         elif self.judge_keyword(keyword=all_emojis_dict_with_jpg_keys + ["揍", "击剑"],
                                 msg=self.handle_atMsg(msg, at_user_lists),
-                                list_bool=True, equal_bool=True):
+                                list_bool=True, equal_bool=True, split_bool=True):
             Thread(target=self.gen_emoji, name="个性表情",
                    args=(msg, self.handle_atMsg(msg, at_user_lists), at_user_lists,)).start()
             return
@@ -1338,12 +1339,17 @@ class Room_Msg_Dispose:
     def gen_emoji(self, msg, content, at_user_lists):
         try:
             OutPut.outPut(f'[*]: 个性表情接口接收到的消息: {content}')
+            option = None
+            if ' ' in content:
+                content, option = content.split(' ', 1)
+                option = [option]
+
             if content in ["揍", "击剑"]:
                 head_img = self.get_head_img(msg.sender)
                 head_img2 = self.get_head_img(at_user_lists[0])
                 if head_img and head_img2:
                     emoji = all_emojis_dict.get(content)
-                    save_path = self.Ams.magic_emoji_by_head_and_emoji(head_img, emoji, head_img2)
+                    save_path = self.Ams.magic_emoji_by_head_and_emoji(head_img, emoji, option, head_img2)
                     if save_path:
                         if save_path.endswith('.gif'):
                             self.send_emotion_ensure_success(path=save_path, receiver=msg.roomid)
@@ -1354,7 +1360,7 @@ class Room_Msg_Dispose:
                 head_img = self.get_head_img(give_sender)
                 if head_img:
                     emoji = all_emojis_dict_with_jpg.get(content)
-                    save_path = self.Ams.magic_emoji_by_head_and_emoji(head_img, emoji)
+                    save_path = self.Ams.magic_emoji_by_head_and_emoji(head_img, emoji, option)
                     if save_path:
                         if save_path.endswith('.gif'):
                             self.send_emotion_ensure_success(path=save_path, receiver=msg.roomid)
@@ -1366,14 +1372,24 @@ class Room_Msg_Dispose:
     def gen_emoji_self(self, msg, content, at_user_lists):
         try:
             OutPut.outPut(f'[*]: 个性表情接口接收到的消息: {content}')
-            content = content.split(' ', 1)[-1]
+            content_lst = content.split(' ', 2)
+            if len(content_lst) < 2:
+                return
+            elif len(content_lst) == 2:
+                content = content_lst[1]
+                option = None
+            else:
+                content = content_lst[1]
+                option = content_lst[2]
+                option = [option]
+
             if content not in all_emojis_dict_with_jpg_keys:
                 return
             head_img = self.get_head_img(msg.sender)
             if head_img:
                 emoji = all_emojis_dict_with_jpg.get(content, None)
                 if emoji:
-                    save_path = self.Ams.magic_emoji_by_head_and_emoji(head_img, emoji)
+                    save_path = self.Ams.magic_emoji_by_head_and_emoji(head_img, emoji, option)
                     if save_path:
                         if save_path.endswith('.gif'):
                             self.send_emotion_ensure_success(path=save_path, receiver=msg.roomid)
@@ -1758,7 +1774,7 @@ class Room_Msg_Dispose:
             local_id = res[0].get('localId')
 
             def ensure(local_id, path, receiver):
-                time.sleep(3)
+                time.sleep(5)
                 sql_query_again = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
                                   f'WHERE localId = {local_id};'
                 res_again = self.wcf.query_sql("MSG0.db", sql_query_again)
@@ -1794,7 +1810,7 @@ class Room_Msg_Dispose:
             local_id = res[0].get('localId')
 
             def ensure(local_id, path, receiver):
-                time.sleep(3)
+                time.sleep(5)
                 sql_query_again = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
                                   f'WHERE localId = {local_id};'
                 res_again = self.wcf.query_sql("MSG0.db", sql_query_again)
