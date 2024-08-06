@@ -665,7 +665,7 @@ class Room_Msg_Dispose:
         elif self.judge_keyword(keyword=["搜番", "搜动漫"], msg=msg.content.strip(), list_bool=True, split_bool=True):
             return
         # 个性表情功能
-        elif self.judge_keyword(keyword=["随机表情", "个性表情", "头像表情", "魔法表情", "个性头像"],
+        elif self.judge_keyword(keyword=["随机表情", "头像表情", "魔法表情", "个性头像"],
                                 msg=msg.content.strip(), list_bool=True, equal_bool=True):
             head_img = self.get_head_img(msg.sender)
             if head_img:
@@ -681,7 +681,7 @@ class Room_Msg_Dispose:
             reply = '表情选项：\n' + all_emojis_dict_with_jpg_keys_msg
             self.send_at_msg(msg.roomid, msg.sender, reply)
             return
-        elif self.judge_keyword(keyword=all_emojis_dict_with_jpg_keys + ["揍", "击剑"],
+        elif self.judge_keyword(keyword=all_emojis_dict_with_jpg_keys + ["喜报", "揍", "击剑", "亲亲", "贴贴"],
                                 msg=self.handle_atMsg(msg, at_user_lists),
                                 list_bool=True, equal_bool=True, split_bool=True):
             Thread(target=self.gen_emoji, name="个性表情",
@@ -1344,7 +1344,7 @@ class Room_Msg_Dispose:
                 content, option = content.split(' ', 1)
                 option = [option]
 
-            if content in ["揍", "击剑"]:
+            if content in ["揍", "击剑", "亲亲", "贴贴"]:
                 head_img = self.get_head_img(msg.sender)
                 head_img2 = self.get_head_img(at_user_lists[0])
                 if head_img and head_img2:

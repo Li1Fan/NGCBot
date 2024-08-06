@@ -59,7 +59,7 @@ all_emojis_with_jpg = ['funny_mirror', 'maimai_awaken', 'hit_screen', 'windmill_
                        'petpet', 'klee_eat', 'tankuku_raisesign', 'rip_angrily', 'lost_dog', 'dianzhongdian',
                        'rise_dead', 'hug_leg', 'knock', 'safe_sense', 'raise_image', 'look_flat', 'police1',
                        'what_I_want_to_do', 'little_angel', 'taunt', 'flash_blind', 'think_what', 'incivilization',
-                       'note_for_leave', 'vibrate', 'overtime', 'dont_touch', 'eat', 'repeat', 'roll']
+                       'note_for_leave', 'vibrate', 'overtime', 'dont_touch', 'eat', 'repeat', 'roll', 'time_to_go']
 
 # 所有表情选项--字典
 all_emojis_dict = {'5000兆': '5000choyen', '逆转裁判气泡': 'ace_attorney_dialog', '二次元入口': 'acg_entrance',
@@ -189,7 +189,7 @@ all_emojis_dict_with_jpg = {'二次元入口': 'acg_entrance', '添乱': 'add_ch
                             '洗衣机': 'washer', '波纹': 'wave', '我想上的': 'what_I_want_to_do',
                             '最想要的东西': 'what_he_wants', '为什么@我': 'why_at_me', '风车转': 'windmill_turn',
                             '木鱼': 'wooden_fish', '膜': 'worship', '膜拜': 'worship', '致电': 'you_should_call',
-                            '你应该致电': 'you_should_call'}
+                            '你应该致电': 'you_should_call', '该走了': 'time_to_go', '喜报': 'good_news'}
 
 all_emojis_dict_with_jpg_keys = list(all_emojis_dict_with_jpg.keys())
 
@@ -206,18 +206,20 @@ all_emojis_dict_with_jpg_and_txt_keys = ['二次元入口', '上瘾', '毒瘾发
                                          '看扁', '看图标', '我朋友说', '请假条', '我推的网友', '推锅', '甩锅', '玩游戏', '看书', '复读', '安全感',
                                          '坐得住', '坐的住', '炖', '讲课', '敲黑板', '这是鸡', '🐔', '一起', '万能表情', '空白表情', '最想要的东西',
                                          '致电', '你应该致电']
-jpg_and_txt_keys = ['阿尼亚喜欢', '拍头', '兑换券', '满脑子', '关注', '芙莉莲拿', '采访', '我朋友说', '复读', '这是鸡', '🐔']
+jpg_and_txt_keys = ['阿尼亚喜欢', '拍头', '兑换券', '满脑子', '关注', '芙莉莲拿', '采访', '我朋友说', '复读', '这是鸡', '🐔',
+                    '喜报']
 jpg_and_txt_values = ['anya_suki', 'beat_head', 'coupon', 'fill_head', 'follow', 'frieren_take', 'interview',
-                      'my_friend', 'repeat',
-                      'this_chicken', 'this_chicken']
+                      'my_friend', 'repeat', 'this_chicken', 'this_chicken', 'good_news']
 
 # all_emojis_dict_with_jpg_keys = list(set(all_emojis_dict_with_jpg_keys) - set(emojis_keys_over_size))
 all_emojis_dict_with_jpg_keys_reply = [emoji + '*' if emoji in jpg_and_txt_keys else emoji
                                        for emoji in all_emojis_dict_with_jpg_keys]
 all_emojis_dict_with_jpg_keys_reply = [emoji + '^' if emoji in emojis_keys_over_size else emoji
                                        for emoji in all_emojis_dict_with_jpg_keys_reply]
-all_emojis_dict_with_jpg_keys_msg = ','.join(all_emojis_dict_with_jpg_keys_reply + ['揍', '击剑'])
-all_emojis_dict_with_jpg_keys_msg = all_emojis_dict_with_jpg_keys_msg + '\n\n' + '其中，^表示原GIF过大可能会发送失败，*表示可自定义文字'
+all_emojis_dict_with_jpg_keys_msg = ','.join(
+    all_emojis_dict_with_jpg_keys_reply + ["揍°", "击剑°", "亲亲°", "贴贴°"])
+all_emojis_dict_with_jpg_keys_msg += '\n\n' + '其中，^表示原GIF过大可能会发送失败，*表示可自定义文字，°' \
+                                              '表示需要艾特别人使用'
 
 
 def generate_meme(filename, emoji, texts=None, filename2=None):
@@ -253,7 +255,9 @@ def generate_meme(filename, emoji, texts=None, filename2=None):
         if os.path.exists(f"{file_name_prefix}.jpg"):
             return f"{file_name_prefix}.jpg"
 
-        url = f"http://127.0.0.1:2233/memes/{emoji}/"
+        if emoji == "good_news":
+            files = []
+        url = f"http://192.168.222.108:2233/memes/{emoji}/"
         resp = requests.post(url, files=files, data=data)
         if resp.status_code != 200:
             return
@@ -276,7 +280,8 @@ def generate_meme(filename, emoji, texts=None, filename2=None):
 
 
 def generate_random_meme_by_jpg(filename):
-    emoji = random.choice(all_emojis_with_jpg)
+    emoji_lst = list(set(all_emojis_with_jpg) - set(emojis_values_over_size))
+    emoji = random.choice(emoji_lst)
     meme_file = generate_meme(filename, emoji)
     if not meme_file:
         return generate_random_meme_by_jpg(filename)
@@ -292,7 +297,7 @@ def test():
 
 if __name__ == "__main__":
     # filename = r"/home/frz/github/NGCBot/help.jpg"
-    # print(generate_meme(filename, "follow", ['sss']))
+    # print(generate_meme(filename, "good_news"))
     # print(generate_random_meme_by_jpg(filename))
     # test()
     # print(all_emojis_dict_with_jpg_keys)
@@ -302,3 +307,4 @@ if __name__ == "__main__":
     # print(len(all_emojis_dict))
     # print(len(all_emojis_dict_with_jpg))
     print(all_emojis_dict_with_jpg_keys_msg)
+    print(list(set(all_emojis_with_jpg) - set(emojis_values_over_size)))
