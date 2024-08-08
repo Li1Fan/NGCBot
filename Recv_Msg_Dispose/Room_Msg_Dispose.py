@@ -393,7 +393,9 @@ class Room_Msg_Dispose:
         Thread(target=self.Point_Function, name="积分功能", args=(msg, at_user_lists,)).start()
 
     # 娱乐功能
-    def Happy_Function(self, msg, at_user_lists):
+    def Happy_Function(self, msg, at_user_lists=None):
+        if at_user_lists is None:
+            at_user_lists = []
         if self.game_mode_rooms.get(msg.roomid, False):
             self.gaming_function(msg)
             return
@@ -1774,7 +1776,7 @@ class Room_Msg_Dispose:
             local_id = res[0].get('localId')
 
             def ensure(local_id, path, receiver):
-                time.sleep(5)
+                time.sleep(6.1)
                 sql_query_again = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
                                   f'WHERE localId = {local_id};'
                 res_again = self.wcf.query_sql("MSG0.db", sql_query_again)
@@ -1810,7 +1812,7 @@ class Room_Msg_Dispose:
             local_id = res[0].get('localId')
 
             def ensure(local_id, path, receiver):
-                time.sleep(5)
+                time.sleep(6.1)
                 sql_query_again = f'SELECT localId, TalkerId, MsgSvrID, Type, IsSender, CreateTime, StrTalker, StrContent FROM MSG ' \
                                   f'WHERE localId = {local_id};'
                 res_again = self.wcf.query_sql("MSG0.db", sql_query_again)

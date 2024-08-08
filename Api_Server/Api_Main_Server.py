@@ -591,8 +591,8 @@ class Api_Main_Server:
         idiom_data = self.get_idiom_data()
         # save_path = self.Cache_path + '/Pic_Cache/' + str(int(time.time() * 1000)) + '.jpg'
         pic_name = idiom_data.get('答案', '未知')
-        # save_path = self.Pic_path + '/guess_idiom_image/' + pic_name + '.jpg'
-        save_path = self.Pic_path + '/guess_idiom_image/' + str(int(time.time() * 1000)) + '.jpg'
+        save_path = self.Pic_path + '/guess_idiom_image/' + pic_name + '.jpg'
+        # save_path = self.Pic_path + '/guess_idiom_image/' + str(int(time.time() * 1000)) + '.jpg'
         try:
             url = idiom_data['图片链接']
             pic_data = requests.get(url=url, headers=self.headers, timeout=30, verify=False).content
@@ -856,8 +856,8 @@ class Api_Main_Server:
             content = res.content
 
             # save_path = os.path.join(self.Cache_path, 'Music_Cache', f"{song_info['歌手']}-{song_info['歌名']}.flac")
-            # save_path = os.path.join(self.Cache_path, 'Music_Cache', f"{song_info['歌手']}-{song_info['歌名']}.mp3")
-            save_path = os.path.join(self.Cache_path, 'Music_Cache', f"{str(int(time.time() * 1000))}.mp3")
+            save_path = os.path.join(self.Cache_path, 'Music_Cache', f"{song_info['歌手']}-{song_info['歌名']}.mp3")
+            # save_path = os.path.join(self.Cache_path, 'Music_Cache', f"{str(int(time.time() * 1000))}.mp3")
             os.makedirs(os.path.dirname(save_path), exist_ok=True)  # 确保保存路径存在
             with open(save_path, 'wb') as song_file:
                 song_file.write(content)
