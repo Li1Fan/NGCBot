@@ -1,0 +1,8 @@
+{
+  "open_program": "powershell.exe",
+  "close_program": [
+    "powershell.exe",
+    "WindowsTerminal.exe"
+  ],
+  "command": "D:;cd D:\\PyPrj\\GitHub\\robot;.\\myenv\\Scripts\\activate;python main.py"
+}

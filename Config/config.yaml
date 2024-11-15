@@ -1,0 +1,323 @@
+## 超级管理员配置
+Administrators:
+  # 微信id
+  - 'wxid_hqdtktnqvw8e21'
+
+## 系统配置
+System_Config:
+  # 版权信息
+  System_Copyright: '罗伯特'
+  # 好友Ai开关 1开/0关
+  Ai_Lock: 0
+
+## 定时发送配置
+Push_Config:
+  # 早安寄语发送时间
+  Morning_Push_Time: '08:00'
+  # 秒懂世界推送时间
+  Morning_Page_Time: '08:30'
+  # 摸鱼日记推送时间设置
+  Fish_Time: '10:00'
+  # KFC文案发送时间设置 每周四发送
+  Kfc_Time: '11:50'
+  # 下班推送时间设置
+  Off_Work_Time: '18:00'
+  # 定时功能回复配置
+  Key_Word:
+    # 下班消息 换行用\n 支持微信表情
+    Off_Work_Msg: '下班时间到！我要下班 我要下班 我要下班 下下下！\n到点即刻下班，给老板省去水电，给自己来套保健，给老板来句操蛋！\n速速下班！！！[旺柴]'
+
+## 进群关键词配置
+Room_Key_Word:
+  进群:
+    - '52253823654@chatroom'
+  Bot交流群:
+    - '52253823654@chatroom'
+    - ''
+
+## 自定义关键词回复
+Custom_KeyWord:
+  # 设置关键词
+  回复内容1:
+    - '关键词1'
+    - '关键词2'
+  回复内容2:
+    - '关键词3'
+    - '关键词4'
+
+## 自定义各种消息 \n换行
+Custom_Msg:
+  # 加好友后回复
+  AcceptFriend_Msg: '你好, 我是萝卜! 私聊我即可进行智能对话哦[爱心]~~~ ~~~'
+
+
+## 管理功能关键词配置
+Admin_Function_Word:
+  # 新增管理员关键词
+  Add_Admin_Word:
+    - '添加管理员'
+    - '添加管理'
+    - '新增管理员'
+  # 删除管理员关键词
+  Del_Admin_Word:
+    - '删除管理员'
+    - '删除管理'
+    - '移除管理员'
+  # 新增黑名单群聊关键词
+  Add_BlackRoom_Word:
+    - '拉黑群聊'
+    - '拉黑'
+    - '添加黑名单'
+  # 移出黑名单群聊关键词
+  Del_BlackRoom_Word:
+    - '去黑'
+    - '解除拉黑'
+    - '取消拉黑'
+    - '移出黑名单'
+  # 新增白名单群聊关键词
+  Add_WhiteRoom_Word:
+    - '拉白群聊'
+    - '拉白'
+    - '加白'
+    - '添加白名单'
+  # 移出白名单群聊关键词
+  Del_WhiteRoom_Word:
+    - '移出白名单'
+    - '移除白名单'
+    - '去白'
+    - '解除拉白'
+    - '取消拉白'
+  # 新增推送群聊关键词
+  Add_White_Word:
+    - '开启推送服务'
+    - '开启推送'
+  # 移除推送群聊关键词
+  Del_White_Word:
+    - '关闭推送服务'
+    - '关闭推送'
+  # 踢人关键词
+  Del_User_Word:
+    - '滚蛋'
+    - '踢出'
+    - '踢'
+    - '滚出去'
+    - '移出'
+
+
+## 积分功能关键词配置
+Point_Config:
+  # 签到功能
+  Sign:
+    # 签到口令
+    Word: '恭喜发财'
+    # 签到积分
+    Point: '10'
+  # 功能积分配置
+  Function_Point:
+    # Ai对话积分配置
+    Ai_point: '10'
+  # 增加积分关键词
+  Add_Point_Word:
+    - '加'
+    - '+'
+    - '加积分'
+    - '加分'
+    - '增加'
+    - '增'
+  # 减少积分关键词
+  Del_Point_Word:
+    - '减'
+    - '-'
+    - '扣除'
+    - '减积分'
+    - '减分'
+    - '扣分'
+    - '扣'
+  # 积分查询关键词
+  Query_Point_Word:
+    - '积分查询'
+    - '查询积分'
+    - '我的积分'
+
+
+## 娱乐功能关键词配置
+Function_Key_Word:
+  # 触发早安寄语关键词
+  Morning_Word:
+    - '早安'
+    - '早上好'
+    - '早'
+  # 秒懂世界
+  60s_Word:
+    - '60s'
+    - '每天60秒读懂世界'
+    - '秒懂世界'
+    - '60秒'
+    - '60'
+  # 触发摸鱼日记关键词
+  Fish_Word:
+    - '摸鱼日记'
+    - '摸鱼日历'
+    - '摸鱼日报'
+  # 触发疯狂星期四文案关键词
+  Kfc_Word:
+    - 'Kfc'
+    - '疯狂星期四'
+    - '星期四'
+    - '今天星期四'
+    - 'KFC'
+    - 'kfc'
+    - 'kfc文案'
+    - 'v我50'
+    - '明天星期四'
+  # 触发美女图片关键词
+  Pic_Word:
+    - '图片'
+    - '美女图片'
+    - '色色图片'
+  # 触发美女视频关键词
+  Video_Word:
+    - '视频'
+    - '美女视频'
+    - '色色视频'
+  # GPT
+  GPT_Word:
+    - 'GPT'
+    - 'gpt'
+  # 星火
+  Spark_Word:
+    - '星火'
+    - '星火大模型'
+    - '星火模型'
+    - 'spark'
+    - 'Spark'
+    - 'xh'
+  # Metaso
+  Metaso_Word:
+    - 'Metaso'
+    - 'metaso'
+    - 'meta'
+    - '搜'
+    - '搜索'
+    - '秘塔'
+  # 腾讯混元
+  Tencent_Word:
+    - '腾讯混元'
+    - '混元'
+    - '腾讯'
+    - '混元大模型'
+    - 'tencent'
+    - 'Tencent'
+    - 'tx'
+  # 帮助菜单
+  Help_Menu:
+    - '帮助'
+    - 'help'
+    - 'Help'
+    - 'HELP'
+    - '帮助菜单'
+    - '菜单'
+  # 进群欢迎词配置 换行用\n 支持微信表情
+  JoinRoom_Msg: '\n欢迎新进群的小可爱[爱心]\n跟机器人互动，请看群公告哟[烟花]'
+
+## API接口服务配置
+Api_Server:
+  Ai_Config:
+    # OpenAi
+    Open_Ai:
+      # Open_Ai接口
+      OpenAi_Api: 'https://apivip.aiproxy.io/v1/chat/completions'
+      # OpenAi Key
+      OpenAi_Key: 'Bearer sk-'
+      # 初始化OpenAi角色
+      OpenAi_Role: '你叫萝卜，是一名AI助理，主人是Ritz，当前与你对话的是Ritz的朋友。回答问题用尽可能简短的语言回答。积分相关的问题找Ritz。'
+      # Model
+      OpenAi_Model: 'gpt-4o'
+    # 星火大模型
+    SparkApi:
+      # 模型Url
+      Spark_url: 'ws://spark-api.xf-yun.com/v3.5/chat'
+      # 模型Secret
+      ApiSecret: ''
+      # 模型版本
+      Domain: 'generalv3.5'
+      # 模型Key
+      ApiKey: ''
+      # 模型Appid
+      Appid: 'b5c9fd0b'
+    # 腾讯混元大模型, 有免费额度
+    HunYuan:
+      # 腾讯云SecretId
+      HunYuanSecretId: ''
+      # 腾讯云SecretKey
+      HunYuanSecretKey: ''
+    # 秘塔搜索
+    Metaso:
+      # 秘塔搜索接口
+      Metaso_Api: 'http://192.168.222.108:8000/v1/chat/completions'
+      # 秘塔搜索Key
+      Metaso_Key: 'Bearer '
+    # Spark_Free_Api
+    Spark_Free_Api:
+      # 文生图像生成接口
+      Api: 'http://192.168.222.108:9000/v1/images/generations'
+      # 文生图像生成接口Key
+      Key: 'Bearer '
+    # Qwen_Free_Api
+    Qwen_Free_Api:
+      # Qwen图像生成接口
+      Api: 'http://192.168.222.108:9100/v1/images/generations'
+      # Qwen图像生成接口Key
+      Key: 'Bearer '
+    # Silicon
+    Silicon:
+      # Silicon生成接口
+      Api: 'https://api.siliconflow.cn/v1/black-forest-labs/FLUX.1-schnell/text-to-image'
+      # Silicon生成接口Key
+      Key: 'Bearer sk-'
+
+  # 早安寄语API
+  Morning_Api: 'https://jkapi.com/api/zaoan?type=json'
+  # 每天60秒读懂世界API配置
+  60s_Pic_Api: 'https://api.jun.la/60s.php?format=imgapi'
+  # 摸鱼日记API
+  Fish_Api:
+    - 'https://api.j4u.ink/v1/store/redirect/moyu/calendar/today.png'
+    - 'https://api.52vmy.cn/api/wl/moyu'
+    - 'https://dayu.qqsuu.cn/moyuribao/apis.php'
+  # 疯狂星期四文案Api
+  Kfc_Api: 'https://api.pearktrue.cn/api/kfc'
+  # 图片API配置
+  Pic_Api:
+    - 'https://api.btstu.cn/sjbz/api.php?lx=dongman&format=images&method=mobile&lx=meizi'
+    - 'http://3650000.xyz/api/'
+    - 'https://cdn.seovx.com/?mom=302'
+    - 'https://free.wqwlkj.cn/wqwlapi/ks_xjj.php'
+    - 'https://tuapi.eees.cc/api.php?category=meinv&px=m&type=302'
+    - 'http://lx.linxi.icu/API/meitui.php'
+  # 视频API配置
+  Video_Api:
+    - 'http://api.yujn.cn/api/heisis.php'
+    - 'http://api.yujn.cn/api/xjj.php'
+    - 'http://api.yujn.cn/api/zzxjj.php'
+    - 'https://api.yujn.cn/api/manzhan.php'
+    - 'https://api.qtkj.love/api/qttj.php'
+    - 'http://api.yujn.cn/api/ndym.php?type=video'
+    - 'http://api.yujn.cn/api/jiepai.php?type=video'
+    - 'http://api.yujn.cn/api/qingchun.php?type=video'
+    - 'http://api.yujn.cn/api/manyao.php?type=video'
+    - 'http://api.yujn.cn/api/hanfu.php?type=video'
+    - 'http://abc.gykj.asia/API/gzhf.php'
+    - 'http://api.yujn.cn/api/wmsc.php?type=video'
+    - 'http://api.ovoe.top/API/ddxl.php'
+    - 'http://abc.gykj.asia/API/hbss.php'
+    - 'https://api.qtkj.love/api/hbss.php'
+    - 'https://api.qtkj.love/api/sqxl.php'
+    - 'https://api.shenke.love/api/gjzs.php'
+    - 'http://api.yujn.cn/api/nvgao.php?type=video'
+    - 'https://api.qtkj.love/api/ycyy.php'
+    - 'https://api.qtkj.love/api/kdbz.php'
+    - 'https://api.bokexia.com/api/mn'
+
+
+
