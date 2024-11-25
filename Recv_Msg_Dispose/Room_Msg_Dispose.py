@@ -446,6 +446,8 @@ class Room_Msg_Dispose:
         # if self.main_server.is_db_error:
         #     if self.is_reboot:
         #         return
+        #     if True in self.game_mode_rooms.values():
+        #         return
         #     self.wcf.send_text(msg='数据库出现错误, 即将自动重启', receiver=self.administrators[0])
         #
         #     # self.wcf.send_text(msg='数据库出现错误, 即将自动重启', receiver=msg.roomid)
