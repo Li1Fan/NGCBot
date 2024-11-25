@@ -180,12 +180,7 @@ class Room_Msg_Dispose:
         save_state_file(self.state_json_file, self.state)
 
     def quit_room_push(self):
-        while True:
-            for roomid, switch in self.quit_room_push_rooms.items():
-                if switch:
-                    # threading.Thread(target=self.monitor_quit_room, args=(roomid,)).start()
-                    self.monitor_quit_room(roomid)
-            time.sleep(55)
+        pass
 
     def monitor_quit_room(self, roomid):
         with self.counter_lock:
@@ -959,24 +954,7 @@ class Room_Msg_Dispose:
         # 定时提醒功能
         elif self.judge_keyword(keyword=["定时提醒", "定时任务"], msg=msg.content.strip(), list_bool=True,
                                 split_bool=True, equal_bool=True):
-            try:
-                key_, days, times, content = msg.content.strip().split(' ', 3)
-                if not days or not times or not content:
-                    return
-                if key_ == "定时提醒":
-                    Thread(target=self.main_server.Tms.add_remind_task,
-                           args=(days, times, content, msg.roomid, msg.sender)).start()
-                else:
-                    Thread(target=self.main_server.Tms.add_remind_task,
-                           args=(days, times, content, msg.roomid, msg.sender, True)).start()
-            except Exception as e:
-                OutPut.outPut(f'[-]: 定时事件设置失败 {e}')
-                reply = ('示例：\n'
-                         '“定时提醒/任务 周一/星期一/每天/工作日 一点十分/1.10/1:10 摸鱼”\n'
-                         '或者：\n'
-                         '“定时提醒/任务 明天/12.7/12月7日 一点十分/1.10/1:10 摸鱼”')
-                self.send_at_msg(msg.roomid, msg.sender, reply)
-            return
+            pass
         elif self.judge_keyword(keyword=["取消提醒", "关闭提醒", "删除提醒",
                                          "取消任务", "关闭任务", "删除任务",
                                          "取消定时事件", "关闭定时事件", "删除定时事件"],
