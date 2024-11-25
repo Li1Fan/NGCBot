@@ -1,314 +1,211 @@
+import sqlite3
 from collections import OrderedDict
+from threading import Lock
 
-from Util.util_sqlite import MySQLite
 
-
-class IdiomDB:
+class MySQLite:
     def __init__(self, db_path: str) -> None:
+        """
+        初始化数据库连接和线程锁
+
+        :param db_path: 数据库文件路径
+        """
         self.db_path = db_path
-        self.db = MySQLite(self.db_path)
+        self.lock = Lock()  # 初始化线程锁
 
-    def get_info_by_word(self, word: str) -> dict:
+    def connect(self) -> sqlite3.Connection:
         """
-        获取指定成语的信息
+        建立数据库连接，每次调用返回一个新的连接对象
         """
-        dev = self.db.select('idiom', where='word = "{}"'.format(word))
-        if dev:
-            dev_dict = {
-                "id": dev[0][0],
-                "derivation": dev[0][1],
-                "example": dev[0][2],
-                "explanation": dev[0][3],
-                "pinyin": dev[0][4],
-                "word": dev[0][5],
-                "abbreviation": dev[0][6],
-                "pinyin_r": dev[0][7],
-                "first": dev[0][8],
-                "last": dev[0][9],
-            }
-            return dev_dict
-        return {}
+        return sqlite3.connect(self.db_path, check_same_thread=False)
 
-    def get_words_by_first(self, last: str) -> list:
+    def execute(self, sql: str, args: tuple = ()) -> bool:
         """
-        通过第一个拼音获取成语
+        执行 SQL 语句
+
+        :param sql: SQL 语句
+        :param args: SQL 语句中的参数，可选
+        :return: 执行成功返回 True，执行失败返回 False
         """
-        dev = self.db.select('idiom', columns='word', where='first = "{}"'.format(last))
-        if dev:
-            return [d[0] for d in dev]
-        return []
+        with self.lock:  # 确保线程安全
+            conn = self.connect()
+            cur = conn.cursor()
+            try:
+                cur.execute(sql, args)
+                conn.commit()
+                ret = True
+            except Exception as e:
+                print('SQL error: {}'.format(e))
+                conn.rollback()
+                ret = False
+            finally:
+                cur.close()
+                conn.close()
+            return ret
 
-    def get_last_by_word(self, word: str) -> str:
+    def insert(self, table: str, data: dict) -> bool:
         """
-        通过成语获取最后一个拼音
+        插入数据
+
+        :param table: 表名
+        :param data: 字典形式的数据，键为列名，值为要插入的数据
+        :return: 执行成功返回 True，执行失败返回 False
         """
-        dev = self.db.select('idiom', columns='last', where='word = "{}"'.format(word))
-        if dev:
-            return dev[0][0]
-        return ''
+        columns = ', '.join(data.keys())
+        placeholders = ', '.join('?' * len(data))
+        sql = "INSERT INTO {} ({}) VALUES ({})".format(table, columns, placeholders)
+        return self.execute(sql, tuple(data.values()))
 
-    def get_words_by_word(self, word: str) -> list:
+    def delete(self, table: str, where: str) -> bool:
         """
-        通过成语获取接龙的成语列表
+        删除数据
+
+        :param table: 表名
+        :param where: 删除数据的条件语句
+        :return: 执行成功返回 True，执行失败返回 False
         """
-        last = self.get_last_by_word(word)
-        return self.get_words_by_first(last)
+        sql = "DELETE FROM {} WHERE {}".format(table, where)
+        return self.execute(sql)
 
-    def insert_word(self, word: str, derivation: str, example: str, explanation: str, pinyin: str, abbreviation: str,
-                    pinyin_r: str, first: str, last: str) -> None:
+    def update(self, table: str, data: dict, where: str = None) -> bool:
         """
-        插入一个成语
+        更新数据
+
+        :param table: 表名
+        :param data: 字典形式的数据，键为列名，值为要更新的数据
+        :param where: 更新数据的条件语句
+        :return: 执行成功返回 True，执行失败返回 False
         """
-        self.db.insert('idiom', {
-            'word': word,
-            'derivation': derivation,
-            'example': example,
-            'explanation': explanation,
-            'pinyin': pinyin,
-            'abbreviation': abbreviation,
-            'pinyin_r': pinyin_r,
-            'first': first,
-            'last': last
-        })
-
-    def get_common_words(self) -> list:
-        """
-        获取常用成语
-        """
-        dev = self.db.select('idiom_common', columns='idiom')
-        if dev:
-            return [d[0] for d in dev]
-        return []
-
-    def get_common_word_info_by_word(self, word: str) -> dict:
-        """
-        获取指定常用成语的信息
-        """
-        dev = self.db.select('idiom_common', where='idiom = "{}"'.format(word))
-        if dev:
-            return self.get_info_by_word(word)
-        return {}
-
-
-class EmojiDB:
-    def __init__(self, db_path: str) -> None:
-        self.db_path = db_path
-        self.db = MySQLite(self.db_path)
-
-    def get_info_by_id(self, id: int) -> dict:
-        """
-        通过id获取表情包
-        """
-        dev = self.db.select('idiom', where='id = "{}"'.format(id))
-        if dev:
-            dev_dict = {
-                "id": dev[0][0],
-                "idiom": dev[0][1],
-                "emoji": dev[0][2]
-            }
-            return dev_dict
-        return {}
-
-    def get_info_by_idiom(self, idiom: str) -> dict:
-        """
-        通过成语获取表情包
-        """
-        dev = self.db.select('idiom', where='idiom = "{}"'.format(idiom))
-        if dev:
-            dev_dict = {
-                "id": dev[0][0],
-                "idiom": dev[0][1],
-                "emoji": dev[0][2]
-            }
-            return dev_dict
-        return {}
-
-    def insert_idiom_common(self, idiom: str) -> None:
-        """
-        插入一个常用成语
-        """
-        self.db.insert('idiom_common', {
-            'idiom': idiom
-        })
-
-    def get_common_idiom_info_by_id(self, id_: int) -> dict:
-        """
-        通过id获取常用成语表情包
-        """
-        dev = self.db.select('idiom_common', where='id = "{}"'.format(id_))
-        if dev:
-            return self.get_info_by_idiom(dev[0][1])
-        return {}
-
-
-class QuestionDB:
-    def __init__(self, db_path: str) -> None:
-        self.db_path = db_path
-        self.db = MySQLite(self.db_path)
-
-    def get_random_question(self) -> dict:
-        """
-        获取随机问题
-        """
-        dev = self.db.select('questions', order='random()', limit=1)
-        if dev:
-            dev_dict = {
-                "id": dev[0][0],
-                "question": dev[0][1],
-                "options": dev[0][2],
-                "answer": dev[0][3],
-                "explanation": dev[0][4] if len(dev[0]) > 4 else ''
-            }
-            return dev_dict
-        return {}
-
-    def get_total_question(self) -> int:
-        """
-        获取问题数量
-        """
-        dev = self.db.select('questions', columns='count(*)')
-        if dev:
-            return dev[0][0]
-        return 0
-
-
-# 定时消息，应包括定时提醒、定时任务、一次提醒？一次任务？
-class TimingMsgDB:
-    def __init__(self, db_path: str) -> None:
-        self.db_path = db_path
-        self.db = MySQLite(self.db_path)
-        self.init_db()
-
-    def init_db(self) -> None:
-        columns = OrderedDict({'id': 'integer primary key autoincrement not null',
-                               'days': 'text not null',
-                               'times': 'text not null',
-                               'content': 'text not null',
-                               'roomid': 'text not null',
-                               'wxid': 'text not null',
-                               'type': 'text'})
-
-        self.db.create_table('job', columns)
-
-    def insert_job(self, days: str, times: str, content: str, roomid: str, wxid: str, type_: str = "") -> bool:
-        ret = self.db.insert('job', {
-            'days': days,
-            'times': times,
-            'content': content,
-            'roomid': roomid,
-            'wxid': wxid,
-            'type': type_
-        })
-        return ret
-
-    def delete_job_by_id(self, id_: int) -> bool:
-        ret = self.db.delete('job', where='id = "{}"'.format(id_))
-        return ret
-
-    def delete_job_by_roomid_and_wx_id(self, roomid: str, wxid: str) -> bool:
-        ret = self.db.delete('job', where='roomid = "{}" and wxid = "{}"'.format(roomid, wxid))
-        return ret
-
-    def get_all_jobs(self, type_=None, roomid=None, wxid=None) -> list:
-        """
-        根据不同的条件查询job表中的数据
-
-        Args:
-            type_ (str, optional): 工作类型
-            roomid (str, optional): 房间ID
-            wxid (str, optional): 微信ID
-
-        Returns:
-            list: 查询结果列表
-        """
-        where_clause = []
-        if type_:
-            where_clause.append('type = "{}"'.format(type_))
-        if roomid:
-            where_clause.append('roomid = "{}"'.format(roomid))
-        if wxid:
-            where_clause.append('wxid = "{}"'.format(wxid))
-
-        if where_clause:
-            where_str = ' and '.join(where_clause)
-            dev = self.db.select('job', where=where_str)
+        set_clause = ', '.join(["{} = ?".format(key) for key in data.keys()])
+        if where:
+            sql = "UPDATE {} SET {} WHERE {}".format(table, set_clause, where)
         else:
-            dev = self.db.select('job')
+            sql = "UPDATE {} SET {}".format(table, set_clause)
+        return self.execute(sql, tuple(data.values()))
 
-        if dev:
-            dev_list = []
-            for d in dev:
-                dev_dict = {
-                    "id": d[0],
-                    "days": d[1],
-                    "times": d[2],
-                    "content": d[3],
-                    "roomid": d[4],
-                    "wxid": d[5],
-                    "type": d[6]
-                }
-                dev_list.append(dev_dict)
-            return dev_list
-        return []
+    def select(self, table: str, columns: str = '*', where: str = None, order: str = None, desc=False,
+               limit: int = None, offset: int = None) -> list:
+        """
+        查询数据
+        :param table: 表名
+        :param columns: 要查询的列名，用逗号分隔，默认为所有列
+        :param where: 查询数据的条件语句
+        :param order: 排序依据
+        :param desc: 是否降序
+        :param limit: 查询几条
+        :param offset: 从第几条数据开始
+        :return: 返回查询到的数据
+        """
+        sql = "SELECT {} FROM {}".format(columns, table)
+        if where:
+            sql += " WHERE {}".format(where)
+        if order:
+            sql += " ORDER BY {}".format(order)
+            if desc is True:
+                sql += " DESC"
+        if limit:
+            sql += " LIMIT {}".format(limit)
+        if offset:
+            sql += " OFFSET {}".format(offset)
+        with self.lock:  # 确保线程安全
+            conn = self.connect()
+            cur = conn.cursor()
+            try:
+                cur.execute(sql)
+                ret = cur.fetchall()
+            except Exception as e:
+                print('SQL error:{}'.format(e))
+                ret = None
+            finally:
+                cur.close()
+                conn.close()
+            return ret
 
-    def get_job_by_id(self, id_: int) -> dict:
-        dev = self.db.select('job', where='id = "{}"'.format(id_))
-        if dev:
-            dev_dict = {
-                "id": dev[0][0],
-                "days": dev[0][1],
-                "times": dev[0][2],
-                "content": dev[0][3],
-                "roomid": dev[0][4],
-                "wxid": dev[0][5],
-                "type": dev[0][6]
-            }
-            return dev_dict
-        return {}
+    def create_table(self, table_name: str, columns: dict) -> None:
+        """
+        创建表格
 
-    def get_last_id(self) -> int:
-        dev = self.db.select('job', columns='id', order='id desc', limit=1)
-        if dev:
-            return dev[0][0]
-        return 0
+        :param table_name: 表格名称
+        :param columns: 字典形式的表格列名和数据类型，键为列名，值为数据类型、数据属性
+        """
+        column_lst = []
+        for column_name, column_type in columns.items():
+            column_def = "{} {}".format(column_name, column_type)
+            column_lst.append(column_def)
+
+        column_lst_str = ", ".join(column_lst)
+        sql = "CREATE TABLE IF NOT EXISTS {} ({})".format(table_name, column_lst_str)
+        self.execute(sql)
+
+    def drop_table(self, table: str) -> bool:
+        """
+        删除表格
+
+        :param table: 要删除的表格名称
+        """
+        sql = "DROP TABLE IF EXISTS {}".format(table)
+        return self.execute(sql)
+
+    def get_all_tables(self) -> list:
+        """
+        获取数据库中所有表格的名称
+
+        :return: 所有表格的名称组成的列表
+        """
+        with self.lock:  # 确保线程安全
+            conn = self.connect()
+            cur = conn.cursor()
+            cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+            tables = cur.fetchall()
+            cur.close()
+            conn.close()
+            return [table[0] for table in tables]
 
 
 if __name__ == "__main__":
-    question_db = QuestionDB('/home/frz/robot/Config/questions.db')
-    r = question_db.get_random_question()
-    print(r)
-    print(r.get("question").replace("\xa0", " "))
-    import json
+    db = MySQLite('example.db')
 
-    print(json.loads(r['options']))
+    # 新增表格
+    # 单列约束
+    columns = OrderedDict({'id': 'integer primary key autoincrement not null',
+                           'name': 'text not null unique',
+                           'age': 'integer not null'})
+    db.create_table('students', columns)
+    # 组合结束
+    # columns = OrderedDict({'id': 'integer primary key autoincrement not null',
+    #                        'name': 'text not null',
+    #                        'age': 'integer not null',
+    #                        'UNIQUE': ('name', 'age')})
+    # db.create_table('students', columns)
 
-    # job_db = TimingMsgDB('job.db')
-    # job_db.insert_job('周一', '13:00', '早安！打工人', '123456', '654321')
-    # print(job_db.get_job_by_id(1))
-    # # print(job_db.delete_job_by_id(1))
-    # print(job_db.get_last_id())
-    # print(job_db.get_all_jobs())
-    # print(job_db.get_all_jobs(roomid='123456'))
-    # job_db.delete_job_by_roomid_and_wx_id('123456', '654321')
+    # # 删除表格
+    # db.drop_table('students')
 
-    # db = IdiomDB('/home/frz/github/NGCBot/Config/idiom.db')
-    # print(db.get_info_by_word('沧海横流'))
-    # print(db.get_last_by_word('沧海横流'))
-    # # print(db.get_words_by_first(''))
-    # # print(db.get_words_by_word('喜上眉梢'))
-    # # db.insert_word("沧海横流", "“沧海横流，玉石同碎。” 晋·袁宏《三国名臣序赞》", "无", "海水四处奔流，比喻政治混乱，社会动荡。",
-    # #                "cāng hǎi héng liú", "chhl", "cang hai heng liu", "cang", "liu")
-    #
-    # print(db.get_common_word_info_by_word('人生如寄'))
-    #
-    # db_emoji = EmojiDB('/home/frz/github/NGCBot/Config/emoji.db')
-    # print(db_emoji.get_info_by_id(1033))
-    # print(db_emoji.get_common_idiom_info_by_id(1643))
-    #
-    # # i = 0
-    # # for w in db.get_common_words():
-    # #     if db_emoji.get_emoji_by_idiom(w):
-    # #         print(w)
-    # #         db_emoji.insert_idiom_common(w)
-    # #         i += 1
-    # # print(i)
+    # 插入一条数据
+    data = {'name': 'Tom', 'age': 18}
+    db.insert('students', data)
+
+    # 查询数据
+    result = db.select('students', where="")
+    print(result)
+
+    # 更新一条数据
+    data = {'age': 19}
+    where = "name = 'Tom'"
+    db.update('students', data, where)
+
+    # 查询数据
+    result = db.select('students', where="")
+    print(result)
+
+    # 删除一条数据
+    where = "name = 'Tom'"
+    db.delete('students', where)
+
+    # 查询数据
+    result = db.select('students', where="")
+    print(result)
+
+    # # 获取所有表格
+    # r = db.get_all_tables()
+    # print(r)
