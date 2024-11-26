@@ -1,21 +1,23 @@
 import sqlite3
 from collections import OrderedDict
+from threading import Lock
 
 
 class MySQLite:
     def __init__(self, db_path: str) -> None:
         """
-        初始化数据库连接和游标对象
+        初始化数据库连接和线程锁
 
         :param db_path: 数据库文件路径
         """
         self.db_path = db_path
-        self.conn: sqlite3.Connection
-        self.cur: sqlite3.Cursor
+        self.lock = Lock()  # 初始化线程锁
 
-    def connect(self) -> None:
-        self.conn = sqlite3.connect(self.db_path)
-        self.cur = self.conn.cursor()
+    def connect(self) -> sqlite3.Connection:
+        """
+        建立数据库连接，每次调用返回一个新的连接对象
+        """
+        return sqlite3.connect(self.db_path, check_same_thread=False)
 
     def execute(self, sql: str, args: tuple = ()) -> bool:
         """
@@ -25,19 +27,21 @@ class MySQLite:
         :param args: SQL 语句中的参数，可选
         :return: 执行成功返回 True，执行失败返回 False
         """
-        # log.info('SQL request:{}, args:{}'.format(sql, args))
-        self.connect()
-        try:
-            self.cur.execute(sql, args)
-            self.conn.commit()
-            ret = True
-        except Exception as e:
-            # log.error('SQL error: {}'.format(e))
-            print('SQL error: {}'.format(e))
-            self.conn.rollback()
-            ret = False
-        self.close()
-        return ret
+        with self.lock:  # 确保线程安全
+            conn = self.connect()
+            cur = conn.cursor()
+            try:
+                cur.execute(sql, args)
+                conn.commit()
+                ret = True
+            except Exception as e:
+                print('SQL error: {}'.format(e))
+                conn.rollback()
+                ret = False
+            finally:
+                cur.close()
+                conn.close()
+            return ret
 
     def insert(self, table: str, data: dict) -> bool:
         """
@@ -103,25 +107,19 @@ class MySQLite:
             sql += " LIMIT {}".format(limit)
         if offset:
             sql += " OFFSET {}".format(offset)
-        # log.info('SQL request:{}'.format(sql))
-        self.connect()
-        try:
-            self.cur.execute(sql)
-            ret = self.cur.fetchall()
-            # log.info('SQL response:{}'.format(ret))
-        except Exception as e:
-            # log.error('SQL error:{}'.format(e))
-            # log.error(traceback.format_exc())
-            ret = None
-        self.close()
-        return ret
-
-    def close(self) -> None:
-        """
-        关闭数据库连接和游标对象
-        """
-        self.cur.close()
-        self.conn.close()
+        with self.lock:  # 确保线程安全
+            conn = self.connect()
+            cur = conn.cursor()
+            try:
+                cur.execute(sql)
+                ret = cur.fetchall()
+            except Exception as e:
+                print('SQL error:{}'.format(e))
+                ret = None
+            finally:
+                cur.close()
+                conn.close()
+            return ret
 
     def create_table(self, table_name: str, columns: dict) -> None:
         """
@@ -154,11 +152,14 @@ class MySQLite:
 
         :return: 所有表格的名称组成的列表
         """
-        self.connect()
-        self.cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = self.cur.fetchall()
-        self.close()
-        return [table[0] for table in tables]
+        with self.lock:  # 确保线程安全
+            conn = self.connect()
+            cur = conn.cursor()
+            cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+            tables = cur.fetchall()
+            cur.close()
+            conn.close()
+            return [table[0] for table in tables]
 
 
 if __name__ == "__main__":
