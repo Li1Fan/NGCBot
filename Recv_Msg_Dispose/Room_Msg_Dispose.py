@@ -430,9 +430,13 @@ class Room_Msg_Dispose:
         try:
             # 正则表达式提取 objectId 和 objectNonceId
             pattern = r"<objectId><!\[CDATA\[(.*?)\]\]></objectId>|<objectNonceId><!\[CDATA\[(.*?)\]\]></objectNonceId>"
+            pattern_bk = r"<objectId>(.*?)</objectId>|<objectNonceId>(.*?)</objectNonceId>"
 
             matches = re.findall(pattern, msg.content)
             print(matches)
+            if not matches:
+                matches = re.findall(pattern_bk, msg.content)
+                print(matches)
             # 解析结果
             results = {
                 "objectId": None,
