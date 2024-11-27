@@ -959,6 +959,24 @@ class Api_Main_Server:
             OutPut.outPut(msg)
             return None
 
+    @staticmethod
+    def parse_vx_video(payload):
+        try:
+            url = ""
+            # 发起 POST 请求
+            response = requests.post(url, json=payload)
+            # 检查响应状态码
+            if response.status_code == 200:
+                # print("请求成功!")
+                # print("响应数据:", response.json())  # 如果响应是 JSON 格式
+                return response.json()
+            else:
+                # print(f"请求失败, 状态码: {response.status_code}")
+                # print("响应内容:", response.text)
+                return None
+        except requests.exceptions.RequestException as e:
+            print(f"请求发生错误: {e}")
+
     # 生成表情
     @staticmethod
     def magic_emoji_by_head(head):

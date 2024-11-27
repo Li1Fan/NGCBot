@@ -426,6 +426,37 @@ class Room_Msg_Dispose:
             print(traceback.format_exc())
             OutPut.outPut(f"[-]: 引用消息处理失败 {e}")
 
+    def handle_video_refer(self, msg):
+        try:
+            # 正则表达式提取 objectId 和 objectNonceId
+            pattern = r"<objectId><!\[CDATA\[(.*?)\]\]></objectId>|<objectNonceId><!\[CDATA\[(.*?)\]\]></objectNonceId>"
+
+            matches = re.findall(pattern, msg.content)
+            print(matches)
+            # 解析结果
+            results = {
+                "objectId": None,
+                "objectNonceId": None
+            }
+
+            for match in matches:
+                if match[0]:  # 如果匹配到 objectId
+                    results["objectId"] = match[0]
+                if match[1]:  # 如果匹配到 objectNonceId
+                    results["objectNonceId"] = match[1]
+            print(results)
+            parse_r = self.Ams.parse_vx_video(results)
+            if parse_r:
+                parse_r = parse_r.get('data', '')
+                if isinstance(parse_r, dict) or isinstance(parse_r, list):
+                    parse_r = json.dumps(parse_r, ensure_ascii=False, indent=2)
+                parse_r = f"解析结果：\n{parse_r}"
+                self.wcf.send_text(msg=parse_r, receiver=msg.roomid)
+
+        except Exception as e:
+            print(traceback.format_exc())
+            OutPut.outPut(f"[-]: 引用消息处理失败 {e}")
+
     # 主消息处理
     def Msg_Dispose(self, msg):
         # 处理撤回消息
@@ -798,6 +829,11 @@ class Room_Msg_Dispose:
         # 处理引用消息49-57-1，文本消息，直接作为参数，再给机器人处理
         if self.handle_xml_type(msg) == '57':
             Thread(target=self.handle_txt_refer, name="文本消息", args=(msg,)).start()
+            return
+
+        # 处理视频号消息49-51
+        if self.handle_xml_type(msg) == '51':
+            Thread(target=self.handle_video_refer, name="视频号消息", args=(msg,)).start()
             return
 
         # 天气查询
