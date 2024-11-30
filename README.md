@@ -154,3 +154,8 @@ https://github.com/ngc660sec/NGCBot
 （进群一起耍，请发“进群”；接受租借服务，哈哈！）
 
 ![image-robot](./README.assets/typora-user-images/robot.jpg)
+
+
+**群聊二维码：**
+
+![image-20240818023157307](./README.assets/typora-user-images/group.jpg)
