@@ -299,34 +299,6 @@ class Room_Msg_Dispose:
             print(traceback.format_exc())
             OutPut.outPut(f"[-]: 撤回消息处理失败 {e}")
 
-    def add_custom_keyword(self, msg):
-        try:
-            msg_lst = msg.content.split(' ')
-            if len(msg_lst) == 4:
-                _, keyword, url, typ = msg_lst
-                res_typ = 'raw'
-                is_arg = False
-            elif len(msg_lst) == 5:
-                _, keyword, url, typ, res_typ = msg_lst
-                is_arg = False
-            else:
-                _, keyword, url, typ, res_typ, is_arg = msg_lst
-
-            if typ not in ['txt', 'pic', 'gif', 'vid']:
-                return
-            if not url.startswith('http'):
-                return
-            if res_typ != 'raw' and not res_typ.startswith('json'):
-                return
-            is_arg = True if is_arg else False
-
-            if keyword not in self.custom_keyword.keys():
-                self.custom_keyword[keyword] = {'typ': typ, 'url': url, 'res_typ': res_typ, 'is_arg': is_arg}
-                self.wcf.send_text(msg=f'自定义关键字【{keyword}】\n添加成功', receiver=msg.roomid, aters=msg.sender)
-                self.save_state()
-        except Exception as e:
-            OutPut.outPut(f'[-]: 添加自定义关键字失败 {e}')
-
     def handle_emoji_refer(self, msg):
         try:
             # 引用消息
@@ -767,40 +739,7 @@ class Room_Msg_Dispose:
             Thread(target=self.handle_article_refer, name="总结推文", args=(msg,)).start()
             return
 
-        # 添加自定义关键字 txt/pic/vid 关键字 地址 raw/json_image/json_video arg/!arg
-        if self.judge_keyword(keyword=["添加自定义关键字", "添加自定义"], msg=msg.content, list_bool=True,
-                              split_bool=True):
-            Thread(target=self.add_custom_keyword, name="添加自定义关键字", args=(msg,)).start()
-            return
-        elif self.judge_keyword(keyword=["删除自定义关键字", "删除自定义"], msg=msg.content, list_bool=True,
-                                split_bool=True):
-            try:
-                _, keyword = msg.content.split(' ', 1)
-                if keyword in self.custom_keyword.keys():
-                    self.custom_keyword.pop(keyword)
-                    self.wcf.send_text(msg=f'自定义关键字【{keyword}】\n删除成功', receiver=msg.roomid, aters=msg.sender)
-                    self.save_state()
-            except Exception as e:
-                OutPut.outPut(f'[-]: 删除自定义关键字失败 {e}')
-            return
-        elif self.judge_keyword(keyword=["查看自定义关键字", "查看自定义", "自定义查看"], msg=msg.content,
-                                list_bool=True,
-                                equal_bool=True):
-            msg_list = []
-            for key, value in self.custom_keyword.items():
-                msg_list.append(f'{key}\n{value}')
-            self.wcf.send_text(msg='\n\n'.join(msg_list), receiver=msg.roomid)
-            return
-        elif self.judge_keyword(
-                keyword=["自定义回复", "自定义回复功能", "自定义回复帮助", "自定义关键字", "自定义关键字功能",
-                         "自定义"],
-                msg=msg.content.strip(), list_bool=True, equal_bool=True):
-            reply = ('自定义关键字功能：\n' +
-                     "添加自定义 关键字 url txt/pic/vid raw/json_* arg/*" + '\n' +
-                     "删除自定义 关键字" + '\n' +
-                     "查看自定义")
-            self.wcf.send_text(msg=reply, receiver=msg.roomid)
-            return
+
         Thread(target=self.OrdinaryRoom_Function, name="普通群聊功能", args=(msg, at_user_lists)).start()
 
     # 白名单群聊功能
